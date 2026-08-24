@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { RoleProvider } from '@/components/providers/RoleContext';
+import { ToastProvider } from '@/components/ui/Toast';
 import { Header } from '@/components/navigation/Header';
 import { DesktopSidebar } from '@/components/navigation/DesktopSidebar';
 import { MobileBottomBar } from '@/components/navigation/MobileBottomBar';
@@ -42,27 +43,29 @@ export default function RootLayout({
     <html lang="en" className={`${outfit.variable} ${jetbrainsMono.variable}`}>
       <body className="flex min-h-screen flex-col font-sans bg-slate-50 text-slate-900">
         <RoleProvider>
-          {/* Glassmorphic Sticky Header */}
-          <Header />
+          <ToastProvider>
+            {/* Glassmorphic Sticky Header */}
+            <Header />
 
-          {/* Core Responsive Viewport Container */}
-          <div className="mx-auto flex w-full max-w-7xl 2xl:max-w-[1440px] flex-1 px-4 sm:px-6 lg:px-8 pb-20 lg:pb-8 pt-4 sm:pt-6 gap-6">
-            {/* Desktop Persistent Navigation Sidebar */}
-            <aside className="hidden lg:block w-64 shrink-0">
-              <div className="sticky top-20">
-                <DesktopSidebar />
-              </div>
-            </aside>
+            {/* Core Responsive Viewport Container */}
+            <div className="mx-auto flex w-full max-w-7xl 2xl:max-w-[1440px] flex-1 px-4 sm:px-6 lg:px-8 pb-20 lg:pb-8 pt-4 sm:pt-6 gap-6">
+              {/* Desktop Persistent Navigation Sidebar */}
+              <aside className="hidden lg:block w-64 shrink-0">
+                <div className="sticky top-20">
+                  <DesktopSidebar />
+                </div>
+              </aside>
 
-            {/* Central Main Surface */}
-            <main className="flex-1 min-w-0">
-              {children}
-            </main>
-          </div>
+              {/* Central Main Surface */}
+              <main className="flex-1 min-w-0">
+                {children}
+              </main>
+            </div>
 
-          {/* Mobile Bottom Navigation & Quick-Scan Floating Action */}
-          <MobileBottomBar />
-          <QuickScanFAB />
+            {/* Mobile Bottom Navigation & Quick-Scan Floating Action */}
+            <MobileBottomBar />
+            <QuickScanFAB />
+          </ToastProvider>
         </RoleProvider>
       </body>
     </html>

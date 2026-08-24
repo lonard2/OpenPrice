@@ -21,6 +21,7 @@ import { StoreComparisonChart } from '@/components/charts/StoreComparisonChart';
 import { Drawer } from '@/components/ui/Drawer';
 import { PriceBadge } from '@/components/product/PriceBadge';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { useToast } from '@/components/ui/Toast';
 import {
   getStoredProducts,
   getStoredWatchlist,
@@ -34,6 +35,7 @@ import type { Product, ProductCategory, StorePriceComparison, PriceSourceType } 
 
 export default function HomePage() {
   const { role } = useRoleView();
+  const { showToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [watchlistedIds, setWatchlistedIds] = useState<string[]>([]);
   const [comparedProduct, setComparedProduct] = useState<Product | null>(null);
@@ -78,11 +80,42 @@ export default function HomePage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Handle Watchlist toggle
+  // Handle Watchlist toggle with feedback toast
   const handleToggleWatchlist = (product: Product) => {
+    const isCurrentlySaved = watchlistedIds.includes(product.id);
     toggleWatchlistProduct(product);
     const updated = getStoredWatchlist();
     setWatchlistedIds(updated.map((w) => w.productId));
+
+    if (!isCurrentlySaved) {
+      showToast({
+        type: 'success',
+        message: `Saved to Watchlist`,
+        description: product.name,
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            toggleWatchlistProduct(product);
+            const rolledBack = getStoredWatchlist();
+            setWatchlistedIds(rolledBack.map((w) => w.productId));
+          },
+        },
+      });
+    } else {
+      showToast({
+        type: 'info',
+        message: `Removed from Watchlist`,
+        description: product.name,
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            toggleWatchlistProduct(product);
+            const rolledBack = getStoredWatchlist();
+            setWatchlistedIds(rolledBack.map((w) => w.productId));
+          },
+        },
+      });
+    }
   };
 
   // Handle Compare drawer open

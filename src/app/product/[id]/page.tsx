@@ -33,12 +33,14 @@ import { PriceHistoryChart } from '@/components/charts/PriceHistoryChart';
 import { StoreComparisonTable } from '@/components/product/StoreComparisonTable';
 import { StoreComparisonChart } from '@/components/charts/StoreComparisonChart';
 import { ProvenanceTimeline } from '@/components/product/ProvenanceTimeline';
+import { useToast } from '@/components/ui/Toast';
 import type { Product, StorePriceComparison, PriceSourceType } from '@/types';
 import { cn } from '@/lib/utils';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { showToast } = useToast();
   const productId = params?.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -101,11 +103,39 @@ export default function ProductDetailPage() {
     return calculateStorePriceVariance(storePrices);
   }, [product]);
 
-  // Handle Watchlist toggle
+  // Handle Watchlist toggle with feedback toast
   const handleToggleWatchlist = () => {
     if (!product) return;
     const added = toggleWatchlistProduct(product, alertTargetPrice);
     setIsWatchlisted(added);
+
+    if (added) {
+      showToast({
+        type: 'success',
+        message: 'Saved to Watchlist',
+        description: product.name,
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            toggleWatchlistProduct(product);
+            setIsWatchlisted(false);
+          },
+        },
+      });
+    } else {
+      showToast({
+        type: 'info',
+        message: 'Removed from Watchlist',
+        description: product.name,
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            toggleWatchlistProduct(product, alertTargetPrice);
+            setIsWatchlisted(true);
+          },
+        },
+      });
+    }
   };
 
   // Handle Save Price Alert
@@ -114,6 +144,11 @@ export default function ProductDetailPage() {
     toggleWatchlistProduct(product, alertTargetPrice);
     setIsWatchlisted(true);
     setAlertSavedSuccess(true);
+    showToast({
+      type: 'success',
+      message: `Price alert set at ${formatCurrency(alertTargetPrice)}`,
+      description: `We'll notify you when ${product.name} drops below target.`,
+    });
     setTimeout(() => {
       setAlertSavedSuccess(false);
       setIsAlertModalOpen(false);

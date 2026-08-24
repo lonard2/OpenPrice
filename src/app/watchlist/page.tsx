@@ -29,10 +29,12 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import type { Product, WatchlistItem, Store } from '@/types';
 import { cn } from '@/lib/utils';
 
 export default function WatchlistPage() {
+  const { showToast } = useToast();
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
@@ -72,9 +74,20 @@ export default function WatchlistPage() {
     return () => unsubscribe();
   }, []);
 
-  // Remove from watchlist
+  // Remove from watchlist with Undo toast
   const handleRemove = (product: Product) => {
     toggleWatchlistProduct(product);
+    showToast({
+      type: 'info',
+      message: 'Removed from Watchlist',
+      description: product.name,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          toggleWatchlistProduct(product);
+        },
+      },
+    });
   };
 
   // Add popular sample essentials if watchlist is empty
@@ -86,6 +99,11 @@ export default function WatchlistPage() {
         toggleWatchlistProduct(p, p.currentLowestPrice * 0.95);
       }
     });
+    showToast({
+      type: 'success',
+      message: 'Added 5 Grocery Essentials to Watchlist',
+      description: 'Milk, Eggs, Sourdough, Coffee Beans, and Honeycrisp Apples',
+    });
   };
 
   // Save updated alert target price
@@ -95,6 +113,11 @@ export default function WatchlistPage() {
     if (prod) {
       // Re-toggle with new target price
       toggleWatchlistProduct(prod, newTargetPrice);
+      showToast({
+        type: 'success',
+        message: 'Price Alert Updated',
+        description: `Target set to ${formatCurrency(newTargetPrice)} for ${prod.name}`,
+      });
     }
     setEditingItem(null);
   };

@@ -21,6 +21,7 @@ import { PhotoUploader } from '@/components/ocr/PhotoUploader';
 import { BoundingBoxOverlay } from '@/components/ocr/BoundingBoxOverlay';
 import { ExtractedFieldEditor } from '@/components/ocr/ExtractedFieldEditor';
 import { PamphletViewer } from '@/components/ocr/PamphletViewer';
+import { useToast } from '@/components/ui/Toast';
 import {
   getStoredKarma,
   addKarmaPoints,
@@ -50,6 +51,7 @@ const CATEGORIES: ProductCategory[] = [
 
 export default function ContributePage() {
   const { role, setRole } = useRoleView();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('photo-ocr');
   const [karma, setKarma] = useState<ContributionKarma>(getStoredKarma());
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -202,6 +204,12 @@ export default function ContributePage() {
       const awarded = addKarmaPoints(15 * selected.length, `Logged ${selected.length} shelf tag observations`);
       setKarma(awarded);
 
+      showToast({
+        type: 'success',
+        message: `Logged ${selected.length} shelf tag observation${selected.length > 1 ? 's' : ''}`,
+        description: `+${15 * selected.length} Karma points awarded to your rank!`,
+      });
+
       setSuccessMessage(
         `Successfully logged ${selected.length} items! (+${15 * selected.length} Karma points awarded)${
           outlierCount > 0 ? ` Note: ${outlierCount} flagged item(s) sent to moderation.` : ''
@@ -233,6 +241,12 @@ export default function ContributePage() {
 
       const awarded = addKarmaPoints(10 * selected.length, `Batch imported ${selected.length} flyer deals`);
       setKarma(awarded);
+
+      showToast({
+        type: 'success',
+        message: `Ingested ${selected.length} circular deal${selected.length > 1 ? 's' : ''}`,
+        description: `+${10 * selected.length} Karma points awarded`,
+      });
 
       setSuccessMessage(`Successfully ingested ${selected.length} circular deals into catalog! (+${10 * selected.length} Karma)`);
       setTimeout(() => setSuccessMessage(null), 5000);
@@ -266,10 +280,20 @@ export default function ContributePage() {
       });
 
       if (result.isOutlier) {
+        showToast({
+          type: 'warning',
+          message: 'Price Flagged for Moderation (>3σ)',
+          description: 'Statistical anomaly detected. Routed to verification queue.',
+        });
         setSuccessMessage('Submission flagged as a statistical price outlier (>3σ). Routed to Admin Moderation Queue for review.');
       } else {
         const awarded = addKarmaPoints(15, `Manually recorded price for ${manualForm.productId}`);
         setKarma(awarded);
+        showToast({
+          type: 'success',
+          message: 'Price Observation Recorded (+15 Karma)',
+          description: 'Verified price point added to community index.',
+        });
         setSuccessMessage('Verified price point successfully recorded to product ledger! (+15 Karma points)');
       }
 
@@ -315,6 +339,11 @@ export default function ContributePage() {
 
     const awarded = addKarmaPoints(20, 'Imported verified web listing');
     setKarma(awarded);
+    showToast({
+      type: 'success',
+      message: 'Web Listing Synced (+20 Karma)',
+      description: 'E-commerce price verified and catalog updated.',
+    });
     setSuccessMessage('Web listing synced and added to price index! (+20 Karma points)');
     setWebParsedPreview(null);
     setTimeout(() => setSuccessMessage(null), 5000);
