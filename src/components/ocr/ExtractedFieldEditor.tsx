@@ -158,6 +158,30 @@ export function ExtractedFieldEditor({
     return errors;
   }, []);
 
+  const getPriceDeviationHint = useCallback((item: ExtractedPriceItem) => {
+    if (!item.matchedProductId || isNaN(item.price) || item.price <= 0) return null;
+    const product = SEED_PRODUCTS.find((p) => p.id === item.matchedProductId);
+    if (!product) return null;
+    const baseline = product.averagePrice || product.currentLowestPrice;
+    if (!baseline || baseline <= 0) return null;
+
+    if (item.price >= baseline * 1.6) {
+      return {
+        type: 'high',
+        baseline,
+        message: `Typical is ~${formatCurrency(baseline)}. Check for decimal typo.`,
+      };
+    }
+    if (item.price <= baseline * 0.45) {
+      return {
+        type: 'low',
+        baseline,
+        message: `Typical is ~${formatCurrency(baseline)}. Check unit quantity.`,
+      };
+    }
+    return null;
+  }, []);
+
   const selectedItems = items.filter((item) => item.selected);
   const allSelected = items.length > 0 && selectedItems.length === items.length;
 
@@ -336,6 +360,7 @@ export function ExtractedFieldEditor({
                 : null;
               const confidencePct = Math.round(item.confidence * 100);
               const errors = getItemErrors(item);
+              const priceHint = getPriceDeviationHint(item);
 
               return (
                 <div
@@ -466,11 +491,16 @@ export function ExtractedFieldEditor({
                           )}
                         />
                       </div>
-                      {errors.price && (
+                      {errors.price ? (
                         <span className="text-[10px] font-semibold text-rose-600 mt-1 block">
                           {errors.price}
                         </span>
-                      )}
+                      ) : priceHint ? (
+                        <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded flex items-center gap-1 mt-1">
+                          <AlertTriangle className="w-2.5 h-2.5 shrink-0 text-amber-600" />
+                          {priceHint.message}
+                        </span>
+                      ) : null}
                     </div>
 
                     <div>
@@ -570,6 +600,7 @@ export function ExtractedFieldEditor({
 
                 const confidencePct = Math.round(item.confidence * 100);
                 const errors = getItemErrors(item);
+                const priceHint = getPriceDeviationHint(item);
 
                 return (
                   <tr
@@ -690,11 +721,19 @@ export function ExtractedFieldEditor({
                             )}
                           />
                         </div>
-                        {errors.price && (
+                        {errors.price ? (
                           <span className="text-[10px] font-semibold text-rose-600 text-right mt-0.5 whitespace-nowrap">
                             {errors.price}
                           </span>
-                        )}
+                        ) : priceHint ? (
+                          <span
+                            className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded flex items-center gap-1 mt-0.5 whitespace-nowrap"
+                            title={priceHint.message}
+                          >
+                            <AlertTriangle className="w-2.5 h-2.5 shrink-0 text-amber-600" />
+                            ~{formatCurrency(priceHint.baseline)} base
+                          </span>
+                        ) : null}
                       </div>
                     </td>
 
