@@ -51,17 +51,23 @@ export function PamphletViewer({
   const [isPanning, setIsPanning] = useState(false);
   const [startPan, setStartPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [showDealsOverlay, setShowDealsOverlay] = useState(true);
+  const [liveAnnouncement, setLiveAnnouncement] = useState<string>('');
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.25, 3.0));
+    setZoom((prev) => {
+      const next = Math.min(prev + 0.25, 3.0);
+      setLiveAnnouncement(`Zoomed to ${Math.round(next * 100)}%`);
+      return next;
+    });
   };
 
   const handleZoomOut = () => {
     setZoom((prev) => {
       const next = Math.max(prev - 0.25, 0.75);
       if (next === 1) setPan({ x: 0, y: 0 });
+      setLiveAnnouncement(`Zoomed out to ${Math.round(next * 100)}%`);
       return next;
     });
   };
@@ -69,9 +75,10 @@ export function PamphletViewer({
   const handleResetZoom = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
+    setLiveAnnouncement('Reset zoom to 100% and centered flyer canvas.');
   };
 
-  // Keyboard accessibility for zoom controls (+, -, 0)
+  // Keyboard accessibility for zoom (+, -, 0) and canvas panning (Arrow keys)
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
@@ -79,18 +86,40 @@ export function PamphletViewer({
       }
       if (e.key === '+' || e.key === '=') {
         e.preventDefault();
-        setZoom((prev) => Math.min(prev + 0.25, 3.0));
+        setZoom((prev) => {
+          const next = Math.min(prev + 0.25, 3.0);
+          setLiveAnnouncement(`Zoomed to ${Math.round(next * 100)}%`);
+          return next;
+        });
       } else if (e.key === '-') {
         e.preventDefault();
         setZoom((prev) => {
           const next = Math.max(prev - 0.25, 0.75);
           if (next === 1) setPan({ x: 0, y: 0 });
+          setLiveAnnouncement(`Zoomed out to ${Math.round(next * 100)}%`);
           return next;
         });
       } else if (e.key === '0') {
         e.preventDefault();
         setZoom(1);
         setPan({ x: 0, y: 0 });
+        setLiveAnnouncement('Reset zoom to 100% and centered canvas.');
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setPan((prev) => ({ ...prev, x: prev.x + 40 }));
+        setLiveAnnouncement('Panned flyer left.');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setPan((prev) => ({ ...prev, x: prev.x - 40 }));
+        setLiveAnnouncement('Panned flyer right.');
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setPan((prev) => ({ ...prev, y: prev.y + 40 }));
+        setLiveAnnouncement('Panned flyer up.');
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setPan((prev) => ({ ...prev, y: prev.y - 40 }));
+        setLiveAnnouncement('Panned flyer down.');
       }
     };
 
@@ -210,15 +239,23 @@ export function PamphletViewer({
         </div>
       </div>
 
+      {/* Screen Reader Live Announcement */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {liveAnnouncement}
+      </div>
+
       {/* Interactive Pan/Zoom Canvas Area */}
       <div
         ref={containerRef}
+        tabIndex={0}
+        role="region"
+        aria-label="Promotional circular flyer canvas. Use arrow keys to pan, plus and minus keys to zoom, zero to reset."
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         className={cn(
-          'relative w-full h-[400px] sm:h-[500px] bg-slate-900 overflow-hidden select-none',
+          'relative w-full h-[400px] sm:h-[500px] bg-slate-900 overflow-hidden select-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-inset',
           zoom > 1 ? (isPanning ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
         )}
       >

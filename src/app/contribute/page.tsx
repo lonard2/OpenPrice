@@ -1304,7 +1304,16 @@ export default function ContributePage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-700 font-medium">Reset Zoom to 100%</span>
+                    <span className="text-slate-700 font-medium">Pan Flyer Canvas</span>
+                    <span className="flex items-center gap-1">
+                      <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">←</kbd>
+                      <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">↑</kbd>
+                      <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">→</kbd>
+                      <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">↓</kbd>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Reset Zoom & Pan to 100%</span>
                     <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">0</kbd>
                   </div>
                 </div>

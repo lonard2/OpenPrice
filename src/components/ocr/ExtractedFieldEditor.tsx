@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Plus,
   Trash2,
@@ -15,6 +15,7 @@ import {
 import { Button } from '../ui/Button.tsx';
 import { Badge } from '../ui/Badge.tsx';
 import { cn } from '../../lib/utils.ts';
+import { formatCurrency } from '../../lib/formatters.ts';
 import type { ExtractedPriceItem, ProductCategory } from '../../types/index.ts';
 import { CATEGORY_METADATA, SEED_PRODUCTS } from '../../lib/mock-data.ts';
 
@@ -52,6 +53,7 @@ export function ExtractedFieldEditor({
   className,
 }: ExtractedFieldEditorProps) {
   const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
+  const [liveAnnouncement, setLiveAnnouncement] = useState<string>('');
 
   // Auto-scroll table row into view when selectedItemId changes
   useEffect(() => {
@@ -62,6 +64,18 @@ export function ExtractedFieldEditor({
       });
     }
   }, [selectedItemId]);
+
+  // Announce active item selection to screen readers
+  useEffect(() => {
+    if (!selectedItemId) return;
+    const idx = items.findIndex((i) => i.tempId === selectedItemId);
+    if (idx !== -1) {
+      const item = items[idx];
+      setLiveAnnouncement(
+        `Selected ${item.name || 'unnamed item'}, price ${formatCurrency(item.price || 0)}, ${Math.round((item.confidence || 1) * 100)}% confidence, row ${idx + 1} of ${items.length}.`
+      );
+    }
+  }, [selectedItemId, items]);
 
   const handleFieldChange = <K extends keyof ExtractedPriceItem>(
     tempId: string,
@@ -79,6 +93,7 @@ export function ExtractedFieldEditor({
 
   const handleToggleSelect = useCallback(
     (tempId: string) => {
+      const target = items.find((i) => i.tempId === tempId);
       const updated = items.map((item) => {
         if (item.tempId === tempId) {
           return { ...item, selected: !item.selected };
@@ -86,6 +101,11 @@ export function ExtractedFieldEditor({
         return item;
       });
       onItemsChange(updated);
+      if (target) {
+        setLiveAnnouncement(
+          `${target.name || 'Item'} ${!target.selected ? 'included in' : 'removed from'} batch selection.`
+        );
+      }
     },
     [items, onItemsChange]
   );
@@ -93,15 +113,18 @@ export function ExtractedFieldEditor({
   const handleSelectAll = (select: boolean) => {
     const updated = items.map((item) => ({ ...item, selected: select }));
     onItemsChange(updated);
+    setLiveAnnouncement(select ? `Selected all ${items.length} items.` : 'Deselected all items.');
   };
 
   const handleDeleteItem = useCallback(
     (tempId: string) => {
+      const target = items.find((i) => i.tempId === tempId);
       const updated = items.filter((item) => item.tempId !== tempId);
       onItemsChange(updated);
       if (selectedItemId === tempId) {
         onItemSelect?.('');
       }
+      setLiveAnnouncement(`Deleted ${target?.name || 'item'}. ${updated.length} items remaining.`);
     },
     [items, onItemsChange, selectedItemId, onItemSelect]
   );
@@ -118,6 +141,7 @@ export function ExtractedFieldEditor({
     };
     onItemsChange([...items, newItem]);
     onItemSelect?.(newItem.tempId);
+    setLiveAnnouncement(`Added new row. Total ${items.length + 1} items.`);
   }, [items, onItemsChange, onItemSelect]);
 
   const getItemErrors = useCallback((item: ExtractedPriceItem) => {
@@ -153,6 +177,7 @@ export function ExtractedFieldEditor({
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault();
         if (selectedItems.length > 0 && onSaveSelected && !isSaving && !hasInvalidSelectedItems) {
+          setLiveAnnouncement(`Saving ${selectedItems.length} verified items to ledger.`);
           onSaveSelected(selectedItems);
         }
         return;
@@ -206,6 +231,16 @@ export function ExtractedFieldEditor({
 
   return (
     <div className={cn('w-full flex flex-col gap-4 bg-white rounded-3xl border border-slate-200/90 p-5 shadow-surface', className)}>
+      {/* Screen Reader Live Region */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {liveAnnouncement}
+      </div>
+
       {/* Header & Bulk Selection Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
