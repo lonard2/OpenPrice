@@ -50,6 +50,30 @@ export function ProductGrid({
   const [internalCategory, setInternalCategory] = useState<ProductCategory | 'all'>('all');
   const [sortOption, setSortOption] = useState<ProductSortOption>('lowest_price');
 
+  // Synchronize search query across components and URL
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialQ = urlParams.get('q');
+      if (initialQ) setSearchQuery(initialQ);
+    }
+
+    const handleSearchSync = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (typeof customEvent.detail === 'string') {
+        setSearchQuery(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('openprice:search-sync', handleSearchSync);
+    return () => window.removeEventListener('openprice:search-sync', handleSearchSync);
+  }, []);
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    window.dispatchEvent(new CustomEvent('openprice:search-sync', { detail: value }));
+  };
+
   const activeCategory = selectedCategory !== 'all' ? selectedCategory : internalCategory;
 
   const handleCategorySelect = (category: ProductCategory | 'all') => {
@@ -60,15 +84,27 @@ export function ProductGrid({
     }
   };
 
-  // Category items with count calculations
+  // Dynamic Category counts reflecting current active search filter
   const categoriesList: Array<{ id: ProductCategory | 'all'; label: string; count: number }> = useMemo(() => {
+    const searchFiltered = searchQuery.trim()
+      ? products.filter((p) => {
+          const q = searchQuery.toLowerCase().trim();
+          return (
+            p.name.toLowerCase().includes(q) ||
+            p.brand?.toLowerCase().includes(q) ||
+            p.category?.toLowerCase().includes(q) ||
+            p.tags?.some((t) => t.toLowerCase().includes(q))
+          );
+        })
+      : products;
+
     const counts: Record<string, number> = {};
-    products.forEach((p) => {
+    searchFiltered.forEach((p) => {
       counts[p.category] = (counts[p.category] || 0) + 1;
     });
 
     const allCats: Array<{ id: ProductCategory | 'all'; label: string; count: number }> = [
-      { id: 'all', label: 'All Items', count: products.length },
+      { id: 'all', label: 'All Items', count: searchFiltered.length },
     ];
 
     Object.keys(CATEGORY_METADATA).forEach((catKey) => {
@@ -81,7 +117,7 @@ export function ProductGrid({
     });
 
     return allCats;
-  }, [products]);
+  }, [products, searchQuery]);
 
   // Filtered and sorted products
   const filteredProducts = useMemo(() => {
@@ -138,11 +174,13 @@ export function ProductGrid({
             <div className="flex-1">
               <Input
                 id="main-product-search"
-                placeholder="Search products, brands, or categories... (Press / to focus)"
+                type="search"
+                placeholder="Search products, brands, or categories... (Press /)"
+                aria-label="Search catalog products"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 clearable
-                onClear={() => setSearchQuery('')}
+                onClear={() => handleSearchChange('')}
                 leftIcon={<Search className="w-4 h-4 text-slate-400" />}
               />
             </div>

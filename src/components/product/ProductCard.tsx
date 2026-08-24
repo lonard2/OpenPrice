@@ -45,6 +45,13 @@ export function ProductCard({
   const hasPriceDrop = product.priceDeltaPercent < -0.01;
   const hasPriceHike = product.priceDeltaPercent > 0.01;
 
+  // Identify winning/cheapest store name
+  const cheapestStoreName = React.useMemo(() => {
+    if (!product.historicalPrices || product.historicalPrices.length === 0) return null;
+    const match = product.historicalPrices.find((p) => p.price === product.currentLowestPrice);
+    return match ? match.storeName : null;
+  }, [product.historicalPrices, product.currentLowestPrice]);
+
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('button, a, input, select')) return;
@@ -149,6 +156,7 @@ export function ProductCard({
             <PriceBadge
               price={product.currentLowestPrice}
               previousPrice={product.previousPrice}
+              storeName={cheapestStoreName || undefined}
               size="md"
               showIcon
               className="mt-0.5"

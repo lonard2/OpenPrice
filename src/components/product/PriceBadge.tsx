@@ -12,6 +12,7 @@ export interface PriceBadgeProps {
   previousPrice?: number;
   currency?: string;
   unit?: string;
+  storeName?: string;
   size?: PriceBadgeSize;
   showDelta?: boolean;
   showPercent?: boolean;
@@ -38,6 +39,7 @@ export function PriceBadge({
   previousPrice,
   currency = 'USD',
   unit,
+  storeName,
   size = 'md',
   showDelta = false,
   showPercent = false,
@@ -99,6 +101,13 @@ export function PriceBadge({
       <span className={priceTextStyles[size]}>
         {formatCurrency(price, currency)}
       </span>
+
+      {/* Winning Retailer Callout if provided */}
+      {storeName && (
+        <span className="text-[11px] font-semibold opacity-90 font-sans tracking-tight ml-0.5 truncate max-w-[110px] sm:max-w-[130px]">
+          at {storeName}
+        </span>
+      )}
 
       {/* Unit label if present */}
       {unit && (

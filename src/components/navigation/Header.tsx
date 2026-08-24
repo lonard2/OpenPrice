@@ -1,13 +1,65 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Tag, Search, Shield, UploadCloud, Users, Sparkles } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Tag, Search, Shield, UploadCloud, Users, Sparkles, X } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { UserRole } from '@/types/user';
 
 export function Header() {
   const { role, setRole } = useRoleView();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Synchronize search query across header and catalog components
+  useEffect(() => {
+    // Check initial URL search param if present
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialQ = urlParams.get('q');
+      if (initialQ) setSearchQuery(initialQ);
+    }
+
+    const handleSearchSync = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (typeof customEvent.detail === 'string') {
+        setSearchQuery(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('openprice:search-sync', handleSearchSync);
+    return () => window.removeEventListener('openprice:search-sync', handleSearchSync);
+  }, []);
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    // Broadcast to page & grid components
+    window.dispatchEvent(new CustomEvent('openprice:search-sync', { detail: value }));
+
+    // If not currently on homepage, typing or submitting navigates to /?q=...
+    if (pathname !== '/' && value.trim()) {
+      router.push(`/?q=${encodeURIComponent(value)}`);
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pathname !== '/') {
+      router.push(`/?q=${encodeURIComponent(searchQuery)}`);
+    } else {
+      const searchInput = document.getElementById('main-product-search') as HTMLInputElement | null;
+      if (searchInput) {
+        searchInput.focus();
+      }
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    window.dispatchEvent(new CustomEvent('openprice:search-sync', { detail: '' }));
+  };
 
   const roleOptions: { id: UserRole; label: string; icon: React.ReactNode }[] = [
     { id: 'public', label: 'Public', icon: <Users className="w-3.5 h-3.5" /> },
@@ -40,29 +92,37 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Global Search Shell */}
-        <div className="hidden md:flex flex-1 max-w-md mx-4">
+        {/* Global Synchronized Search Bar */}
+        <form
+          onSubmit={handleSearchSubmit}
+          className="hidden md:flex flex-1 max-w-md mx-4"
+          role="search"
+        >
           <div className="relative w-full">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
               <Search className="h-4 w-4" />
             </div>
             <input
-              type="text"
-              readOnly
-              onClick={() => {
-                const searchInput = document.getElementById('main-product-search') as HTMLInputElement | null;
-                if (searchInput) {
-                  searchInput.focus();
-                  searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                  window.location.href = '/';
-                }
-              }}
-              placeholder="Search groceries, electronics, stores... (Press /)"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 hover:border-indigo-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+              id="header-global-search"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Search groceries, electronics, stores... (/)"
+              aria-label="Search OpenPrice catalog"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/90 py-2 pl-10 pr-9 text-sm text-slate-900 placeholder-slate-400 hover:border-indigo-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
             />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                aria-label="Clear search input"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 touch-target"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            ) : null}
           </div>
-        </div>
+        </form>
 
         {/* Role Perspective Switcher */}
         <div className="flex items-center gap-3">

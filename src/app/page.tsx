@@ -63,10 +63,13 @@ export default function HomePage() {
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
         e.preventDefault();
-        const searchInput = document.getElementById('main-product-search') as HTMLInputElement | null;
-        if (searchInput) {
-          searchInput.focus();
-          searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const mainInput = document.getElementById('main-product-search') as HTMLInputElement | null;
+        const headerInput = document.getElementById('header-global-search') as HTMLInputElement | null;
+        if (mainInput) {
+          mainInput.focus();
+          mainInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (headerInput) {
+          headerInput.focus();
         }
       }
     };
