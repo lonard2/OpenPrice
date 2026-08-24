@@ -146,7 +146,7 @@ export function ProductCard({
       </div>
 
       {/* Bottom Surface: Price, Store Count & Action Controls */}
-      <div className="p-4 sm:p-5 pt-3.5 flex flex-col gap-3">
+      <div className="p-4 sm:p-5 pt-3.5 flex flex-col justify-between flex-1 gap-3.5">
         {/* Main Lowest Price Badge & Retailer Availability */}
         <div className="flex items-end justify-between gap-2">
           <div className="flex flex-col min-w-0">
@@ -172,8 +172,8 @@ export function ProductCard({
           </div>
         </div>
 
-        {/* Action Buttons: Responsive Adaptive Flex Toolbar */}
-        <div className="flex items-center gap-2 pt-2.5 border-t border-slate-100">
+        {/* Action Buttons: Uniform h-11 Flex Toolbar with Optical Centering */}
+        <div className="mt-auto pt-3 border-t border-slate-100 flex items-center gap-2">
           {/* Watchlist Toggle - Fixed 44x44px ergonomic touch target */}
           <button
             type="button"
@@ -186,7 +186,7 @@ export function ProductCard({
               isWatchlisted ? `Remove ${product.name} from watchlist` : `Add ${product.name} to watchlist`
             }
             className={cn(
-              'w-11 h-11 shrink-0 flex items-center justify-center rounded-xl border transition-all text-xs font-medium touch-target shadow-2xs',
+              'w-11 h-11 shrink-0 inline-flex items-center justify-center rounded-xl border transition-all text-xs font-medium touch-target shadow-2xs',
               isWatchlisted
                 ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -197,7 +197,7 @@ export function ProductCard({
             />
           </button>
 
-          {/* Compare Trigger - Flex-1 44px touch target */}
+          {/* Compare Trigger - Fixed h-11 Flex-1 with Optical Vertical Centering */}
           {onCompare ? (
             <button
               type="button"
@@ -207,18 +207,18 @@ export function ProductCard({
                 onCompare(product);
               }}
               aria-label={`Compare prices for ${product.name}`}
-              className="flex-1 min-h-[44px] px-2 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors whitespace-nowrap touch-target shadow-2xs"
+              className="flex-1 h-11 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold leading-none text-slate-700 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors whitespace-nowrap touch-target shadow-2xs"
             >
-              <Scale className="w-3.5 h-3.5 shrink-0" />
+              <Scale className="w-3.5 h-3.5 shrink-0 text-slate-500" />
               <span>Compare</span>
             </button>
           ) : null}
 
-          {/* View Details Link - Flex-1 44px touch target */}
+          {/* View Details Link - Fixed h-11 Flex-1 with Optical Vertical Centering */}
           <Link
             href={`/product/${product.id}`}
             aria-label={`View details for ${product.name}`}
-            className="flex-1 min-h-[44px] px-2.5 inline-flex items-center justify-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap touch-target"
+            className="flex-1 h-11 px-3 inline-flex items-center justify-center gap-1.5 text-xs font-bold leading-none text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap touch-target"
           >
             <span>Details</span>
             <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
