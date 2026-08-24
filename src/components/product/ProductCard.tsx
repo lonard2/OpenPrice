@@ -63,11 +63,16 @@ export function ProductCard({
     >
       {/* Top Header & Identity Cluster */}
       <div className="p-4 sm:p-5 pb-3.5 space-y-2">
-        {/* Row 1: Category Badge (clear of top-right Verified ribbon) */}
-        <div className="flex items-center justify-between min-h-[22px] pr-20">
-          <Badge variant="category" size="sm" className="capitalize text-[11px]">
+        {/* Row 1: Category & Unit Badges (clear of top-right Verified ribbon) */}
+        <div className="flex items-center gap-1.5 flex-wrap min-h-[24px] pr-20">
+          <Badge variant="category" size="sm" className="capitalize text-[11px] shrink-0">
             {product.category}
           </Badge>
+          {product.unit && (
+            <span className="inline-flex items-center text-[10px] font-semibold text-slate-600 bg-slate-100/90 border border-slate-200/80 px-2 py-0.5 rounded-md truncate max-w-[130px]">
+              {product.unit}
+            </span>
+          )}
         </div>
 
         {/* Row 2 & 3: Brand Eyebrow + Product Title */}
@@ -92,10 +97,9 @@ export function ProductCard({
           </Link>
         </div>
 
-        {/* Row 4: Unit / Specification */}
-        <p className="text-xs text-slate-500 line-clamp-1 truncate">
-          Unit: <span className="font-semibold text-slate-700">{product.unit || 'each'}</span>
-          {product.description && ` • ${product.description}`}
+        {/* Row 4: Full 2-line Description */}
+        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2rem]">
+          {product.description || 'Verified crowdsourced price observation across major tracked retailers.'}
         </p>
       </div>
 
@@ -103,22 +107,22 @@ export function ProductCard({
       <div className="px-4 sm:px-5 py-2.5 bg-slate-50/80 border-y border-slate-100 flex items-center justify-between gap-3">
         <div className="flex flex-col min-w-0">
           <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-            30D Trend
+            30D Movement
           </span>
-          <div className="flex items-center gap-1 mt-0.5 whitespace-nowrap">
+          <div className="flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
             {hasPriceDrop ? (
               <span className="inline-flex items-center gap-0.5 text-xs font-bold text-emerald-600 font-mono tabular-nums">
-                <TrendingDown className="w-3.5 h-3.5" />
+                <TrendingDown className="w-3.5 h-3.5 shrink-0" />
                 {formatDeltaPercent(product.priceDeltaPercent)}
               </span>
             ) : hasPriceHike ? (
               <span className="inline-flex items-center gap-0.5 text-xs font-bold text-rose-600 font-mono tabular-nums">
-                <TrendingUp className="w-3.5 h-3.5" />
+                <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                 {formatDeltaPercent(product.priceDeltaPercent)}
               </span>
             ) : (
               <span className="text-xs font-semibold text-slate-500 font-mono tabular-nums">
-                Stable
+                Stable (0.0%)
               </span>
             )}
           </div>
@@ -139,7 +143,7 @@ export function ProductCard({
         {/* Main Lowest Price Badge & Retailer Availability */}
         <div className="flex items-end justify-between gap-2">
           <div className="flex flex-col min-w-0">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Lowest Price
             </span>
             <PriceBadge
@@ -152,7 +156,7 @@ export function ProductCard({
           </div>
 
           {/* Store Availability Count */}
-          <div className="flex items-center gap-1 text-xs font-medium text-slate-500 bg-slate-100/90 px-2.5 py-1 rounded-lg shrink-0 whitespace-nowrap">
+          <div className="flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-100/90 border border-slate-200/60 px-2.5 py-1 rounded-xl shrink-0 whitespace-nowrap">
             <StoreIcon className="w-3.5 h-3.5 text-slate-400" />
             <span>
               {product.trackedStoresCount || 1} {product.trackedStoresCount === 1 ? 'store' : 'stores'}
@@ -160,58 +164,59 @@ export function ProductCard({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
-          <div className="flex items-center gap-1.5 min-w-0">
-            {/* Watchlist Toggle */}
+        {/* Action Buttons: Responsive Grid Toolbar */}
+        <div className="grid grid-cols-12 gap-2 pt-2.5 border-t border-slate-100">
+          {/* Watchlist Toggle */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleWatchlist?.(product);
+            }}
+            aria-label={
+              isWatchlisted ? `Remove ${product.name} from watchlist` : `Add ${product.name} to watchlist`
+            }
+            className={cn(
+              'col-span-3 sm:col-span-2 min-h-[42px] flex items-center justify-center rounded-xl border transition-all text-xs font-medium touch-target',
+              isWatchlisted
+                ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            )}
+          >
+            <Bookmark
+              className={cn('w-4 h-4', isWatchlisted && 'fill-amber-500 text-amber-600')}
+            />
+          </button>
+
+          {/* Compare Trigger */}
+          {onCompare ? (
             <button
               type="button"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onToggleWatchlist?.(product);
+                onCompare(product);
               }}
-              aria-label={
-                isWatchlisted ? `Remove ${product.name} from watchlist` : `Add ${product.name} to watchlist`
-              }
-              className={cn(
-                'min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl border transition-all text-xs font-medium shrink-0 touch-target',
-                isWatchlisted
-                  ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              )}
+              aria-label={`Compare prices for ${product.name}`}
+              className="col-span-4 sm:col-span-5 min-h-[42px] px-2 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors whitespace-nowrap touch-target"
             >
-              <Bookmark
-                className={cn('w-4 h-4', isWatchlisted && 'fill-amber-500 text-amber-600')}
-              />
+              <Scale className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Compare</span>
             </button>
-
-            {/* Compare Trigger */}
-            {onCompare && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onCompare(product);
-                }}
-                aria-label={`Compare prices for ${product.name}`}
-                className="min-h-[40px] px-2.5 sm:px-3 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors whitespace-nowrap touch-target"
-              >
-                <Scale className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">Compare</span>
-              </button>
-            )}
-          </div>
+          ) : null}
 
           {/* View Details Link */}
           <Link
             href={`/product/${product.id}`}
             aria-label={`View details for ${product.name}`}
-            className="min-h-[40px] px-3 sm:px-3.5 inline-flex items-center justify-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors shrink-0 ml-auto whitespace-nowrap touch-target"
+            className={cn(
+              'min-h-[42px] px-2.5 inline-flex items-center justify-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap touch-target',
+              onCompare ? 'col-span-5 sm:col-span-5' : 'col-span-9 sm:col-span-10'
+            )}
           >
-            <span>Details</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            <span className="truncate">Details</span>
+            <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
       </div>
