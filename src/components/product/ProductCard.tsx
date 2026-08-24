@@ -64,15 +64,15 @@ export function ProductCard({
       onClick={handleCardClick}
       verifiedRibbon={product.isVerified ? 'Verified' : false}
       className={cn(
-        'group flex flex-col justify-between h-full border border-slate-200/90 hover:border-indigo-300 transition-all duration-200 cursor-pointer',
+        'group flex flex-col justify-between h-full border border-slate-200/90 hover:border-indigo-300 transition-all duration-200 cursor-pointer shadow-surface hover:shadow-ambient-lift rounded-2xl',
         className
       )}
     >
       {/* Top Header & Identity Cluster */}
-      <div className="p-4 sm:p-5 pb-3.5 space-y-2">
+      <div className="p-5 sm:p-6 pb-4 space-y-2.5">
         {/* Row 1: Category & Unit Badges (clear of top-right Verified ribbon) */}
-        <div className="flex items-center gap-1.5 flex-wrap min-h-[24px] pr-20">
-          <Badge variant="category" size="sm" className="capitalize text-[11px] shrink-0">
+        <div className="flex items-center gap-1.5 flex-wrap min-h-[26px] pr-20">
+          <Badge variant="category" size="sm" className="capitalize text-[11px] shrink-0 font-semibold">
             {product.category}
           </Badge>
           {product.unit && (
@@ -83,7 +83,7 @@ export function ProductCard({
         </div>
 
         {/* Row 2 & 3: Brand Eyebrow + Product Title */}
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {product.brand ? (
             <span className="block text-[11px] font-bold uppercase tracking-wider text-indigo-600 truncate">
               {product.brand}
@@ -105,13 +105,13 @@ export function ProductCard({
         </div>
 
         {/* Row 4: Full 2-line Description */}
-        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2rem]">
+        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2.25rem]">
           {product.description || 'Verified crowdsourced price observation across major tracked retailers.'}
         </p>
       </div>
 
       {/* Middle Telemetry: 30D Trend & Sparkline Strip */}
-      <div className="px-4 sm:px-5 py-2.5 bg-slate-50/80 border-y border-slate-100 flex items-center justify-between gap-3">
+      <div className="px-5 sm:px-6 py-2.5 bg-slate-50/80 border-y border-slate-100 flex items-center justify-between gap-3">
         <div className="flex flex-col min-w-0">
           <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
             30D Movement
@@ -145,35 +145,42 @@ export function ProductCard({
         </div>
       </div>
 
-      {/* Bottom Surface: Price, Store Count & Action Controls */}
-      <div className="p-4 sm:p-5 pt-3.5 flex flex-col justify-between flex-1 gap-3.5">
-        {/* Main Lowest Price Badge & Retailer Availability */}
-        <div className="flex items-end justify-between gap-2">
-          <div className="flex flex-col min-w-0">
+      {/* Bottom Surface: Price, Store Provenance & Action Controls */}
+      <div className="p-5 sm:p-6 pt-4 flex flex-col justify-between flex-1 gap-4">
+        {/* Main Lowest Price Block & Retailer Provenance */}
+        <div className="space-y-2">
+          {/* Micro-Header: Label & Store Count Badge */}
+          <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Lowest Price
             </span>
+            <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-100/90 border border-slate-200/60 px-2 py-0.5 rounded-lg shrink-0">
+              <StoreIcon className="w-3 h-3 text-slate-400" />
+              <span>
+                {product.trackedStoresCount || 1} {product.trackedStoresCount === 1 ? 'store' : 'stores'}
+              </span>
+            </div>
+          </div>
+
+          {/* Price Badge + Winning Store Pill */}
+          <div className="flex items-center gap-2 flex-wrap">
             <PriceBadge
               price={product.currentLowestPrice}
               previousPrice={product.previousPrice}
-              storeName={cheapestStoreName || undefined}
               size="md"
               showIcon
-              className="mt-0.5"
             />
-          </div>
-
-          {/* Store Availability Count */}
-          <div className="flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-100/90 border border-slate-200/60 px-2.5 py-1 rounded-xl shrink-0 whitespace-nowrap">
-            <StoreIcon className="w-3.5 h-3.5 text-slate-400" />
-            <span>
-              {product.trackedStoresCount || 1} {product.trackedStoresCount === 1 ? 'store' : 'stores'}
-            </span>
+            {cheapestStoreName && (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200/70 px-2.5 py-1 rounded-xl truncate max-w-full">
+                <span className="text-slate-400 font-normal text-[11px]">at</span>
+                <strong className="text-slate-900 font-bold truncate">{cheapestStoreName}</strong>
+              </span>
+            )}
           </div>
         </div>
 
         {/* Action Buttons: Uniform h-11 Flex Toolbar with Optical Centering */}
-        <div className="mt-auto pt-3 border-t border-slate-100 flex items-center gap-2">
+        <div className="mt-auto pt-3.5 border-t border-slate-100 flex items-center gap-2.5">
           {/* Watchlist Toggle - Fixed 44x44px ergonomic touch target */}
           <button
             type="button"
