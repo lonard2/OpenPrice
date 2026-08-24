@@ -314,14 +314,15 @@ export function PamphletViewer({
       </div>
 
       {/* Bulk Action Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-        <div className="flex items-center gap-3">
+      <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={handleToggleSelectAll}
             leftIcon={allSelected ? <Square className="w-3.5 h-3.5" /> : <CheckSquare className="w-3.5 h-3.5" />}
+            className="min-h-[44px] touch-target"
           >
             {allSelected ? 'Deselect All' : 'Select All Deals'}
           </Button>
@@ -336,19 +337,34 @@ export function PamphletViewer({
           </div>
         </div>
 
-        {onBatchImport && (
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            isLoading={isImporting}
-            disabled={selectedItems.length === 0}
-            onClick={() => onBatchImport(selectedItems)}
-            leftIcon={<ShoppingBag className="w-4 h-4" />}
-          >
-            Batch Ingest {selectedItems.length} Deals
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="hidden md:flex items-center gap-1.5 text-[11px] text-slate-500">
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700 font-bold">
+              +/-
+            </kbd>
+            <span>Zoom</span>
+            <span className="text-slate-300">•</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700 font-bold">
+              0
+            </kbd>
+            <span>Reset</span>
+          </div>
+
+          {onBatchImport && (
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              isLoading={isImporting}
+              disabled={selectedItems.length === 0}
+              onClick={() => onBatchImport(selectedItems)}
+              leftIcon={<ShoppingBag className="w-4 h-4" />}
+              className="min-h-[44px] touch-target"
+            >
+              Batch Ingest {selectedItems.length} Deals
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

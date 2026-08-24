@@ -12,6 +12,8 @@ import {
   Flame,
   ArrowRight,
   UploadCloud,
+  Keyboard,
+  X,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/Tabs';
@@ -243,6 +245,49 @@ export default function ContributePage() {
     price: number;
     unit: string;
   } | null>(null);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+
+  // Global Keyboard Shortcuts for Ingestion Studio (1-4 tabs, ? help, Esc close)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const isInputFocused = ['INPUT', 'TEXTAREA', 'SELECT'].includes(
+        (e.target as HTMLElement)?.tagName
+      );
+
+      // Escape closes modal
+      if (e.key === 'Escape') {
+        setShowShortcutsModal(false);
+        return;
+      }
+
+      // '?' opens shortcuts cheat-sheet when not typing in an input
+      if (e.key === '?' && !isInputFocused) {
+        e.preventDefault();
+        setShowShortcutsModal((prev) => !prev);
+        return;
+      }
+
+      // Quick tab switching 1-4 when not typing
+      if (!isInputFocused && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (e.key === '1') {
+          e.preventDefault();
+          setActiveTab('photo-ocr');
+        } else if (e.key === '2') {
+          e.preventDefault();
+          setActiveTab('flyer-circular');
+        } else if (e.key === '3') {
+          e.preventDefault();
+          setActiveTab('manual-crud');
+        } else if (e.key === '4') {
+          e.preventDefault();
+          setActiveTab('web-url');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Load Karma on storage change
   useEffect(() => {
@@ -588,22 +633,38 @@ export default function ContributePage() {
         </div>
       )}
 
-      {/* 4 Ingestion Tabs */}
+      {/* 4 Ingestion Tabs with Shortcuts Trigger */}
       <Tabs value={activeTab} onValueChange={setActiveTab} variant="pills">
-        <TabList aria-label="Ingestion methods">
-          <Tab value="photo-ocr" icon={<Camera className="w-4 h-4" />}>
-            Photo & Receipt OCR
-          </Tab>
-          <Tab value="flyer-circular" icon={<FileSpreadsheet className="w-4 h-4" />}>
-            Weekly Circular Explorer
-          </Tab>
-          <Tab value="manual-crud" icon={<Edit3 className="w-4 h-4" />}>
-            Direct Manual Log
-          </Tab>
-          <Tab value="web-url" icon={<Globe className="w-4 h-4" />}>
-            Web Listing Importer
-          </Tab>
-        </TabList>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+          <TabList aria-label="Ingestion methods">
+            <Tab value="photo-ocr" icon={<Camera className="w-4 h-4" />}>
+              1. Photo & Receipt OCR
+            </Tab>
+            <Tab value="flyer-circular" icon={<FileSpreadsheet className="w-4 h-4" />}>
+              2. Weekly Circular Explorer
+            </Tab>
+            <Tab value="manual-crud" icon={<Edit3 className="w-4 h-4" />}>
+              3. Direct Manual Log
+            </Tab>
+            <Tab value="web-url" icon={<Globe className="w-4 h-4" />}>
+              4. Web Listing Importer
+            </Tab>
+          </TabList>
+
+          <button
+            type="button"
+            onClick={() => setShowShortcutsModal(true)}
+            aria-label="Keyboard Shortcuts (?)"
+            title="Keyboard Shortcuts (?)"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 text-xs font-semibold rounded-xl border border-slate-200 transition-colors touch-target min-h-[44px] shrink-0 self-start sm:self-auto"
+          >
+            <Keyboard className="w-4 h-4 text-indigo-600" />
+            <span>Shortcuts</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-700 font-bold">
+              ?
+            </kbd>
+          </button>
+        </div>
 
         {/* TAB 1: Multimodal Shelf Photo & Receipt OCR */}
         <TabPanel value="photo-ocr" className="space-y-6">
@@ -1123,7 +1184,7 @@ export default function ContributePage() {
                 <span className="font-mono font-bold text-emerald-600">
                   +{act.points} pts
                 </span>
-                <span className="text-slate-400 text-[11px]">
+                <span className="text-slate-500 text-[11px]">
                   {formatRelativeTime(act.timestamp)}
                 </span>
               </div>
@@ -1131,6 +1192,133 @@ export default function ContributePage() {
           ))}
         </div>
       </section>
+
+      {/* Keyboard Shortcuts Modal */}
+      {showShortcutsModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="shortcuts-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150"
+          onClick={() => setShowShortcutsModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xl max-w-lg w-full space-y-5 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <Keyboard className="w-4 h-4" />
+                </div>
+                <h3 id="shortcuts-modal-title" className="text-base font-bold text-slate-900">
+                  Ingestion Studio Accelerators
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowShortcutsModal(false)}
+                aria-label="Close shortcuts dialog"
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors touch-target min-h-[44px]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-2">
+                  Navigation & Mode Switching
+                </h4>
+                <div className="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Switch to Shelf Photo OCR</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">1</kbd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Switch to Circular Flyer</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">2</kbd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Switch to Manual Log</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">3</kbd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Switch to Web Listing Importer</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">4</kbd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Toggle this shortcuts cheat sheet</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">?</kbd>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-2">
+                  Extracted Items Ledger & Bounding Boxes
+                </h4>
+                <div className="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Next / Previous Item</span>
+                    <span className="flex items-center gap-1">
+                      <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">J</kbd>
+                      <span className="text-slate-400">/</span>
+                      <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">K</kbd>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Toggle Selection Checkbox</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">Space</kbd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Batch Save / Ingest Selected</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">⌘ + Enter</kbd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Add New Manual Row</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">A</kbd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Delete Active Line Item</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">D</kbd>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-2">
+                  Circular Flyer Zoom & Pan
+                </h4>
+                <div className="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Zoom In / Zoom Out</span>
+                    <span className="flex items-center gap-1">
+                      <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">+</kbd>
+                      <span className="text-slate-400">/</span>
+                      <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">-</kbd>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Reset Zoom to 100%</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">0</kbd>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              onClick={() => setShowShortcutsModal(false)}
+              className="w-full min-h-[44px]"
+            >
+              Got it, Close (Esc)
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

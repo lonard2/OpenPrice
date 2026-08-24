@@ -227,39 +227,39 @@ export function PhotoUploader({
             type="button"
             onClick={() => setSourceType('photo_shelf')}
             className={cn(
-              'px-3 py-1.5 text-xs font-semibold rounded-xl transition-all duration-150 flex items-center gap-1.5 min-h-[36px] select-none',
+              'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all duration-150 flex items-center gap-1.5 min-h-[44px] select-none touch-target',
               sourceType === 'photo_shelf'
                 ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/90'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             )}
           >
-            <Tag className="w-3.5 h-3.5" />
+            <Tag className="w-4 h-4" />
             Shelf Tag
           </button>
           <button
             type="button"
             onClick={() => setSourceType('promo_pamphlet')}
             className={cn(
-              'px-3 py-1.5 text-xs font-semibold rounded-xl transition-all duration-150 flex items-center gap-1.5 min-h-[36px] select-none',
+              'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all duration-150 flex items-center gap-1.5 min-h-[44px] select-none touch-target',
               sourceType === 'promo_pamphlet'
                 ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/90'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             )}
           >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <FileSpreadsheet className="w-4 h-4" />
             Weekly Flyer
           </button>
           <button
             type="button"
             onClick={() => setSourceType('receipt')}
             className={cn(
-              'px-3 py-1.5 text-xs font-semibold rounded-xl transition-all duration-150 flex items-center gap-1.5 min-h-[36px] select-none',
+              'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all duration-150 flex items-center gap-1.5 min-h-[44px] select-none touch-target',
               sourceType === 'receipt'
                 ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/90'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             )}
           >
-            <Receipt className="w-3.5 h-3.5" />
+            <Receipt className="w-4 h-4" />
             Receipt
           </button>
         </div>
@@ -342,12 +342,13 @@ export function PhotoUploader({
               <Button
                 type="button"
                 variant="primary"
-                size="sm"
+                size="md"
                 leftIcon={<FileImage className="w-4 h-4" />}
                 onClick={(e) => {
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
+                className="min-h-[44px] touch-target"
               >
                 Browse Files
               </Button>
@@ -355,12 +356,13 @@ export function PhotoUploader({
               <Button
                 type="button"
                 variant="secondary"
-                size="sm"
+                size="md"
                 leftIcon={<Camera className="w-4 h-4" />}
                 onClick={(e) => {
                   e.stopPropagation();
                   cameraInputRef.current?.click();
                 }}
+                className="min-h-[44px] touch-target"
               >
                 Take Photo
               </Button>
@@ -377,7 +379,7 @@ export function PhotoUploader({
           <button
             type="button"
             onClick={() => setError(null)}
-            className="text-rose-600 hover:text-rose-800 font-semibold text-xs px-2 py-1 rounded-lg hover:bg-rose-100/60"
+            className="text-rose-600 hover:text-rose-800 font-semibold text-xs px-2 py-1 rounded-lg hover:bg-rose-100/60 touch-target min-h-[36px]"
           >
             Dismiss
           </button>
@@ -406,7 +408,7 @@ export function PhotoUploader({
                 onClick={() => handlePresetSelect(sample)}
                 disabled={activeLoading}
                 className={cn(
-                  'p-3.5 rounded-2xl border text-left transition-all duration-200 select-none flex items-start gap-3',
+                  'p-3.5 rounded-2xl border text-left transition-all duration-200 select-none flex items-start gap-3 min-h-[52px] touch-target',
                   isCurrent
                     ? 'bg-indigo-50/70 border-indigo-300 ring-2 ring-indigo-500/20 shadow-sm'
                     : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80 shadow-surface',

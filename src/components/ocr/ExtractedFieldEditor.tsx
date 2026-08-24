@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import {
   Plus,
   Trash2,
@@ -76,30 +76,36 @@ export function ExtractedFieldEditor({
     onItemsChange(updated);
   };
 
-  const handleToggleSelect = (tempId: string) => {
-    const updated = items.map((item) => {
-      if (item.tempId === tempId) {
-        return { ...item, selected: !item.selected };
-      }
-      return item;
-    });
-    onItemsChange(updated);
-  };
+  const handleToggleSelect = useCallback(
+    (tempId: string) => {
+      const updated = items.map((item) => {
+        if (item.tempId === tempId) {
+          return { ...item, selected: !item.selected };
+        }
+        return item;
+      });
+      onItemsChange(updated);
+    },
+    [items, onItemsChange]
+  );
 
   const handleSelectAll = (select: boolean) => {
     const updated = items.map((item) => ({ ...item, selected: select }));
     onItemsChange(updated);
   };
 
-  const handleDeleteItem = (tempId: string) => {
-    const updated = items.filter((item) => item.tempId !== tempId);
-    onItemsChange(updated);
-    if (selectedItemId === tempId) {
-      onItemSelect?.('');
-    }
-  };
+  const handleDeleteItem = useCallback(
+    (tempId: string) => {
+      const updated = items.filter((item) => item.tempId !== tempId);
+      onItemsChange(updated);
+      if (selectedItemId === tempId) {
+        onItemSelect?.('');
+      }
+    },
+    [items, onItemsChange, selectedItemId, onItemSelect]
+  );
 
-  const handleAddItem = () => {
+  const handleAddItem = useCallback(() => {
     const newItem: ExtractedPriceItem = {
       tempId: `custom-item-${Date.now()}`,
       name: 'New Product Item',
@@ -111,10 +117,71 @@ export function ExtractedFieldEditor({
     };
     onItemsChange([...items, newItem]);
     onItemSelect?.(newItem.tempId);
-  };
+  }, [items, onItemsChange, onItemSelect]);
 
   const selectedItems = items.filter((item) => item.selected);
   const allSelected = items.length > 0 && selectedItems.length === items.length;
+
+  // Power contributor keyboard accelerators (J/K navigate, Space toggle, Cmd+Enter save, A add)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInputFocused = ['INPUT', 'TEXTAREA', 'SELECT'].includes(
+        (e.target as HTMLElement)?.tagName
+      );
+
+      // Cmd+Enter or Ctrl+Enter to batch save selected items
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedItems.length > 0 && onSaveSelected && !isSaving) {
+          onSaveSelected(selectedItems);
+        }
+        return;
+      }
+
+      // If user is editing a form field, don't hijack J/K/Space/A/D
+      if (isInputFocused) return;
+
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (items.length === 0) return;
+        const currentIndex = items.findIndex((i) => i.tempId === selectedItemId);
+        const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+        onItemSelect?.(items[nextIndex].tempId);
+      } else if (e.key === 'k' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (items.length === 0) return;
+        const currentIndex = items.findIndex((i) => i.tempId === selectedItemId);
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+        onItemSelect?.(items[prevIndex].tempId);
+      } else if (e.key === ' ' || e.key === 'x') {
+        e.preventDefault();
+        if (selectedItemId) {
+          handleToggleSelect(selectedItemId);
+        }
+      } else if (e.key === 'a') {
+        e.preventDefault();
+        handleAddItem();
+      } else if (e.key === 'd' || e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        if (selectedItemId) {
+          handleDeleteItem(selectedItemId);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    items,
+    selectedItemId,
+    selectedItems,
+    onSaveSelected,
+    isSaving,
+    handleToggleSelect,
+    handleAddItem,
+    handleDeleteItem,
+    onItemSelect,
+  ]);
 
   return (
     <div className={cn('w-full flex flex-col gap-4 bg-white rounded-3xl border border-slate-200/90 p-5 shadow-surface', className)}>
@@ -134,13 +201,14 @@ export function ExtractedFieldEditor({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => handleSelectAll(!allSelected)}
             leftIcon={allSelected ? <Square className="w-3.5 h-3.5" /> : <CheckSquare className="w-3.5 h-3.5" />}
+            className="min-h-[44px] touch-target"
           >
             {allSelected ? 'Deselect All' : 'Select All'}
           </Button>
@@ -151,6 +219,7 @@ export function ExtractedFieldEditor({
             size="sm"
             onClick={handleAddItem}
             leftIcon={<Plus className="w-3.5 h-3.5" />}
+            className="min-h-[44px] touch-target"
           >
             Add Item
           </Button>
@@ -164,6 +233,7 @@ export function ExtractedFieldEditor({
               disabled={selectedItems.length === 0}
               onClick={() => onSaveSelected(selectedItems)}
               leftIcon={<Save className="w-3.5 h-3.5" />}
+              className="min-h-[44px] touch-target"
             >
               Save ({selectedItems.length})
             </Button>
@@ -237,19 +307,21 @@ export function ExtractedFieldEditor({
                   >
                     {/* Checkbox */}
                     <td
-                      className="py-3 px-3 text-center"
+                      className="py-2 px-1 sm:px-3 text-center"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleToggleSelect(item.tempId);
                       }}
                     >
-                      <input
-                        type="checkbox"
-                        checked={item.selected}
-                        onChange={() => handleToggleSelect(item.tempId)}
-                        aria-label={`Select ${item.name}`}
-                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
-                      />
+                      <label className="w-10 h-10 inline-flex items-center justify-center cursor-pointer touch-target">
+                        <input
+                          type="checkbox"
+                          checked={item.selected}
+                          onChange={() => handleToggleSelect(item.tempId)}
+                          aria-label={`Select ${item.name}`}
+                          className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                        />
+                      </label>
                     </td>
 
                     {/* Product Name & Brand */}
@@ -261,7 +333,7 @@ export function ExtractedFieldEditor({
                           onChange={(e) => handleFieldChange(item.tempId, 'name', e.target.value)}
                           placeholder="Product Name"
                           aria-label="Product Name"
-                          className="w-full font-semibold text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-white focus:outline-none px-1.5 py-0.5 rounded transition-all text-xs"
+                          className="w-full font-semibold text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-white focus:outline-none px-1.5 py-1 rounded transition-all text-xs min-h-[36px]"
                         />
                         <div className="flex items-center gap-2">
                           <input
@@ -288,7 +360,7 @@ export function ExtractedFieldEditor({
                         value={item.category || 'groceries'}
                         onChange={(e) => handleFieldChange(item.tempId, 'category', e.target.value as ProductCategory)}
                         aria-label="Category"
-                        className="w-full bg-white border border-slate-200/90 rounded-lg px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 capitalize"
+                        className="w-full bg-white border border-slate-200/90 rounded-lg px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 capitalize min-h-[36px]"
                       >
                         {CATEGORIES.map((cat) => (
                           <option key={cat} value={cat}>
@@ -315,7 +387,7 @@ export function ExtractedFieldEditor({
                             )
                           }
                           aria-label="Current Price"
-                          className="w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs font-bold text-slate-900 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs font-bold text-slate-900 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 min-h-[36px]"
                         />
                       </div>
                     </td>
@@ -338,7 +410,7 @@ export function ExtractedFieldEditor({
                           }
                           placeholder="—"
                           aria-label="Original Price"
-                          className="w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs text-slate-500 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs text-slate-500 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 min-h-[36px]"
                         />
                       </div>
                     </td>
@@ -351,7 +423,7 @@ export function ExtractedFieldEditor({
                         onChange={(e) => handleFieldChange(item.tempId, 'unit', e.target.value)}
                         placeholder="each"
                         aria-label="Unit"
-                        className="w-20 px-2 py-1 text-xs text-slate-700 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-20 px-2 py-1 text-xs text-slate-700 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 min-h-[36px]"
                       />
                     </td>
 
@@ -378,9 +450,9 @@ export function ExtractedFieldEditor({
                         type="button"
                         onClick={() => handleDeleteItem(item.tempId)}
                         aria-label={`Delete ${item.name}`}
-                        className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus:ring-1 focus:ring-rose-500"
+                        className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus:ring-1 focus:ring-rose-500 touch-target mx-auto"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>
@@ -388,6 +460,38 @@ export function ExtractedFieldEditor({
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Keyboard Shortcuts & Quick Action Hint Bar */}
+      {items.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-semibold text-slate-700">Keyboard Accelerators:</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[10px] text-slate-700 font-bold">
+              J / K
+            </kbd>
+            <span>Navigate</span>
+            <span className="text-slate-300">•</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[10px] text-slate-700 font-bold">
+              Space
+            </kbd>
+            <span>Toggle</span>
+            <span className="text-slate-300">•</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[10px] text-slate-700 font-bold">
+              ⌘↵
+            </kbd>
+            <span>Batch Save</span>
+            <span className="text-slate-300">•</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[10px] text-slate-700 font-bold">
+              A
+            </kbd>
+            <span>Add Item</span>
+          </div>
+
+          <span className="text-slate-600 font-semibold tabular-nums">
+            {selectedItems.length} of {items.length} items staged
+          </span>
         </div>
       )}
     </div>
