@@ -379,7 +379,7 @@ export function PhotoUploader({
           <button
             type="button"
             onClick={() => setError(null)}
-            className="text-rose-600 hover:text-rose-800 font-semibold text-xs px-2 py-1 rounded-lg hover:bg-rose-100/60 touch-target min-h-[36px]"
+            className="text-rose-600 hover:text-rose-800 font-semibold text-xs px-2.5 py-1.5 rounded-lg hover:bg-rose-100/60 touch-target min-h-[44px]"
           >
             Dismiss
           </button>

@@ -743,10 +743,14 @@ export default function ContributePage() {
               </div>
 
               {/* Upload Custom Flyer Button */}
-              <label className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200/80 cursor-pointer transition-colors shadow-2xs touch-target min-h-[44px] shrink-0">
+              <label
+                htmlFor="custom-flyer-input"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200/80 cursor-pointer transition-colors shadow-2xs touch-target min-h-[44px] shrink-0"
+              >
                 <UploadCloud className="w-4 h-4 text-indigo-600" />
                 <span>Upload Custom Flyer</span>
                 <input
+                  id="custom-flyer-input"
                   type="file"
                   accept="image/*"
                   className="hidden"
@@ -949,7 +953,7 @@ export default function ContributePage() {
                         setProofFileName('');
                         setManualForm({ ...manualForm, proofUrl: '' });
                       }}
-                      className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-colors touch-target min-h-[36px]"
+                      className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-colors touch-target min-h-[44px]"
                     >
                       Remove
                     </button>
