@@ -47,11 +47,8 @@ export function BoundingBoxOverlay({
       aria-label="Interactive OCR bounding box overlay"
     >
       <defs>
-        <filter id="box-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="0" stdDeviation="0.8" floodColor="#4F46E5" floodOpacity="0.6" />
-        </filter>
         <filter id="badge-shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="1" stdDeviation="0.5" floodColor="#0F172A" floodOpacity="0.25" />
+          <feDropShadow dx="0" dy="1" stdDeviation="0.4" floodColor="#0F172A" floodOpacity="0.3" />
         </filter>
       </defs>
 
@@ -110,9 +107,8 @@ export function BoundingBoxOverlay({
               ry={1.2}
               fill={isActive ? fillHover : fill}
               stroke={isActive ? '#4F46E5' : stroke}
-              strokeWidth={isActive ? 0.75 : 0.4}
+              strokeWidth={isActive ? 0.8 : 0.45}
               strokeDasharray={item.confidence < 0.7 ? '1.5 1' : undefined}
-              filter={isActive ? 'url(#box-glow)' : undefined}
               className="transition-all duration-150"
             />
 

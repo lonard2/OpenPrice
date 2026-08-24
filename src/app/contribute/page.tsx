@@ -361,9 +361,9 @@ export default function ContributePage() {
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-xl space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100/80 text-indigo-700 border border-indigo-200/80 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Contributor Studio • Community Ledger</span>
+            <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs">
+              <Sparkles className="w-4 h-4 text-indigo-500 shrink-0" />
+              <span className="uppercase tracking-wider">Contributor Studio • Community Ledger</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Crowdsource Real-World Prices
@@ -377,10 +377,10 @@ export default function ContributePage() {
                 <button
                   type="button"
                   onClick={() => setRole('contributor')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors shadow-xs touch-target min-h-[36px]"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors shadow-xs touch-target min-h-[44px]"
                 >
                   <span>Switch perspective to Contributor</span>
-                  <ArrowRight className="w-3 h-3" />
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}
@@ -394,7 +394,7 @@ export default function ContributePage() {
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     Rank & Tier
                   </span>
                   <h4 className="text-sm font-bold text-slate-900 leading-tight">
@@ -407,7 +407,7 @@ export default function ContributePage() {
                 <span className="text-xl font-extrabold text-amber-600 tabular-nums">
                   {karma.totalPoints}
                 </span>
-                <span className="text-[10px] text-slate-400 uppercase">Karma Pts</span>
+                <span className="text-[10px] text-slate-500 font-semibold uppercase">Karma Pts</span>
               </div>
             </div>
 
@@ -485,9 +485,9 @@ export default function ContributePage() {
             onParseComplete={handleOcrComplete}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
             {/* Interactive Image Preview with Bounding Box Overlay */}
-            <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-4 shadow-surface flex flex-col gap-3">
+            <div className="xl:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-4 shadow-surface flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800">
                   Interactive Document Preview
@@ -497,32 +497,36 @@ export default function ContributePage() {
                 </Badge>
               </div>
 
-              <div className="relative w-full h-[360px] bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ocrImageUrl}
-                  alt="Shelf Tag Scan"
-                  className="max-w-full max-h-full object-contain pointer-events-none select-none"
-                />
+              {/* Document Preview Viewport Frame */}
+              <div className="relative w-full h-[400px] bg-slate-950/95 rounded-2xl overflow-hidden flex items-center justify-center p-2 border border-slate-800/80 shadow-inner">
+                {/* Intrinsic Image Container - shrinkwraps to exact rendered bitmap dimensions */}
+                <div className="relative inline-flex items-center justify-center max-w-full max-h-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={ocrImageUrl}
+                    alt="Shelf Tag Scan"
+                    className="block max-h-[384px] max-w-full w-auto h-auto object-contain rounded-lg pointer-events-none select-none shadow-md"
+                  />
 
-                <BoundingBoxOverlay
-                  items={extractedItems}
-                  selectedItemId={selectedItemId}
-                  hoveredItemId={hoveredItemId}
-                  onItemSelect={setSelectedItemId}
-                  onItemHover={setHoveredItemId}
-                  showLabels={true}
-                  showPriceBadges={true}
-                />
+                  <BoundingBoxOverlay
+                    items={extractedItems}
+                    selectedItemId={selectedItemId}
+                    hoveredItemId={hoveredItemId}
+                    onItemSelect={setSelectedItemId}
+                    onItemHover={setHoveredItemId}
+                    showLabels={true}
+                    showPriceBadges={true}
+                  />
+                </div>
               </div>
 
-              <p className="text-[11px] text-slate-400 text-center">
+              <p className="text-[11px] text-slate-500 font-medium text-center">
                 Click bounding boxes to highlight & edit corresponding item fields
               </p>
             </div>
 
             {/* Extracted Field Table Editor */}
-            <div className="lg:col-span-7">
+            <div className="xl:col-span-7">
               <ExtractedFieldEditor
                 items={extractedItems}
                 selectedItemId={selectedItemId}
@@ -569,10 +573,11 @@ export default function ContributePage() {
             <form onSubmit={handleManualSubmit} className="space-y-4">
               {/* Product Select */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
+                <label htmlFor="manual-product-select" className="text-xs font-bold text-slate-700">
                   Target Product Catalog Item
                 </label>
                 <select
+                  id="manual-product-select"
                   value={manualForm.productId}
                   onChange={(e) => setManualForm({ ...manualForm, productId: e.target.value })}
                   className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
@@ -588,10 +593,11 @@ export default function ContributePage() {
               {/* Store Select */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">
+                  <label htmlFor="manual-store-select" className="text-xs font-bold text-slate-700">
                     Retailer Store
                   </label>
                   <select
+                    id="manual-store-select"
                     value={manualForm.storeId}
                     onChange={(e) => setManualForm({ ...manualForm, storeId: e.target.value })}
                     className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
@@ -605,10 +611,11 @@ export default function ContributePage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">
+                  <label htmlFor="manual-category-select" className="text-xs font-bold text-slate-700">
                     Category
                   </label>
                   <select
+                    id="manual-category-select"
                     value={manualForm.category}
                     onChange={(e) => setManualForm({ ...manualForm, category: e.target.value as ProductCategory })}
                     className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 capitalize"
@@ -625,40 +632,43 @@ export default function ContributePage() {
               {/* Price & Was Price */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">
+                  <label htmlFor="manual-price-input" className="text-xs font-bold text-slate-700">
                     Observed Price ($)
                   </label>
                   <Input
+                    id="manual-price-input"
                     type="number"
                     step="0.01"
                     min="0.01"
                     required
                     value={manualForm.price}
                     onChange={(e) => setManualForm({ ...manualForm, price: e.target.value })}
-                    leftIcon={<span className="text-xs font-mono font-bold text-slate-400">$</span>}
+                    leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">
+                  <label htmlFor="manual-original-price-input" className="text-xs font-bold text-slate-700">
                     Original Price ($)
                   </label>
                   <Input
+                    id="manual-original-price-input"
                     type="number"
                     step="0.01"
                     min="0.01"
                     placeholder="Optional"
                     value={manualForm.originalPrice}
                     onChange={(e) => setManualForm({ ...manualForm, originalPrice: e.target.value })}
-                    leftIcon={<span className="text-xs font-mono font-bold text-slate-400">$</span>}
+                    leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">
+                  <label htmlFor="manual-unit-input" className="text-xs font-bold text-slate-700">
                     Unit
                   </label>
                   <Input
+                    id="manual-unit-input"
                     type="text"
                     value={manualForm.unit}
                     onChange={(e) => setManualForm({ ...manualForm, unit: e.target.value })}
@@ -669,10 +679,11 @@ export default function ContributePage() {
 
               {/* Proof Image URL & Notes */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
+                <label htmlFor="manual-proof-input" className="text-xs font-bold text-slate-700">
                   Proof Photo URL (Optional)
                 </label>
                 <Input
+                  id="manual-proof-input"
                   type="url"
                   placeholder="https://example.com/shelf-photo.jpg"
                   value={manualForm.proofUrl}
@@ -681,10 +692,11 @@ export default function ContributePage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
+                <label htmlFor="manual-notes-input" className="text-xs font-bold text-slate-700">
                   Observational Notes
                 </label>
                 <textarea
+                  id="manual-notes-input"
                   rows={2}
                   value={manualForm.notes}
                   onChange={(e) => setManualForm({ ...manualForm, notes: e.target.value })}
@@ -723,18 +735,19 @@ export default function ContributePage() {
 
             <form onSubmit={handleParseWebUrl} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
+                <label htmlFor="web-url-input" className="text-xs font-bold text-slate-700">
                   Store Product URL
                 </label>
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <Input
+                      id="web-url-input"
                       type="url"
                       required
                       value={webUrl}
                       onChange={(e) => setWebUrl(e.target.value)}
                       placeholder="https://www.target.com/p/..."
-                      leftIcon={<Globe className="w-4 h-4 text-slate-400" />}
+                      leftIcon={<Globe className="w-4 h-4 text-slate-500" />}
                     />
                   </div>
                   <Button
