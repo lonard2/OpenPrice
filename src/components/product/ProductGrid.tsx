@@ -135,7 +135,8 @@ export function ProductGrid({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="flex-1">
               <Input
-                placeholder="Search products, brands, or categories..."
+                id="main-product-search"
+                placeholder="Search products, brands, or categories... (Press / to focus)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 clearable

@@ -378,7 +378,7 @@ export function ExtractedFieldEditor({
                         type="button"
                         onClick={() => handleDeleteItem(item.tempId)}
                         aria-label={`Delete ${item.name}`}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors focus:outline-none focus:ring-1 focus:ring-rose-500"
+                        className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus:ring-1 focus:ring-rose-500"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

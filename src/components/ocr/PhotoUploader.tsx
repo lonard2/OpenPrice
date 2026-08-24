@@ -414,10 +414,11 @@ export function PhotoUploader({
                 )}
               >
                 <div
-                  className={cn(
-                    'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5',
-                    isCurrent ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'
-                  )}
+                  className={
+                    isCurrent
+                      ? 'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-indigo-600 text-white'
+                      : 'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-slate-100 text-slate-800'
+                  }
                 >
                   <Icon className="w-4 h-4" />
                 </div>
