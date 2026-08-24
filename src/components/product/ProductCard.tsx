@@ -180,7 +180,7 @@ export function ProductCard({
         </div>
 
         {/* Action Buttons: Uniform h-11 Flex Toolbar with Optical Centering */}
-        <div className="mt-auto pt-3.5 border-t border-slate-100 flex items-center gap-2.5">
+        <div className="mt-auto pt-4 border-t border-slate-100 flex items-center gap-3">
           {/* Watchlist Toggle - Fixed 44x44px ergonomic touch target */}
           <button
             type="button"
@@ -214,7 +214,7 @@ export function ProductCard({
                 onCompare(product);
               }}
               aria-label={`Compare prices for ${product.name}`}
-              className="flex-1 h-11 px-3 inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold leading-none text-slate-700 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors whitespace-nowrap touch-target shadow-2xs"
+              className="flex-1 h-11 px-3.5 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold leading-none text-slate-700 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors whitespace-nowrap touch-target shadow-2xs"
             >
               <Scale className="w-3.5 h-3.5 shrink-0 text-slate-500" />
               <span>Compare</span>
@@ -225,7 +225,7 @@ export function ProductCard({
           <Link
             href={`/product/${product.id}`}
             aria-label={`View details for ${product.name}`}
-            className="flex-1 h-11 px-3 inline-flex items-center justify-center gap-1.5 text-xs font-bold leading-none text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap touch-target"
+            className="flex-1 h-11 px-3.5 inline-flex items-center justify-center gap-1.5 text-xs font-bold leading-none text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap touch-target"
           >
             <span>Details</span>
             <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />

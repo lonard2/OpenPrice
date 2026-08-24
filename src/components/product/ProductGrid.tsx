@@ -261,11 +261,11 @@ export function ProductGrid({
 
       {/* Loading Skeletons */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
-          {Array.from({ length: 8 }).map((_, idx) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-4 shadow-surface"
+              className="bg-white rounded-2xl border border-slate-200/80 p-6 space-y-4 shadow-surface"
             >
               <div className="flex justify-between">
                 <Skeleton width={80} height={20} className="rounded-full" />
@@ -283,7 +283,7 @@ export function ProductGrid({
         </div>
       ) : filteredProducts.length > 0 ? (
         /* Product Card Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
