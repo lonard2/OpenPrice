@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Flame,
   ArrowRight,
+  UploadCloud,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/Tabs';
@@ -31,6 +32,7 @@ import {
   subscribeToStorageChanges,
 } from '@/lib/storage';
 import { formatCurrency, formatRelativeTime } from '@/lib/formatters';
+import { cn } from '@/lib/utils';
 import type {
   ExtractedPriceItem,
   OcrParseResponse,
@@ -47,6 +49,89 @@ const CATEGORIES: ProductCategory[] = [
   'electronics',
   'apparel',
   'services',
+];
+
+const CIRCULAR_SAMPLES = [
+  {
+    id: 'target-circular',
+    name: 'Target Weekly Ad',
+    store: 'Target',
+    imageUrl: '/samples/weekly-flyer-circular.jpg',
+    dealsCount: 4,
+  },
+  {
+    id: 'aldi-circular',
+    name: 'Aldi Fresh Savers',
+    store: 'Aldi',
+    imageUrl: '/samples/shelf-tag-milk.jpg',
+    dealsCount: 1,
+  },
+  {
+    id: 'kroger-circular',
+    name: 'Kroger Supermarket Deals',
+    store: 'Kroger',
+    imageUrl: '/samples/receipt-supermarket.jpg',
+    dealsCount: 3,
+  },
+];
+
+const WEB_SAMPLE_URLS = [
+  {
+    id: 'target-milk',
+    retailer: 'Target',
+    item: 'Good & Gather Milk ($4.89)',
+    url: 'https://www.target.com/p/good-gather-organic-whole-milk-1gal/-/A-123456',
+    preview: {
+      name: 'Organic Whole Milk 1 Gallon',
+      brand: 'Good & Gather',
+      category: 'groceries' as ProductCategory,
+      storeName: 'Target Online',
+      price: 4.89,
+      unit: '1 gal',
+    },
+  },
+  {
+    id: 'walmart-eggs',
+    retailer: 'Walmart',
+    item: 'Great Value Eggs ($3.49)',
+    url: 'https://www.walmart.com/ip/great-value-large-white-eggs-12-count/145051',
+    preview: {
+      name: 'Large Grade A White Eggs (12 count)',
+      brand: 'Great Value',
+      category: 'groceries' as ProductCategory,
+      storeName: 'Walmart Grocery',
+      price: 3.49,
+      unit: 'dozen',
+    },
+  },
+  {
+    id: 'kroger-coffee',
+    retailer: 'Kroger',
+    item: 'Private Selection Coffee ($9.99)',
+    url: 'https://www.kroger.com/p/private-selection-ground-coffee-12oz/00011110',
+    preview: {
+      name: 'Private Selection Medium Roast Ground Coffee',
+      brand: 'Private Selection',
+      category: 'groceries' as ProductCategory,
+      storeName: 'Kroger Online',
+      price: 9.99,
+      unit: '12 oz bag',
+    },
+  },
+  {
+    id: 'aldi-beef',
+    retailer: 'Aldi',
+    item: 'Fresh Ground Beef ($4.49/lb)',
+    url: 'https://www.aldi.us/en/products/fresh-meat-seafood/fresh-beef/',
+    preview: {
+      name: '100% Lean Ground Beef 85/15',
+      brand: 'USDA Choice',
+      category: 'groceries' as ProductCategory,
+      storeName: 'Aldi Market',
+      price: 4.49,
+      unit: '1 lb pack',
+    },
+  },
 ];
 
 export default function ContributePage() {
@@ -77,6 +162,7 @@ export default function ContributePage() {
   const [isSavingOcr, setIsSavingOcr] = useState(false);
 
   // Tab 2 (Flyer) state
+  const [flyerImageUrl, setFlyerImageUrl] = useState<string>('/samples/weekly-flyer-circular.jpg');
   const [flyerItems, setFlyerItems] = useState<ExtractedPriceItem[]>([
     {
       tempId: 'deal-1',
@@ -142,6 +228,8 @@ export default function ContributePage() {
     proofUrl: '',
     notes: 'Observed in dairy aisle refrigerated section',
   });
+  const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [proofFileName, setProofFileName] = useState<string>('');
   const [isSubmittingManual, setIsSubmittingManual] = useState(false);
 
   // Tab 4 (Web URL) state
@@ -166,6 +254,48 @@ export default function ContributePage() {
 
   const products = getStoredProducts();
   const stores = getStoredStores();
+
+  // Custom flyer upload handler
+  const handleCustomFlyerUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setFlyerImageUrl(dataUrl);
+      showToast({
+        type: 'info',
+        message: 'Flyer Uploaded & Ready',
+        description: 'Pan and zoom the canvas to inspect deals and batch import.',
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Preset circular selector handler
+  const handleSelectCircularSample = (sample: (typeof CIRCULAR_SAMPLES)[number]) => {
+    setFlyerImageUrl(sample.imageUrl);
+    showToast({
+      type: 'info',
+      message: `Loaded ${sample.name}`,
+      description: `${sample.store} circular loaded into viewer.`,
+    });
+  };
+
+  // Proof photo file picker handler for manual form
+  const handleProofFileSelect = (file: File) => {
+    setProofFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setProofPreview(dataUrl);
+      setManualForm((prev) => ({ ...prev, proofUrl: dataUrl }));
+      showToast({
+        type: 'success',
+        message: 'Proof Photo Attached',
+        description: `${file.name} attached to manual price submission.`,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   // OCR Parse Response Callback
   const handleOcrComplete = (res: OcrParseResponse) => {
@@ -462,20 +592,20 @@ export default function ContributePage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} variant="pills">
         <TabList aria-label="Ingestion methods">
           <Tab value="photo-ocr" icon={<Camera className="w-4 h-4" />}>
-            Shelf Tag OCR
+            Photo & Receipt OCR
           </Tab>
           <Tab value="flyer-circular" icon={<FileSpreadsheet className="w-4 h-4" />}>
-            Weekly Circular Flyer
+            Weekly Circular Explorer
           </Tab>
           <Tab value="manual-crud" icon={<Edit3 className="w-4 h-4" />}>
-            Manual Entry
+            Direct Manual Log
           </Tab>
           <Tab value="web-url" icon={<Globe className="w-4 h-4" />}>
-            Web URL Parser
+            Web Listing Importer
           </Tab>
         </TabList>
 
-        {/* TAB 1: Shelf Photo OCR */}
+        {/* TAB 1: Multimodal Shelf Photo & Receipt OCR */}
         <TabPanel value="photo-ocr" className="space-y-6">
           <PhotoUploader
             initialSourceType="photo_shelf"
@@ -543,8 +673,62 @@ export default function ContributePage() {
 
         {/* TAB 2: Weekly Circular Flyer Parser */}
         <TabPanel value="flyer-circular" className="space-y-6">
+          {/* Circular Selector & Upload Bar */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Select or Upload Weekly Circular Flyer
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Inspect multi-product circulars with high-resolution pan/zoom and batch deal ingestion
+                </p>
+              </div>
+
+              {/* Upload Custom Flyer Button */}
+              <label className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200/80 cursor-pointer transition-colors shadow-2xs touch-target min-h-[44px] shrink-0">
+                <UploadCloud className="w-4 h-4 text-indigo-600" />
+                <span>Upload Custom Flyer</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleCustomFlyerUpload(file);
+                  }}
+                />
+              </label>
+            </div>
+
+            {/* Circular Sample Presets */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {CIRCULAR_SAMPLES.map((sample) => (
+                <button
+                  key={sample.id}
+                  type="button"
+                  onClick={() => handleSelectCircularSample(sample)}
+                  className={cn(
+                    'p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-start justify-between gap-2 touch-target min-h-[44px]',
+                    flyerImageUrl === sample.imageUrl
+                      ? 'bg-indigo-50/70 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
+                      : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80 shadow-surface'
+                  )}
+                >
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-slate-900">{sample.name}</p>
+                    <p className="text-[11px] text-slate-500">{sample.store} • {sample.dealsCount} verified deals</p>
+                  </div>
+                  <Badge variant={flyerImageUrl === sample.imageUrl ? 'verified' : 'category'} size="sm">
+                    {sample.store}
+                  </Badge>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <PamphletViewer
-            imageUrl="/samples/weekly-flyer-circular.jpg"
+            imageUrl={flyerImageUrl}
             imageAlt="Weekly Supermarket Circular"
             items={flyerItems}
             onSelectionChange={(selectedIds) => {
@@ -558,7 +742,7 @@ export default function ContributePage() {
           />
         </TabPanel>
 
-        {/* TAB 3: Manual Price Logger */}
+        {/* TAB 3: Direct Manual Observation */}
         <TabPanel value="manual-crud" className="space-y-6">
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-surface max-w-2xl mx-auto">
             <div className="space-y-1 mb-6">
@@ -566,7 +750,7 @@ export default function ContributePage() {
                 Log Direct Store Observation
               </h3>
               <p className="text-xs text-slate-500">
-                Manually record a store price point with optional proof photo and observational notes.
+                Manually record a store price point with empirical photo evidence and observational notes.
               </p>
             </div>
 
@@ -677,18 +861,74 @@ export default function ContributePage() {
                 </div>
               </div>
 
-              {/* Proof Image URL & Notes */}
-              <div className="space-y-1.5">
-                <label htmlFor="manual-proof-input" className="text-xs font-bold text-slate-700">
-                  Proof Photo URL (Optional)
+              {/* Proof Photo Upload / Camera Capture */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span>Proof Photo Evidence (Optional)</span>
+                  <span className="text-[11px] font-normal text-slate-500">Camera tag / receipt photo</span>
                 </label>
-                <Input
-                  id="manual-proof-input"
-                  type="url"
-                  placeholder="https://example.com/shelf-photo.jpg"
-                  value={manualForm.proofUrl}
-                  onChange={(e) => setManualForm({ ...manualForm, proofUrl: e.target.value })}
-                />
+
+                {proofPreview ? (
+                  <div className="relative p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={proofPreview}
+                      alt="Proof preview"
+                      className="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-slate-800 truncate">
+                        {proofFileName || 'Proof Image Attached'}
+                      </p>
+                      <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Evidence attached to submission
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProofPreview(null);
+                        setProofFileName('');
+                        setManualForm({ ...manualForm, proofUrl: '' });
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-colors touch-target min-h-[36px]"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <label className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]">
+                      <UploadCloud className="w-4 h-4 text-indigo-600" />
+                      <span>Upload Photo File</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleProofFileSelect(file);
+                        }}
+                      />
+                    </label>
+
+                    <label className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]">
+                      <Camera className="w-4 h-4 text-indigo-600" />
+                      <span>Snap Camera Photo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleProofFileSelect(file);
+                        }}
+                      />
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -711,7 +951,7 @@ export default function ContributePage() {
                   variant="primary"
                   size="md"
                   isLoading={isSubmittingManual}
-                  className="w-full"
+                  className="w-full min-h-[44px]"
                   leftIcon={<CheckCircle2 className="w-4 h-4" />}
                 >
                   Submit Price Observation (+15 Karma)
@@ -721,16 +961,55 @@ export default function ContributePage() {
           </div>
         </TabPanel>
 
-        {/* TAB 4: Web URL Parser */}
+        {/* TAB 4: Web URL Metadata Importer */}
         <TabPanel value="web-url" className="space-y-6">
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-surface max-w-2xl mx-auto space-y-6">
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-slate-900">
-                Web Listing Synchronizer
+                Online Retailer Web Scraper & Importer
               </h3>
               <p className="text-xs text-slate-500">
-                Paste an e-commerce or grocery delivery URL to extract real-time online pricing.
+                Paste a direct product listing URL from supported retailers (Target, Walmart, Kroger, Amazon Fresh) to extract and index current pricing.
               </p>
+            </div>
+
+            {/* Quick Fill Test Retailer Links */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                Quick-test supported online retailers:
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {WEB_SAMPLE_URLS.map((sample) => (
+                  <button
+                    key={sample.id}
+                    type="button"
+                    onClick={() => {
+                      setWebUrl(sample.url);
+                      setWebParsedPreview(sample.preview);
+                      showToast({
+                        type: 'info',
+                        message: `Loaded ${sample.retailer} Listing`,
+                        description: sample.item,
+                      });
+                    }}
+                    className={cn(
+                      'p-2.5 rounded-xl border text-left transition-all touch-target min-h-[44px] flex items-center justify-between gap-2',
+                      webUrl === sample.url
+                        ? 'bg-indigo-50 border-indigo-300 text-indigo-900 font-bold ring-2 ring-indigo-500/20'
+                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                    )}
+                  >
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 block">
+                        {sample.retailer}
+                      </span>
+                      <p className="text-xs font-medium truncate">{sample.item}</p>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  </button>
+                ))}
+              </div>
             </div>
 
             <form onSubmit={handleParseWebUrl} className="space-y-4">
@@ -738,7 +1017,7 @@ export default function ContributePage() {
                 <label htmlFor="web-url-input" className="text-xs font-bold text-slate-700">
                   Store Product URL
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex-1">
                     <Input
                       id="web-url-input"
@@ -753,8 +1032,9 @@ export default function ContributePage() {
                   <Button
                     type="submit"
                     variant="primary"
-                    size="sm"
+                    size="md"
                     isLoading={isParsingWeb}
+                    className="min-h-[44px] shrink-0"
                   >
                     Fetch Listing
                   </Button>
@@ -766,7 +1046,7 @@ export default function ContributePage() {
             {webParsedPreview && (
               <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-4 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                     Extracted Web Listing
                   </span>
                   <Badge variant="verified" size="sm">
@@ -778,14 +1058,14 @@ export default function ContributePage() {
                   <h4 className="text-base font-bold text-slate-900">
                     {webParsedPreview.name}
                   </h4>
-                  <p className="text-xs text-slate-500">
-                    Brand: <strong className="text-slate-700">{webParsedPreview.brand}</strong> • Unit: {webParsedPreview.unit}
+                  <p className="text-xs text-slate-600">
+                    Brand: <strong className="text-slate-800">{webParsedPreview.brand}</strong> • Unit: {webParsedPreview.unit}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-200">
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-400">Online Price</span>
+                    <span className="text-[10px] font-bold uppercase text-slate-500">Online Price</span>
                     <p className="text-lg font-bold font-mono text-slate-900">
                       {formatCurrency(webParsedPreview.price)}
                     </p>
@@ -797,6 +1077,7 @@ export default function ContributePage() {
                     size="sm"
                     onClick={handleIngestWebParsed}
                     leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                    className="min-h-[44px]"
                   >
                     Ingest into Index (+20 Karma)
                   </Button>

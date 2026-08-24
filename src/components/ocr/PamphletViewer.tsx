@@ -71,6 +71,33 @@ export function PamphletViewer({
     setPan({ x: 0, y: 0 });
   };
 
+  // Keyboard accessibility for zoom controls (+, -, 0)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        setZoom((prev) => Math.min(prev + 0.25, 3.0));
+      } else if (e.key === '-') {
+        e.preventDefault();
+        setZoom((prev) => {
+          const next = Math.max(prev - 0.25, 0.75);
+          if (next === 1) setPan({ x: 0, y: 0 });
+          return next;
+        });
+      } else if (e.key === '0') {
+        e.preventDefault();
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (zoom > 1) {
       setIsPanning(true);
@@ -106,17 +133,22 @@ export function PamphletViewer({
 
   const handleToggleSelectAll = () => {
     const nextSelected = !allSelected;
-    const updated = items.map((item) => ({ ...item, selected: nextSelected }));
-    onSelectionChange?.(updated.filter((i) => i.selected).map((i) => i.tempId));
+    const ids = nextSelected ? items.map((i) => i.tempId) : [];
+    onSelectionChange?.(ids);
   };
 
   return (
-    <div className={cn('flex flex-col gap-3 bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface', className)}>
-      {/* Top Controls Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <Badge variant="ocr" size="sm" icon={<Sparkles className="w-3 h-3 text-indigo-600" />}>
-            Flyer Canvas
+    <div
+      className={cn(
+        'bg-white rounded-3xl border border-slate-200/90 shadow-surface overflow-hidden flex flex-col',
+        className
+      )}
+    >
+      {/* Viewer Header Toolbar */}
+      <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50/50">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="verified" size="sm" icon={<Sparkles className="w-3 h-3" />}>
+            Circular Deals
           </Badge>
           <span className="text-xs font-semibold text-slate-700">
             {items.length} Deals Detected
@@ -129,14 +161,15 @@ export function PamphletViewer({
         </div>
 
         {/* Zoom & View Controls */}
-        <div className="flex items-center gap-1.5 self-end sm:self-auto">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           <div className="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200/80">
             <button
               type="button"
               onClick={handleZoomOut}
               disabled={zoom <= 0.75}
-              aria-label="Zoom out"
-              className="p-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors disabled:opacity-40"
+              aria-label="Zoom out (-)"
+              title="Zoom Out (-)"
+              className="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors disabled:opacity-40 touch-target"
             >
               <ZoomOut className="w-4 h-4" />
             </button>
@@ -147,17 +180,18 @@ export function PamphletViewer({
               type="button"
               onClick={handleZoomIn}
               disabled={zoom >= 3.0}
-              aria-label="Zoom in"
-              className="p-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors disabled:opacity-40"
+              aria-label="Zoom in (+)"
+              title="Zoom In (+)"
+              className="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors disabled:opacity-40 touch-target"
             >
               <ZoomIn className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={handleResetZoom}
-              aria-label="Reset zoom"
-              title="Reset Zoom"
-              className="p-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors ml-1 border-l border-slate-200"
+              aria-label="Reset zoom (0)"
+              title="Reset Zoom (0)"
+              className="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors ml-1 border-l border-slate-200 touch-target"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -169,6 +203,7 @@ export function PamphletViewer({
             size="sm"
             onClick={() => setShowDealsOverlay(!showDealsOverlay)}
             leftIcon={<Tag className="w-3.5 h-3.5" />}
+            className="min-h-[40px]"
           >
             {showDealsOverlay ? 'Hide Overlay' : 'Show Overlay'}
           </Button>
@@ -183,7 +218,7 @@ export function PamphletViewer({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         className={cn(
-          'relative w-full h-[400px] sm:h-[500px] bg-slate-900 rounded-2xl overflow-hidden select-none',
+          'relative w-full h-[400px] sm:h-[500px] bg-slate-900 overflow-hidden select-none',
           zoom > 1 ? (isPanning ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
         )}
       >
@@ -193,83 +228,81 @@ export function PamphletViewer({
             transformOrigin: 'center center',
             transition: isPanning ? 'none' : 'transform 0.15s ease-out',
           }}
-          className="relative w-full h-full flex items-center justify-center"
+          className="relative w-full h-full flex items-center justify-center p-4"
         >
-          {/* Document / Flyer Image */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
-            alt={imageAlt}
-            draggable={false}
-            className="max-w-full max-h-full object-contain rounded-lg pointer-events-none select-none"
-          />
+          {/* Intrinsic Flyer Container */}
+          <div className="relative inline-flex items-center justify-center max-w-full max-h-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl}
+              alt={imageAlt}
+              draggable={false}
+              className="block max-h-[380px] sm:max-h-[460px] max-w-full w-auto h-auto object-contain rounded-lg pointer-events-none select-none shadow-2xl"
+            />
 
-          {/* SVG Bounding Boxes Layer */}
-          {showDealsOverlay && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="relative w-full h-full max-w-full max-h-full">
-                <BoundingBoxOverlay
-                  items={items}
-                  selectedItemId={selectedItemId}
-                  hoveredItemId={hoveredItemId}
-                  onItemSelect={onItemSelect}
-                  onItemHover={onItemHover}
-                  showLabels={true}
-                  showPriceBadges={true}
-                />
-              </div>
-            </div>
-          )}
+            {/* SVG Bounding Boxes Layer */}
+            {showDealsOverlay && (
+              <BoundingBoxOverlay
+                items={items}
+                selectedItemId={selectedItemId}
+                hoveredItemId={hoveredItemId}
+                onItemSelect={onItemSelect}
+                onItemHover={onItemHover}
+                showLabels={true}
+                showPriceBadges={true}
+              />
+            )}
 
-          {/* Floating Deal Callouts on Flyer */}
-          {showDealsOverlay &&
-            items.map((item) => {
-              if (!item.boundingBox) return null;
-              const hasDiscount = item.originalPrice && item.originalPrice > item.price;
-              const discountPct = hasDiscount
-                ? ((item.price - item.originalPrice!) / item.originalPrice!) * 100
-                : 0;
+            {/* Floating Deal Callouts on Flyer */}
+            {showDealsOverlay &&
+              items.map((item) => {
+                if (!item.boundingBox) return null;
+                const hasDiscount = item.originalPrice && item.originalPrice > item.price;
+                const discountPct = hasDiscount
+                  ? ((item.price - item.originalPrice!) / item.originalPrice!) * 100
+                  : 0;
 
-              const isItemActive = selectedItemId === item.tempId || hoveredItemId === item.tempId;
+                const isItemActive = selectedItemId === item.tempId || hoveredItemId === item.tempId;
 
-              return (
-                <div
-                  key={`deal-callout-${item.tempId}`}
-                  style={{
-                    position: 'absolute',
-                    left: `${item.boundingBox.xMin}%`,
-                    top: `${item.boundingBox.yMin}%`,
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onItemSelect?.(item.tempId);
-                  }}
-                  onMouseEnter={() => onItemHover?.(item.tempId)}
-                  onMouseLeave={() => onItemHover?.(null)}
-                  className={cn(
-                    'pointer-events-auto cursor-pointer transition-all duration-150 transform -translate-y-full -translate-x-1',
-                    isItemActive ? 'scale-110 z-30' : 'z-20 hover:scale-105'
-                  )}
-                >
+                return (
                   <div
+                    key={`deal-callout-${item.tempId}`}
+                    style={{
+                      position: 'absolute',
+                      left: `${item.boundingBox.xMin}%`,
+                      top: `${item.boundingBox.yMin}%`,
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onItemSelect?.(item.tempId);
+                    }}
+                    onMouseEnter={() => onItemHover?.(item.tempId)}
+                    onMouseLeave={() => onItemHover?.(null)}
                     className={cn(
-                      'flex items-center gap-1.5 px-2 py-0.5 rounded-lg shadow-md border text-[11px] font-bold select-none',
-                      hasDiscount
-                        ? 'bg-emerald-600 text-white border-emerald-500'
-                        : 'bg-slate-900/90 text-white border-slate-700',
-                      isItemActive && 'ring-2 ring-indigo-400'
+                      'pointer-events-auto cursor-pointer transition-all duration-150 transform -translate-y-full -translate-x-1',
+                      isItemActive ? 'scale-110 z-30' : 'z-20 hover:scale-105'
                     )}
                   >
-                    <span className="font-mono tabular-nums">{formatCurrency(item.price)}</span>
-                    {hasDiscount && (
-                      <span className="bg-emerald-700/80 px-1 py-0.2 rounded text-[9px] font-semibold">
-                        -{Math.round(Math.abs(discountPct))}%
-                      </span>
-                    )}
+                    <div
+                      className={cn(
+                        'flex items-center gap-1.5 px-2 py-0.5 rounded-lg shadow-md border text-[11px] font-bold select-none',
+                        hasDiscount
+                          ? 'bg-emerald-600 text-white border-emerald-500'
+                          : 'bg-slate-900/90 text-white border-slate-700',
+                        isItemActive && 'ring-2 ring-indigo-400'
+                      )}
+                    >
+                      <span className="font-mono tabular-nums">{formatCurrency(item.price)}</span>
+                      {hasDiscount && (
+                        <span className="bg-emerald-700/80 px-1 py-0.5 rounded text-[9px] font-semibold">
+                          -{Math.round(Math.abs(discountPct))}%
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+          </div>
         </div>
 
         {/* Pan Hint Overlay when Zoomed */}
