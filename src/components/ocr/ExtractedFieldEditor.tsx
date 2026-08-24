@@ -324,8 +324,225 @@ export function ExtractedFieldEditor({
           </Button>
         </div>
       ) : (
-        /* Responsive Table */
-        <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
+        <>
+          {/* Mobile Adaptive Card Stack (<640px) */}
+          <div className="space-y-3 block sm:hidden">
+            {items.map((item, idx) => {
+              const isSelected = selectedItemId === item.tempId;
+              const isHovered = hoveredItemId === item.tempId;
+              const isActive = isSelected || isHovered;
+              const matchedProduct = item.matchedProductId
+                ? SEED_PRODUCTS.find((p) => p.id === item.matchedProductId)
+                : null;
+              const confidencePct = Math.round(item.confidence * 100);
+              const errors = getItemErrors(item);
+
+              return (
+                <div
+                  key={item.tempId}
+                  onClick={() => onItemSelect?.(item.tempId)}
+                  className={cn(
+                    'p-4 rounded-2xl border transition-all duration-150 space-y-3 bg-white text-left',
+                    isActive
+                      ? 'border-indigo-400 ring-2 ring-indigo-500/20 bg-indigo-50/30'
+                      : 'border-slate-200/90 shadow-2xs'
+                  )}
+                >
+                  {/* Top Bar: Checkbox + Status Tag + Delete */}
+                  <div className="flex items-center justify-between gap-2">
+                    <label
+                      className="inline-flex items-center gap-2 cursor-pointer touch-target min-h-[44px]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={item.selected}
+                        onChange={() => handleToggleSelect(item.tempId)}
+                        aria-label={`Select ${item.name}`}
+                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <span className="text-xs font-bold text-slate-700">
+                        Item {idx + 1}
+                      </span>
+                    </label>
+
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      {confidencePct >= 90 ? (
+                        <Badge variant="verified" size="sm">
+                          {confidencePct}%
+                        </Badge>
+                      ) : confidencePct >= 70 ? (
+                        <Badge variant="pending" size="sm">
+                          {confidencePct}%
+                        </Badge>
+                      ) : (
+                        <Badge variant="outlier" size="sm" icon={<AlertTriangle className="w-3 h-3 text-rose-600" />}>
+                          {confidencePct}%
+                        </Badge>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteItem(item.tempId)}
+                        aria-label={`Delete ${item.name}`}
+                        className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors touch-target"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Name & Brand */}
+                  <div className="space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                    <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block">
+                      Product Name
+                    </label>
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => handleFieldChange(item.tempId, 'name', e.target.value)}
+                      placeholder="Product Name"
+                      aria-label="Product Name"
+                      aria-invalid={!!errors.name}
+                      className={cn(
+                        'w-full font-semibold bg-white border rounded-xl focus:outline-none px-3 py-2 text-xs min-h-[44px]',
+                        errors.name
+                          ? 'border-rose-400 bg-rose-50/50 text-rose-900 focus:border-rose-500'
+                          : 'border-slate-200/90 text-slate-900 focus:border-indigo-500'
+                      )}
+                    />
+                    {errors.name && (
+                      <span className="text-[11px] font-semibold text-rose-600 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                        {errors.name}
+                      </span>
+                    )}
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        value={item.brand || ''}
+                        onChange={(e) => handleFieldChange(item.tempId, 'brand', e.target.value)}
+                        placeholder="Brand (optional)"
+                        aria-label="Brand"
+                        className="text-xs text-slate-700 bg-white border border-slate-200/90 focus:border-indigo-500 focus:outline-none px-3 py-1.5 rounded-xl flex-1 min-h-[38px]"
+                      />
+                      {matchedProduct && (
+                        <span className="inline-flex items-center gap-1 text-[10px] text-indigo-600 font-medium bg-indigo-50 border border-indigo-200/80 px-2 py-1.5 rounded-xl truncate max-w-[140px]" title={`Matched to catalog: ${matchedProduct.name}`}>
+                          <LinkIcon className="w-3 h-3 shrink-0" />
+                          {matchedProduct.name}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Pricing & Category Grid */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-1" onClick={(e) => e.stopPropagation()}>
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block mb-1">
+                        Price ($)
+                      </label>
+                      <div className="relative flex items-center">
+                        <span className={cn('absolute left-2.5 text-xs font-semibold', errors.price ? 'text-rose-500' : 'text-slate-500')}>$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={item.price}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              item.tempId,
+                              'price',
+                              parseFloat(e.target.value) || 0
+                            )
+                          }
+                          aria-label="Current Price"
+                          aria-invalid={!!errors.price}
+                          className={cn(
+                            'w-full pl-6 pr-2.5 py-2 font-mono tabular-nums text-xs font-bold bg-white border rounded-xl focus:outline-none min-h-[44px]',
+                            errors.price
+                              ? 'border-rose-400 bg-rose-50/50 text-rose-900 focus:border-rose-500'
+                              : 'border-slate-200/90 text-slate-900 focus:ring-1 focus:ring-indigo-500'
+                          )}
+                        />
+                      </div>
+                      {errors.price && (
+                        <span className="text-[10px] font-semibold text-rose-600 mt-1 block">
+                          {errors.price}
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block mb-1">
+                        Was ($)
+                      </label>
+                      <div className="relative flex items-center">
+                        <span className={cn('absolute left-2.5 text-xs font-semibold', errors.originalPrice ? 'text-rose-500' : 'text-slate-500')}>$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={item.originalPrice ?? ''}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              item.tempId,
+                              'originalPrice',
+                              e.target.value ? parseFloat(e.target.value) : undefined
+                            )
+                          }
+                          placeholder="—"
+                          aria-label="Original Price"
+                          aria-invalid={!!errors.originalPrice}
+                          className={cn(
+                            'w-full pl-6 pr-2.5 py-2 font-mono tabular-nums text-xs bg-white border rounded-xl focus:outline-none min-h-[44px]',
+                            errors.originalPrice
+                              ? 'border-rose-400 bg-rose-50/50 text-rose-900 focus:border-rose-500'
+                              : 'border-slate-200/90 text-slate-500 focus:ring-1 focus:ring-indigo-500'
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block mb-1">
+                        Category
+                      </label>
+                      <select
+                        value={item.category || 'groceries'}
+                        onChange={(e) => handleFieldChange(item.tempId, 'category', e.target.value as ProductCategory)}
+                        aria-label="Category"
+                        className="w-full bg-white border border-slate-200/90 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 capitalize min-h-[44px]"
+                      >
+                        {CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {CATEGORY_METADATA[cat]?.displayName || cat}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block mb-1">
+                        Unit
+                      </label>
+                      <input
+                        type="text"
+                        value={item.unit || ''}
+                        onChange={(e) => handleFieldChange(item.tempId, 'unit', e.target.value)}
+                        placeholder="each, 1 lb"
+                        aria-label="Unit"
+                        className="w-full px-2.5 py-2 text-xs text-slate-700 bg-white border border-slate-200/90 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 min-h-[44px]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop High-Density Table (>=640px) */}
+          <div className="overflow-x-auto rounded-2xl border border-slate-200/80 hidden sm:block">
           <table className="w-full text-left text-xs border-collapse">
             <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200/80 text-[11px]">
               <tr>
@@ -563,6 +780,7 @@ export function ExtractedFieldEditor({
             </tbody>
           </table>
         </div>
+      </>
       )}
 
       {/* Keyboard Shortcuts & Quick Action Hint Bar */}
