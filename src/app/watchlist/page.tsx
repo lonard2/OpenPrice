@@ -355,7 +355,7 @@ export default function WatchlistPage() {
                         type="button"
                         onClick={() => handleRemove(prod)}
                         aria-label={`Remove ${prod.name} from watchlist`}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors shrink-0"
+                        className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -463,7 +463,7 @@ export default function WatchlistPage() {
                     <Sparkles className="w-3.5 h-3.5" />
                     Split-Trip Savings
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500 text-slate-950">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-400 text-emerald-950">
                     Save {basketOptimization.totalSavingsPercent}%
                   </span>
                 </div>

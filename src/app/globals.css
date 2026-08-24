@@ -8,9 +8,22 @@
 }
 
 @layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 antialiased min-h-screen selection:bg-indigo-100 selection:text-indigo-900;
+    background-color: #f8fafc;
+    color: #0f172a;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background-color: #4f46e5;
+    color: #ffffff;
   }
 
   /* Strict Tabular Numerals Invariant (The Tabular Numerals Rule) */
@@ -49,5 +62,31 @@
   /* Mobile Touch Target Enforcement */
   .touch-target {
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Safe Area Insets for Edge-to-Edge Displays & Mobile Notches */
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  .pt-safe {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+  .pl-safe {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  .pr-safe {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Touch scrolling smoothness */
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Touch vs Fine Pointer Adaptations */
+@media (pointer: coarse) {
+  button, a, input, select, textarea {
+    touch-action: manipulation;
   }
 }

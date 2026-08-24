@@ -327,19 +327,19 @@ export default function ContributePage() {
   return (
     <div className="space-y-6">
       {/* Contributor Header Banner */}
-      <section className="bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-indigo-900/50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="bg-gradient-to-br from-indigo-50/60 via-white to-sky-50/50 rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-ambient-lift relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-xl space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/20 text-violet-200 border border-violet-500/30 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
-              <span>Contributor Studio</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100/80 text-indigo-700 border border-indigo-200/80 text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Contributor Studio • Community Ledger</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Crowdsource Real-World Prices
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Upload store shelf tag photos, circular weekly flyers, receipts, or online listings. Multimodal AI parses products, prices, and coordinates with real-time verification.
             </p>
 
@@ -348,7 +348,7 @@ export default function ContributePage() {
                 <button
                   type="button"
                   onClick={() => setRole('contributor')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors shadow-xs touch-target min-h-[36px]"
                 >
                   <span>Switch perspective to Contributor</span>
                   <ArrowRight className="w-3 h-3" />
@@ -358,24 +358,24 @@ export default function ContributePage() {
           </div>
 
           {/* Karma Points Dashboard Card */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/15 min-w-[280px] shrink-0 space-y-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 border border-slate-200/80 shadow-surface min-w-[280px] shrink-0 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Rank & Tier
                   </span>
-                  <h4 className="text-sm font-bold text-white leading-tight">
+                  <h4 className="text-sm font-bold text-slate-900 leading-tight">
                     {karma.rankTitle || 'Community Scout'}
                   </h4>
                 </div>
               </div>
 
               <div className="flex flex-col items-end font-mono">
-                <span className="text-xl font-extrabold text-amber-400 tabular-nums">
+                <span className="text-xl font-extrabold text-amber-600 tabular-nums">
                   {karma.totalPoints}
                 </span>
                 <span className="text-[10px] text-slate-400 uppercase">Karma Pts</span>
@@ -384,13 +384,13 @@ export default function ContributePage() {
 
             {/* Progress Bar */}
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-[10px] text-slate-300">
+              <div className="flex items-center justify-between text-[10px] text-slate-500">
                 <span>Weekly Goal ({weeklyCompleted}/{weeklyTarget})</span>
-                <span className="font-mono">{Math.round((weeklyCompleted / weeklyTarget) * 100)}%</span>
+                <span className="font-mono font-bold text-slate-700">{Math.round((weeklyCompleted / weeklyTarget) * 100)}%</span>
               </div>
-              <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 rounded-full transition-all duration-300"
                   style={{
                     width: `${Math.min(100, (weeklyCompleted / weeklyTarget) * 100)}%`,
                   }}
@@ -399,12 +399,12 @@ export default function ContributePage() {
             </div>
 
             {/* Streak & Badges */}
-            <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
-              <span className="inline-flex items-center gap-1 text-amber-300 font-semibold">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+              <span className="inline-flex items-center gap-1 text-amber-600 font-bold">
                 <Flame className="w-3.5 h-3.5" />
                 {karma.streakDays || 5} Day Streak
               </span>
-              <span className="text-slate-400">
+              <span className="text-slate-500 font-medium">
                 {badgeCount} Badges Earned
               </span>
             </div>
