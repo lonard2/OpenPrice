@@ -17,7 +17,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full glass-header shadow-sm transition-colors">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 gap-4">
+      <div className="mx-auto flex h-16 max-w-7xl 2xl:max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8 gap-4">
         {/* Brand Logo */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2.5 group">

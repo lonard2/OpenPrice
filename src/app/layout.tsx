@@ -46,7 +46,7 @@ export default function RootLayout({
           <Header />
 
           {/* Core Responsive Viewport Container */}
-          <div className="mx-auto flex w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pb-20 lg:pb-8 pt-4 sm:pt-6 gap-6">
+          <div className="mx-auto flex w-full max-w-7xl 2xl:max-w-[1440px] flex-1 px-4 sm:px-6 lg:px-8 pb-20 lg:pb-8 pt-4 sm:pt-6 gap-6">
             {/* Desktop Persistent Navigation Sidebar */}
             <aside className="hidden lg:block w-64 shrink-0">
               <div className="sticky top-20">

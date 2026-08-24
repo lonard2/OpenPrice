@@ -82,7 +82,7 @@ export function PriceBadge({
   return (
     <div
       className={cn(
-        'inline-flex items-center border transition-colors select-none font-medium',
+        'inline-flex items-center whitespace-nowrap shrink-0 border transition-colors select-none font-medium',
         sizeContainerStyles[size],
         colorStyles,
         className
