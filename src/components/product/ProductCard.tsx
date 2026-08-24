@@ -61,38 +61,46 @@ export function ProductCard({
         className
       )}
     >
-      {/* Top Header / Badges */}
-      <div className="p-4 sm:p-5 pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2 pr-20">
+      {/* Top Header & Identity Cluster */}
+      <div className="p-4 sm:p-5 pb-3.5 space-y-2">
+        {/* Row 1: Category Badge (clear of top-right Verified ribbon) */}
+        <div className="flex items-center justify-between min-h-[22px] pr-20">
           <Badge variant="category" size="sm" className="capitalize text-[11px]">
             {product.category}
           </Badge>
-          {product.brand && (
-            <span className="text-xs font-semibold text-slate-500 truncate max-w-[100px] sm:max-w-[120px]">
-              {product.brand}
-            </span>
-          )}
         </div>
 
-        {/* Product Title */}
-        <Link
-          href={`/product/${product.id}`}
-          className="block group-hover:text-indigo-600 transition-colors focus-visible:outline-none focus-visible:underline"
-        >
-          <h4 className="text-base font-bold text-slate-900 line-clamp-2 leading-snug break-words">
-            {product.name}
-          </h4>
-        </Link>
+        {/* Row 2 & 3: Brand Eyebrow + Product Title */}
+        <div className="space-y-0.5">
+          {product.brand ? (
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-indigo-600 truncate">
+              {product.brand}
+            </span>
+          ) : (
+            <span className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              Generic Item
+            </span>
+          )}
 
-        {/* Description or Unit */}
-        <p className="text-xs text-slate-500 mt-1 line-clamp-1 truncate">
-          Unit: <span className="font-semibold text-slate-700">{product.unit || 'unit'}</span>
+          <Link
+            href={`/product/${product.id}`}
+            className="block group-hover:text-indigo-600 transition-colors focus-visible:outline-none focus-visible:underline"
+          >
+            <h4 className="text-base font-bold text-slate-900 line-clamp-2 leading-snug break-words">
+              {product.name}
+            </h4>
+          </Link>
+        </div>
+
+        {/* Row 4: Unit / Specification */}
+        <p className="text-xs text-slate-500 line-clamp-1 truncate">
+          Unit: <span className="font-semibold text-slate-700">{product.unit || 'each'}</span>
           {product.description && ` • ${product.description}`}
         </p>
       </div>
 
-      {/* Sparkline & Delta Strip */}
-      <div className="px-4 sm:px-5 py-2.5 bg-slate-50/70 border-y border-slate-100 flex items-center justify-between gap-2">
+      {/* Middle Telemetry: 30D Trend & Sparkline Strip */}
+      <div className="px-4 sm:px-5 py-2.5 bg-slate-50/80 border-y border-slate-100 flex items-center justify-between gap-3">
         <div className="flex flex-col min-w-0">
           <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
             30D Trend
@@ -126,10 +134,10 @@ export function ProductCard({
         </div>
       </div>
 
-      {/* Pricing & Footer Actions */}
-      <div className="p-4 sm:p-5 pt-3 flex flex-col gap-3">
-        {/* Main Lowest Price Badge */}
-        <div className="flex flex-wrap items-end justify-between gap-2">
+      {/* Bottom Surface: Price, Store Count & Action Controls */}
+      <div className="p-4 sm:p-5 pt-3.5 flex flex-col gap-3">
+        {/* Main Lowest Price Badge & Retailer Availability */}
+        <div className="flex items-end justify-between gap-2">
           <div className="flex flex-col min-w-0">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               Lowest Price
@@ -146,7 +154,9 @@ export function ProductCard({
           {/* Store Availability Count */}
           <div className="flex items-center gap-1 text-xs font-medium text-slate-500 bg-slate-100/90 px-2.5 py-1 rounded-lg shrink-0 whitespace-nowrap">
             <StoreIcon className="w-3.5 h-3.5 text-slate-400" />
-            <span>{product.trackedStoresCount || 1} {product.trackedStoresCount === 1 ? 'store' : 'stores'}</span>
+            <span>
+              {product.trackedStoresCount || 1} {product.trackedStoresCount === 1 ? 'store' : 'stores'}
+            </span>
           </div>
         </div>
 
