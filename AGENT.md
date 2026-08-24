@@ -1,6 +1,6 @@
 # OpenPrice Developer & Agent Guide (`AGENT.md`)
 
-Welcome to the **OpenPrice** codebase. This document serves as the master guide for all AI agents and engineers contributing to the project. It outlines our architectural philosophy, design commitments, directory boundaries, and development workflows.
+This document serves as the master guide for all engineers and AI agents contributing to **OpenPrice**. It outlines our architectural philosophy, strict coding standards, design invariants, directory boundaries, and development workflows.
 
 ---
 
@@ -16,45 +16,62 @@ Welcome to the **OpenPrice** codebase. This document serves as the master guide 
 
 ---
 
-## 2. Core Tech Stack & System Architecture
+## 2. Mandatory Engineering & Codebase Standards
 
-| Layer | Technology | Key Purpose |
-| :--- | :--- | :--- |
-| **Framework** | **Next.js (App Router)** | Full-stack architecture, React Server Components (RSC), Client Components, and route handlers. |
-| **Language** | **TypeScript** | Strict type safety, explicit domain schemas, zero unvalidated `any`. |
-| **Styling** | **Tailwind CSS** | Design token implementation, fluid responsive breakpoints, micro-animations. |
-| **Icons** | **Lucide React** | Consistent, legible icon vocabulary. |
-| **Visualizations** | **Recharts & Custom SVG** | Interactive time-series charts, sparklines, inflation radar, and price distribution curves. |
-| **AI / Multimodal** | **OpenRouter API (Vision Models)** | Multi-modal OCR extraction for shelf tags, receipts, and multi-item promo pamphlets. |
+All contributors and AI agents must strictly adhere to the following core engineering standards:
+
+1. **Active Codebase Hygiene (No Placeholder Stubs):**
+   - Every file, component, function, and test must be fully implemented and functional.
+   - Never commit `// TODO`, empty handler stubs, mock placeholder buttons that do nothing, or pseudo-implementations.
+2. **No Emojis or Artificial AI Quirks in Production Code:**
+   - Production UI copy, component labels, log messages, and code comments must be natural, professional, and clear.
+   - Avoid decorative emojis in production source code, UI titles, buttons, and system logs. Use clean, accessible SVGs (Lucide React icons) instead.
+   - Avoid artificial AI writing patterns, corporate buzzword filler, and hollow template clichés.
+3. **Comprehensive Multi-Layer Testing:**
+   - Maintain unit tests for calculation engines (inflation metrics, volatility math, currency formatters).
+   - Maintain component and UI tests for core widgets (price charts, bounding-box overlays, badge directions).
+   - Maintain integration tests for API routes, OCR extraction pipelines, and state persistence.
+4. **Concrete Evidence-First Diagnosis:**
+   - When encountering bugs, failures, or edge cases, always diagnose the root cause with tangible evidence (logs, stack traces, test assertions) before modifying code.
+   - Apply fixes surgically at the narrowest responsible layer without introducing collateral regressions.
+5. **Latest Stable Dependencies:**
+   - Use the latest stable versions of core packages (Next.js App Router, React 19, TypeScript, Tailwind CSS, Recharts, Lucide React).
+   - Regularly verify dependency health and audit for deprecations.
+6. **Lean Engineering (No Overengineering):**
+   - Prioritize simple, robust, and readable implementations over premature abstractions or unnecessary complexity.
+   - Build only what is required by confirmed product requirements.
+7. **Concise & Informative Documentation:**
+   - Maintain an accurate, up-to-date, and concise `README.md` reflecting real project architecture, setup steps, and operational commands.
+8. **Leverage Specialized Agent Skills:**
+   - Use specialized CLI skills (Context7 for library documentation, systematic debugging, safe refactoring, and visual design auditing) to maintain high craft standards.
 
 ---
 
 ## 3. Strict Design Invariants (`DESIGN.md`)
 
-All generated components and pages must strictly adhere to the rules established in [`DESIGN.md`](./DESIGN.md):
+All generated components and pages must strictly adhere to the design rules in [`DESIGN.md`](./DESIGN.md):
 
-- 🟢 **The Price Direction Rule:** Colors on price tags and deltas are strictly semantic:
-  - **Emerald / Mint (`#10B981` / `text-emerald-600` / `bg-emerald-50`):** Price drops, savings, and best available deals.
-  - **Coral Crimson (`#F43F5E` / `text-rose-600` / `bg-rose-50`):** Price hikes, inflation spikes, out-of-stock items, and outlier alerts.
+- **The Price Direction Rule:** Colors on price tags and deltas are strictly semantic:
+  - **Emerald Mint (`#10B981` / `text-emerald-600` / `bg-emerald-50`):** Price drops, savings, and best available deals.
+  - **Coral Sunset (`#F43F5E` / `text-rose-600` / `bg-rose-50`):** Price hikes, inflation spikes, out-of-stock items, and outlier alerts.
   - **Muted Slate (`#64748B` / `text-slate-500`):** Stable / unchanged prices.
   - *Never use red for a price drop or green for a price hike.*
-- 🔢 **The Tabular Numerals Rule:** All currency amounts, percentages, and timestamps must use fixed-width tabular figures (`font-mono` or `tabular-nums`) to prevent layout jitter during data updates.
-- 📐 **The Border-First Depth Rule:** Depth is defined by crisp 1px borders (`border-slate-200`) and subtle tonal surfaces (`bg-slate-50`, `bg-white`), never heavy muddy shadows.
-- 📱 **Mobile Touch Rule:** All interactive touch targets (buttons, pills, tabs) must be at least `44x44px` on mobile viewports.
-- 🏷️ **Multimodal Provenance:** Every price entry must display its origin (e.g., *"Photo OCR (98%)"*, *"Pamphlet Scan"*, *"Manual Submission"*, *"Online Crawler"*).
+- **The Tabular Numerals Rule:** All currency amounts, percentages, and timestamps must use fixed-width tabular figures (`font-mono` or `tabular-nums`) to prevent layout jitter during data updates.
+- **The Subtle Ambient Lift Rule:** Clean 1px structural hairline borders (`border-slate-200`) paired with subtle diffused shadows and translucent glassmorphic navigation headers (`backdrop-blur-md bg-white/80`).
+- **Mobile Touch Rule:** All interactive touch targets (buttons, pills, tabs) must be at least `44x44px` on mobile viewports.
+- **Multimodal Provenance:** Every price entry must display its origin (e.g., *"Photo OCR (98%)"*, *"Pamphlet Scan"*, *"Manual Submission"*, *"Online Crawler"*) with clean verified ribbons for confirmed submissions.
 
 ---
 
-## 4. Directory Structure & Subdirectory Guidelines
-
-Each core directory contains its own scoped `AGENT.md` file governing development in that folder:
+## 4. Directory Hierarchy Guide
 
 ```
 OpenPrice/
 ├── AGENT.md                      # Master agent governance (this file)
-├── CHECKLIST.md                  # Granular step-by-step roadmap & verification
+├── CHECKLIST.md                  # Granular 16-phase roadmap & verification gates
 ├── PRODUCT.md                    # Durable product truth & user definitions
 ├── DESIGN.md                     # Visual design system & token definitions
+├── README.md                     # Concise, human-oriented project overview & setup
 ├── .env                          # Environment variables (OpenRouter API key)
 ├── src/
 │   ├── app/                      # Next.js App Router routes & layouts
@@ -66,18 +83,3 @@ OpenPrice/
 │   └── types/                    # Domain models and TypeScript contracts
 │       └── AGENT.md              # Schema definitions and data contracts
 ```
-
----
-
-## 5. Coding & Workflow Standards for Agents
-
-1. **Do Not Hallucinate Data Structures:** Always reference [`src/types/`](./src/types/) when manipulating products, stores, price logs, or OCR bounding boxes.
-2. **Graceful Fallbacks for External APIs:** The OCR and vision parsing services must work seamlessly with the live OpenRouter API, while providing robust mock fallbacks when offline or during automated testing.
-3. **Accessible Markup:**
-   - Always include `aria-label` on icon-only buttons.
-   - Use semantic headings (`h1` -> `h2` -> `h3`) in proper order.
-   - Ensure color contrast ratios meet or exceed WCAG 2.1 AA (`>= 4.5:1` for normal text).
-4. **Performance & Responsiveness:**
-   - Optimize bundle size by importing specific icon names from `lucide-react`.
-   - Implement responsive design at every component level using Tailwind (`sm:`, `md:`, `lg:`, `xl:`).
-5. **Verify Before Completion:** Always ensure TypeScript compiles with zero errors (`npx tsc --noEmit`) and run lint/build checks before concluding tasks.

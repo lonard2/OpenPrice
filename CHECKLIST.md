@@ -1,10 +1,10 @@
 # OpenPrice Development Checklist (`CHECKLIST.md`)
 
-This master checklist outlines every implementation phase, sub-task, and verification gate for the **OpenPrice** crowdsourced and parsed price tracking platform.
+This master checklist outlines every implementation phase, sub-task, and verification gate for the OpenPrice crowdsourced and parsed price tracking platform.
 
 ---
 
-## 🧭 Progress Dashboard
+## Progress Dashboard
 
 - **Total Phases:** 16 Phases
 - **Current Status:** Phase 1 (Foundations & Governance Ready)
@@ -12,7 +12,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 📦 Phase 1: Environment & Project Foundation
+## Phase 1: Environment & Project Foundation
 - [x] Create project repository structure and governance files (`PRODUCT.md`, `DESIGN.md`, `.impeccable/config.json`).
 - [x] Scaffold agent instruction hierarchy (`AGENT.md`, `src/app/AGENT.md`, `src/components/AGENT.md`, `src/lib/AGENT.md`, `src/types/AGENT.md`).
 - [ ] Initialize Next.js 15+ App Router application with React 19 and TypeScript.
@@ -22,7 +22,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🎨 Phase 2: Design Token & Global Style System
+## Phase 2: Design Token & Global Style System
 - [ ] Configure `tailwind.config.ts` mapping all tokens from `DESIGN.md`:
   - [ ] Neutral ground: Canvas (`#F8FAFC`), Card Surface (`#FFFFFF`), Border Hairline (`#E2E8F0`).
   - [ ] Primary structural navy: Deep Slate Navy (`#0F172A`).
@@ -33,7 +33,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 📐 Phase 3: Domain Types & Schema Infrastructure
+## Phase 3: Domain Types & Schema Infrastructure
 - [ ] Create `src/types/product.ts`:
   - [ ] `Product`, `ProductCategory`, `PricePoint`, `PriceTrendStatus`, `Store`.
 - [ ] Create `src/types/ocr.ts`:
@@ -46,7 +46,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🧮 Phase 4: Analytics Math Engine & Utility Suite
+## Phase 4: Analytics Math Engine & Utility Suite
 - [ ] Implement `src/lib/formatters.ts`:
   - [ ] `formatCurrency(amount, currency)` with tabular spacing.
   - [ ] `formatDeltaPercent(delta)` with explicit `+` or `-` prefix and color classes.
@@ -60,7 +60,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🗄️ Phase 5: Mock Data & Seed Generation Engine
+## Phase 5: Mock Data & Seed Generation Engine
 - [ ] Implement `src/lib/mock-data.ts`:
   - [ ] Seed realistic retail stores (Supermarkets, Tech Retailers, Pharmacies, Local Grocers).
   - [ ] Seed diverse multi-category products (Groceries, Electronics, Household, Beverages, Pharmacy, Services).
@@ -71,7 +71,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🧩 Phase 6: Shared Atomic UI Primitives
+## Phase 6: Shared Atomic UI Primitives
 - [ ] `src/components/ui/Button.tsx`: Primary, secondary, outline, ghost, and danger variants with loading states.
 - [ ] `src/components/ui/Input.tsx`: Icon slot inputs with search, clear, and validation states.
 - [ ] `src/components/ui/Badge.tsx`: Semantic status pills (Verified, OCR Confidence, Outlier, Category).
@@ -82,7 +82,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 📊 Phase 7: Data Visualization & Chart Telemetry Suite
+## Phase 7: Data Visualization & Chart Telemetry Suite
 - [ ] `src/components/product/PriceBadge.tsx`: Strict implementation of **The Price Direction Rule** with tabular numbers.
 - [ ] `src/components/charts/Sparkline.tsx`: Compact 7-day/30-day SVG trend indicator for product cards.
 - [ ] `src/components/charts/PriceHistoryChart.tsx`:
@@ -95,7 +95,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 👁️ Phase 8: Multimodal OCR & Vision Parsing Pipeline
+## Phase 8: Multimodal OCR & Vision Parsing Pipeline
 - [ ] Implement `src/lib/openrouter.ts`:
   - [ ] OpenRouter multimodal client calling vision models (e.g. Gemini 2.5 Flash / GPT-4o-mini).
   - [ ] Structured prompt engineering requesting strict JSON schema with bounding box coordinates.
@@ -109,7 +109,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🌐 Phase 9: Public Explorer & Product Discovery Surface
+## Phase 9: Public Explorer & Product Discovery Surface
 - [ ] `src/components/navigation/Header.tsx`:
   - [ ] Brand logo and search bar with live auto-complete.
   - [ ] Quick Role View Switcher (`Public` / `Contributor` / `Admin`).
@@ -123,7 +123,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🔍 Phase 10: Deep Product Detail & Price Intelligence View
+## Phase 10: Deep Product Detail & Price Intelligence View
 - [ ] `src/app/product/[id]/page.tsx`:
   - [ ] Product header: title, category badge, brand, unit, current lowest price vs store average.
   - [ ] Full-featured `PriceHistoryChart` with multi-store comparison and timeframe switcher.
@@ -135,7 +135,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## ✍️ Phase 11: Contributor Studio & Ingestion Workflows
+## Phase 11: Contributor Studio & Ingestion Workflows
 - [ ] `src/app/contribute/page.tsx` (Contributor Studio):
   - [ ] Multi-Modal Ingestion Tab Switcher:
     1. **Shelf Photo / Camera OCR:** Upload or snap photo of price tag -> AI extraction -> Bounding box review -> Save.
@@ -147,7 +147,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## ⭐ Phase 12: User Watchlist & Alert Center
+## Phase 12: User Watchlist & Alert Center
 - [ ] `src/app/watchlist/page.tsx`:
   - [ ] List of user-tracked products with current price, 30-day delta, and target price indicator.
   - [ ] Price Drop Alert Manager: Set alert thresholds (e.g. "Notify when price drops below $3.50").
@@ -156,7 +156,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🛡️ Phase 13: Admin & Community Moderation Hub
+## Phase 13: Admin & Community Moderation Hub
 - [ ] `src/app/admin/moderation/page.tsx`:
   - [ ] Moderation Queue: List of pending community submissions, OCR extractions with confidence <80%, and flagged outlier prices.
   - [ ] Diff Inspector: Side-by-side view of proof photo with highlighted bounding box vs. submitted values.
@@ -167,7 +167,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 📱 Phase 14: Responsive Optimization & Device Fluidity
+## Phase 14: Responsive Optimization & Device Fluidity
 - [ ] **Mobile Viewport (<640px):**
   - [ ] Persistent bottom navigation bar (`src/components/navigation/MobileBottomBar.tsx`): Explore, Watchlist, Contribute, Admin.
   - [ ] Floating Action Button (`QuickScanFAB.tsx`): Instant camera trigger on mobile.
@@ -182,7 +182,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## ♿ Phase 15: Accessibility, Performance & Edge Cases
+## Phase 15: Accessibility, Performance & Edge Cases
 - [ ] Color Contrast Audit: Verify all text, badges, and chart lines meet WCAG AA ($\ge 4.5:1$).
 - [ ] Keyboard Navigation: Verify full tab-stop order across modals, drawers, tabs, and form controls.
 - [ ] Screen Reader Semantics: Add descriptive `aria-label`, `aria-expanded`, and `role` attributes.
@@ -192,7 +192,7 @@ This master checklist outlines every implementation phase, sub-task, and verific
 
 ---
 
-## 🏁 Phase 16: Verification, End-to-End Testing & Polish
+## Phase 16: Verification, End-to-End Testing & Polish
 - [ ] Run full TypeScript compilation (`npx tsc --noEmit`) with zero errors.
 - [ ] Run production Next.js build (`npm run build`) and test output.
 - [ ] Conduct multi-device visual inspection (Mobile 375px, Tablet 768px, Desktop 1440px).
