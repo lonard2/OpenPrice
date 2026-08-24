@@ -44,6 +44,8 @@ All contributors and AI agents must strictly adhere to the following core engine
    - Maintain an accurate, up-to-date, and concise `README.md` reflecting real project architecture, setup steps, and operational commands.
 8. **Leverage Specialized Agent Skills:**
    - Use specialized CLI skills (Context7 for library documentation, systematic debugging, safe refactoring, and visual design auditing) to maintain high craft standards.
+9. **Ensure Building Guides, especially Technical:**
+   - Review and create walkthroughs and guides, after each phase and/or milestone, about technical building in `docs\guides` for helping me understand and learn how to build the application, step-by-step. 
 
 ---
 

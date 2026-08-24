@@ -80,6 +80,7 @@ OpenPrice/
 
 ---
 
-## License
+## License & Attribution
 
 This project is licensed under the MIT License. See `LICENSE` for details.
+For third-party software licenses, library acknowledgements, and fonts, see [CREDITS.md](./CREDITS.md).
