@@ -10,6 +10,7 @@ import {
   CheckSquare,
   Square,
   AlertTriangle,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '../ui/Button.tsx';
 import { Badge } from '../ui/Badge.tsx';
@@ -119,8 +120,27 @@ export function ExtractedFieldEditor({
     onItemSelect?.(newItem.tempId);
   }, [items, onItemsChange, onItemSelect]);
 
+  const getItemErrors = useCallback((item: ExtractedPriceItem) => {
+    const errors: { name?: string; price?: string; originalPrice?: string } = {};
+    if (!item.name || !item.name.trim()) {
+      errors.name = 'Name is required';
+    }
+    if (isNaN(item.price) || item.price <= 0) {
+      errors.price = 'Price must be > $0';
+    }
+    if (item.originalPrice !== undefined && (isNaN(item.originalPrice) || item.originalPrice <= 0)) {
+      errors.originalPrice = 'Must be > $0';
+    }
+    return errors;
+  }, []);
+
   const selectedItems = items.filter((item) => item.selected);
   const allSelected = items.length > 0 && selectedItems.length === items.length;
+
+  const hasInvalidSelectedItems = selectedItems.some((item) => {
+    const errs = getItemErrors(item);
+    return Object.keys(errs).length > 0;
+  });
 
   // Power contributor keyboard accelerators (J/K navigate, Space toggle, Cmd+Enter save, A add)
   useEffect(() => {
@@ -132,7 +152,7 @@ export function ExtractedFieldEditor({
       // Cmd+Enter or Ctrl+Enter to batch save selected items
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault();
-        if (selectedItems.length > 0 && onSaveSelected && !isSaving) {
+        if (selectedItems.length > 0 && onSaveSelected && !isSaving && !hasInvalidSelectedItems) {
           onSaveSelected(selectedItems);
         }
         return;
@@ -177,6 +197,7 @@ export function ExtractedFieldEditor({
     selectedItems,
     onSaveSelected,
     isSaving,
+    hasInvalidSelectedItems,
     handleToggleSelect,
     handleAddItem,
     handleDeleteItem,
@@ -202,6 +223,13 @@ export function ExtractedFieldEditor({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {hasInvalidSelectedItems && selectedItems.length > 0 && (
+            <span className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              Fix invalid rows before saving
+            </span>
+          )}
+
           <Button
             type="button"
             variant="outline"
@@ -230,8 +258,8 @@ export function ExtractedFieldEditor({
               variant="primary"
               size="sm"
               isLoading={isSaving}
-              disabled={selectedItems.length === 0}
-              onClick={() => onSaveSelected(selectedItems)}
+              disabled={selectedItems.length === 0 || hasInvalidSelectedItems}
+              onClick={() => !hasInvalidSelectedItems && onSaveSelected(selectedItems)}
               leftIcon={<Save className="w-3.5 h-3.5" />}
               className="min-h-[44px] touch-target"
             >
@@ -289,6 +317,7 @@ export function ExtractedFieldEditor({
                   : null;
 
                 const confidencePct = Math.round(item.confidence * 100);
+                const errors = getItemErrors(item);
 
                 return (
                   <tr
@@ -333,8 +362,20 @@ export function ExtractedFieldEditor({
                           onChange={(e) => handleFieldChange(item.tempId, 'name', e.target.value)}
                           placeholder="Product Name"
                           aria-label="Product Name"
-                          className="w-full font-semibold text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-white focus:outline-none px-1.5 py-1 rounded transition-all text-xs min-h-[36px]"
+                          aria-invalid={!!errors.name}
+                          className={cn(
+                            'w-full font-semibold bg-transparent border-b hover:border-slate-300 focus:bg-white focus:outline-none px-1.5 py-1 rounded transition-all text-xs min-h-[36px]',
+                            errors.name
+                              ? 'border-rose-400 bg-rose-50/50 text-rose-900 focus:border-rose-500'
+                              : 'border-transparent text-slate-900 focus:border-indigo-500'
+                          )}
                         />
+                        {errors.name && (
+                          <span className="text-[10px] font-semibold text-rose-600 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 text-rose-600 shrink-0" />
+                            {errors.name}
+                          </span>
+                        )}
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
@@ -372,46 +413,72 @@ export function ExtractedFieldEditor({
 
                     {/* Price Input */}
                     <td className="py-3 px-3 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="relative inline-flex items-center">
-                        <span className="absolute left-2 text-slate-400 text-xs">$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={item.price}
-                          onChange={(e) =>
-                            handleFieldChange(
-                              item.tempId,
-                              'price',
-                              parseFloat(e.target.value) || 0
-                            )
-                          }
-                          aria-label="Current Price"
-                          className="w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs font-bold text-slate-900 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 min-h-[36px]"
-                        />
+                      <div className="flex flex-col items-end">
+                        <div className="relative inline-flex items-center">
+                          <span className={cn('absolute left-2 text-xs', errors.price ? 'text-rose-500' : 'text-slate-400')}>$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={item.price}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                item.tempId,
+                                'price',
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
+                            aria-label="Current Price"
+                            aria-invalid={!!errors.price}
+                            className={cn(
+                              'w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs font-bold bg-white border rounded-lg focus:outline-none min-h-[36px]',
+                              errors.price
+                                ? 'border-rose-400 bg-rose-50/50 text-rose-900 focus:border-rose-500'
+                                : 'border-slate-200/90 text-slate-900 focus:ring-1 focus:ring-indigo-500'
+                            )}
+                          />
+                        </div>
+                        {errors.price && (
+                          <span className="text-[10px] font-semibold text-rose-600 text-right mt-0.5 whitespace-nowrap">
+                            {errors.price}
+                          </span>
+                        )}
                       </div>
                     </td>
 
                     {/* Original Was Price Input */}
                     <td className="py-3 px-3 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="relative inline-flex items-center">
-                        <span className="absolute left-2 text-slate-400 text-xs">$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={item.originalPrice ?? ''}
-                          onChange={(e) =>
-                            handleFieldChange(
-                              item.tempId,
-                              'originalPrice',
-                              e.target.value ? parseFloat(e.target.value) : undefined
-                            )
-                          }
-                          placeholder="—"
-                          aria-label="Original Price"
-                          className="w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs text-slate-500 bg-white border border-slate-200/90 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 min-h-[36px]"
-                        />
+                      <div className="flex flex-col items-end">
+                        <div className="relative inline-flex items-center">
+                          <span className={cn('absolute left-2 text-xs', errors.originalPrice ? 'text-rose-500' : 'text-slate-400')}>$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={item.originalPrice ?? ''}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                item.tempId,
+                                'originalPrice',
+                                e.target.value ? parseFloat(e.target.value) : undefined
+                              )
+                            }
+                            placeholder="—"
+                            aria-label="Original Price"
+                            aria-invalid={!!errors.originalPrice}
+                            className={cn(
+                              'w-20 pl-5 pr-2 py-1 text-right font-mono tabular-nums text-xs bg-white border rounded-lg focus:outline-none min-h-[36px]',
+                              errors.originalPrice
+                                ? 'border-rose-400 bg-rose-50/50 text-rose-900 focus:border-rose-500'
+                                : 'border-slate-200/90 text-slate-500 focus:ring-1 focus:ring-indigo-500'
+                            )}
+                          />
+                        </div>
+                        {errors.originalPrice && (
+                          <span className="text-[10px] font-semibold text-rose-600 text-right mt-0.5 whitespace-nowrap">
+                            {errors.originalPrice}
+                          </span>
+                        )}
                       </div>
                     </td>
 

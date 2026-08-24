@@ -960,10 +960,14 @@ export default function ContributePage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <label className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]">
+                    <label
+                      htmlFor="manual-proof-file-input"
+                      className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]"
+                    >
                       <UploadCloud className="w-4 h-4 text-indigo-600" />
                       <span>Upload Photo File</span>
                       <input
+                        id="manual-proof-file-input"
                         type="file"
                         accept="image/*"
                         className="hidden"
@@ -974,10 +978,14 @@ export default function ContributePage() {
                       />
                     </label>
 
-                    <label className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]">
+                    <label
+                      htmlFor="manual-proof-camera-input"
+                      className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]"
+                    >
                       <Camera className="w-4 h-4 text-indigo-600" />
                       <span>Snap Camera Photo</span>
                       <input
+                        id="manual-proof-camera-input"
                         type="file"
                         accept="image/*"
                         capture="environment"
