@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import {
   Search,
   SlidersHorizontal,
   ShoppingBag,
+  Camera,
 } from 'lucide-react';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -164,36 +166,40 @@ export function ProductGrid({
             </div>
           </div>
 
-          {/* Category Filter Pills (Horizontal Scroll) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 pt-1">
-            {categoriesList.map((cat) => {
-              const isSelected = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => handleCategorySelect(cat.id)}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none min-h-[36px]',
-                    isSelected
-                      ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-600/20'
-                      : 'bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
-                  )}
-                >
-                  <span>{cat.label}</span>
-                  <span
+          {/* Category Filter Pills (Horizontal Scroll with Gradient Mask) */}
+          <div className="relative">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 pt-1 scroll-smooth">
+              {categoriesList.map((cat) => {
+                const isSelected = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => handleCategorySelect(cat.id)}
                     className={cn(
-                      'px-1.5 py-0.2 rounded-full text-[10px] font-mono',
+                      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none min-h-[36px]',
                       isSelected
-                        ? 'bg-white/20 text-white'
-                        : 'bg-white text-slate-500 border border-slate-200/60'
+                        ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-600/20'
+                        : 'bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
                     )}
                   >
-                    {cat.count}
-                  </span>
-                </button>
-              );
-            })}
+                    <span>{cat.label}</span>
+                    <span
+                      className={cn(
+                        'px-1.5 py-0.2 rounded-full text-[10px] font-mono',
+                        isSelected
+                          ? 'bg-white/20 text-white'
+                          : 'bg-white text-slate-500 border border-slate-200/60'
+                      )}
+                    >
+                      {cat.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            {/* Gradient mask to indicate horizontal scrollability on small screens */}
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent sm:hidden" />
           </div>
         </div>
       )}
@@ -262,7 +268,7 @@ export function ProductGrid({
           <p className="text-xs sm:text-sm text-slate-500 max-w-sm mb-6">
             We couldn&apos;t find anything matching &quot;{searchQuery || activeCategory}&quot;. Try adjusting your search query or category filter.
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <Button
               variant="outline"
               size="sm"
@@ -273,6 +279,13 @@ export function ProductGrid({
             >
               Reset Filters
             </Button>
+            <Link
+              href={searchQuery.trim() ? `/contribute?name=${encodeURIComponent(searchQuery.trim())}` : '/contribute'}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-ambient-lift transition-all touch-target"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span>Log price for {searchQuery.trim() ? `"${searchQuery.trim()}"` : 'a new item'}</span>
+            </Link>
           </div>
         </div>
       )}

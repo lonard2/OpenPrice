@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Bookmark,
   Scale,
@@ -33,6 +34,8 @@ export function ProductCard({
   onCompare,
   className,
 }: ProductCardProps) {
+  const router = useRouter();
+
   // Extract historical sparkline points
   const sparklineData =
     product.historicalPrices && product.historicalPrices.length > 0
@@ -42,12 +45,19 @@ export function ProductCard({
   const hasPriceDrop = product.priceDeltaPercent < -0.01;
   const hasPriceHike = product.priceDeltaPercent > 0.01;
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select')) return;
+    router.push(`/product/${product.id}`);
+  };
+
   return (
     <Card
       isInteractive
+      onClick={handleCardClick}
       verifiedRibbon={product.isVerified ? 'Verified' : false}
       className={cn(
-        'group flex flex-col justify-between h-full border border-slate-200/90 hover:border-indigo-300 transition-all duration-200',
+        'group flex flex-col justify-between h-full border border-slate-200/90 hover:border-indigo-300 transition-all duration-200 cursor-pointer',
         className
       )}
     >
