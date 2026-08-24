@@ -415,7 +415,7 @@ export function ExtractedFieldEditor({
                     <td className="py-3 px-3 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col items-end">
                         <div className="relative inline-flex items-center">
-                          <span className={cn('absolute left-2 text-xs', errors.price ? 'text-rose-500' : 'text-slate-400')}>$</span>
+                          <span className={cn('absolute left-2 text-xs font-semibold', errors.price ? 'text-rose-500' : 'text-slate-500')}>$</span>
                           <input
                             type="number"
                             step="0.01"
@@ -450,7 +450,7 @@ export function ExtractedFieldEditor({
                     <td className="py-3 px-3 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col items-end">
                         <div className="relative inline-flex items-center">
-                          <span className={cn('absolute left-2 text-xs', errors.originalPrice ? 'text-rose-500' : 'text-slate-400')}>$</span>
+                          <span className={cn('absolute left-2 text-xs font-semibold', errors.originalPrice ? 'text-rose-500' : 'text-slate-500')}>$</span>
                           <input
                             type="number"
                             step="0.01"

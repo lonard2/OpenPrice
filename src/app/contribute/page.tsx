@@ -535,20 +535,16 @@ export default function ContributePage() {
         <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="max-w-xl space-y-2">
-            <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs">
-              <Sparkles className="w-4 h-4 text-indigo-500 shrink-0" />
-              <span className="uppercase tracking-wider">Contributor Studio • Community Ledger</span>
-            </div>
+          <div className="max-w-xl space-y-2.5">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Crowdsource Real-World Prices
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Upload store shelf tag photos, circular weekly flyers, receipts, or online listings. Multimodal AI parses products, prices, and coordinates with real-time verification.
+              Upload store shelf tag photos, circular weekly flyers, receipts, or online listings. Multimodal AI parses products, prices, and coordinates with real-time verification into the community price ledger.
             </p>
 
             {role !== 'contributor' && (
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   type="button"
                   onClick={() => setRole('contributor')}
@@ -1075,7 +1071,7 @@ export default function ContributePage() {
                       </span>
                       <p className="text-xs font-medium truncate">{sample.item}</p>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                   </button>
                 ))}
               </div>
@@ -1227,7 +1223,7 @@ export default function ContributePage() {
                 type="button"
                 onClick={() => setShowShortcutsModal(false)}
                 aria-label="Close shortcuts dialog"
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors touch-target min-h-[44px]"
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors touch-target min-h-[44px]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1271,7 +1267,7 @@ export default function ContributePage() {
                     <span className="text-slate-700 font-medium">Next / Previous Item</span>
                     <span className="flex items-center gap-1">
                       <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">J</kbd>
-                      <span className="text-slate-400">/</span>
+                      <span className="text-slate-500 font-medium">/</span>
                       <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">K</kbd>
                     </span>
                   </div>
@@ -1303,7 +1299,7 @@ export default function ContributePage() {
                     <span className="text-slate-700 font-medium">Zoom In / Zoom Out</span>
                     <span className="flex items-center gap-1">
                       <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">+</kbd>
-                      <span className="text-slate-400">/</span>
+                      <span className="text-slate-500 font-medium">/</span>
                       <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">-</kbd>
                     </span>
                   </div>
