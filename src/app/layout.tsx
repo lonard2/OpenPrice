@@ -24,13 +24,13 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://openprice.org'),
   title: {
-    default: 'OpenPrice — Crowdsourced Price Intelligence & Inflation Tracker',
+    default: 'OpenPrice - Crowdsourced Price Intelligence & Inflation Tracker',
     template: '%s | OpenPrice',
   },
   description:
     'Track prices from store photos, pamphlets, receipts, and e-commerce listings in a community-verified historical index with live inflation telemetry.',
   openGraph: {
-    title: 'OpenPrice — Crowdsourced Price Intelligence & Inflation Tracker',
+    title: 'OpenPrice - Crowdsourced Price Intelligence & Inflation Tracker',
     description:
       'Track prices from store photos, pamphlets, receipts, and e-commerce listings in a community-verified historical index with live inflation telemetry.',
     url: 'https://openprice.org',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OpenPrice — Crowdsourced Price Intelligence & Inflation Tracker',
+    title: 'OpenPrice - Crowdsourced Price Intelligence & Inflation Tracker',
     description:
       'Track prices from store photos, pamphlets, receipts, and e-commerce listings in a community-verified historical index with live inflation telemetry.',
   },

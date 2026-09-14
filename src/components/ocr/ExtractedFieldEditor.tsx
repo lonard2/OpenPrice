@@ -521,7 +521,7 @@ export function ExtractedFieldEditor({
                               e.target.value ? parseFloat(e.target.value) : undefined
                             )
                           }
-                          placeholder="—"
+                          placeholder="-"
                           aria-label="Original Price"
                           aria-invalid={!!errors.originalPrice}
                           className={cn(
@@ -754,7 +754,7 @@ export function ExtractedFieldEditor({
                                 e.target.value ? parseFloat(e.target.value) : undefined
                               )
                             }
-                            placeholder="—"
+                            placeholder="-"
                             aria-label="Original Price"
                             aria-invalid={!!errors.originalPrice}
                             className={cn(
