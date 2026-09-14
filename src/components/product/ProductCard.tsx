@@ -70,29 +70,28 @@ export function ProductCard({
     >
       {/* Top Header & Identity Cluster */}
       <div className="p-5 sm:p-6 pb-4 space-y-2.5">
-        {/* Row 1: Category & Unit Badges (clear of top-right Verified ribbon) */}
-        <div className="flex items-center gap-1.5 flex-wrap min-h-[26px] pr-20">
+        {/* Row 1: Category Badge (clear of top-right Verified ribbon) */}
+        <div className="flex items-center gap-1.5 min-h-[26px] pr-20">
           <Badge variant="category" size="sm" className="capitalize text-[11px] shrink-0 font-semibold">
             {product.category}
           </Badge>
-          {product.unit && (
-            <span className="inline-flex items-center text-[10px] font-semibold text-slate-600 bg-slate-100/90 border border-slate-200/80 px-2 py-0.5 rounded-md truncate max-w-[130px]">
-              {product.unit}
-            </span>
-          )}
         </div>
 
-        {/* Row 2 & 3: Brand Eyebrow + Product Title */}
+        {/* Row 2 & 3: Brand Eyebrow + Unit + Product Title */}
         <div className="space-y-1">
-          {product.brand ? (
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-indigo-600 truncate">
-              {product.brand}
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider">
+            <span className={product.brand ? 'text-indigo-600 truncate' : 'text-slate-400'}>
+              {product.brand || 'Generic Item'}
             </span>
-          ) : (
-            <span className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              Generic Item
-            </span>
-          )}
+            {product.unit && (
+              <>
+                <span className="text-slate-300 font-normal">•</span>
+                <span className="text-slate-500 font-medium lowercase tracking-normal truncate">
+                  {product.unit}
+                </span>
+              </>
+            )}
+          </div>
 
           <Link
             href={`/product/${product.id}`}
