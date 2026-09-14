@@ -22,9 +22,28 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'OpenPrice — Crowdsourced Price Intelligence & Inflation Tracker',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://openprice.org'),
+  title: {
+    default: 'OpenPrice — Crowdsourced Price Intelligence & Inflation Tracker',
+    template: '%s | OpenPrice',
+  },
   description:
     'Track prices from store photos, pamphlets, receipts, and e-commerce listings in a community-verified historical index with live inflation telemetry.',
+  openGraph: {
+    title: 'OpenPrice — Crowdsourced Price Intelligence & Inflation Tracker',
+    description:
+      'Track prices from store photos, pamphlets, receipts, and e-commerce listings in a community-verified historical index with live inflation telemetry.',
+    url: 'https://openprice.org',
+    siteName: 'OpenPrice',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'OpenPrice — Crowdsourced Price Intelligence & Inflation Tracker',
+    description:
+      'Track prices from store photos, pamphlets, receipts, and e-commerce listings in a community-verified historical index with live inflation telemetry.',
+  },
 };
 
 export const viewport: Viewport = {

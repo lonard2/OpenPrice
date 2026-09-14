@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Tag, ShieldCheck, Scale, Github } from 'lucide-react';
+import { Tag, ShieldCheck, Scale, ExternalLink } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -92,7 +92,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold transition-colors touch-target min-h-[44px]"
               >
-                <Github className="w-4 h-4" />
+                <ExternalLink className="w-4 h-4" />
                 <span>View Source on GitHub</span>
               </a>
             </div>
