@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-14T12:11:30Z",
+  "title": "Design System: OpenPrice",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Vibrant Indigo",
+        "canonical": "#4F46E5",
+        "tonalRamp": ["#EEF2FF", "#E0E7FF", "#C7D2FE", "#818CF8", "#6366F1", "#4F46E5", "#4338CA", "#3730A3", "#312E81"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Electric Cerulean",
+        "canonical": "#0EA5E9",
+        "tonalRamp": ["#F0F9FF", "#E0F2FE", "#BAE6FD", "#7DD3FC", "#38BDF8", "#0EA5E9", "#0284C7", "#0369A1", "#075985"]
+      },
+      "drop": {
+        "role": "secondary",
+        "displayName": "Emerald Mint (Savings/Drop)",
+        "canonical": "#10B981",
+        "tonalRamp": ["#ECFDF5", "#D1FAE5", "#A7F3D0", "#6EE7B7", "#34D399", "#10B981", "#059669", "#047857", "#065F46"]
+      },
+      "hike": {
+        "role": "secondary",
+        "displayName": "Coral Sunset (Inflation/Hike)",
+        "canonical": "#F43F5E",
+        "tonalRamp": ["#FFF1F2", "#FFE4E6", "#FECDD3", "#FDA4AF", "#FB7185", "#F43F5E", "#E11D48", "#BE123C", "#9F1239"]
+      },
+      "indigo-light": {
+        "role": "secondary",
+        "displayName": "Soft Indigo (Kroger/Ralphs)",
+        "canonical": "#6366F1",
+        "tonalRamp": ["#EEF2FF", "#E0E7FF", "#C7D2FE", "#818CF8", "#6366F1", "#4F46E5"]
+      },
+      "pink": {
+        "role": "secondary",
+        "displayName": "Fresh Berry (Amazon Fresh)",
+        "canonical": "#EC4899",
+        "tonalRamp": ["#FDF2F8", "#FCE7F3", "#FBCFE8", "#F472B6", "#EC4899", "#DB2777"]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas Slate",
+        "canonical": "#F8FAFC",
+        "tonalRamp": ["#FFFFFF", "#F8FAFC", "#F1F5F9", "#E2E8F0", "#CBD5E1", "#94A3B8", "#64748B", "#475569", "#0F172A"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Pure Surface White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#FFFFFF", "#F8FAFC", "#F1F5F9"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Slate Ink",
+        "canonical": "#0F172A",
+        "tonalRamp": ["#0F172A", "#1E293B", "#334155"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display Hero",
+        "purpose": "Hero headline banners and milestone stats."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles and major view headers."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Product card headings, store labels, and chart legends."
+      },
+      "body": {
+        "displayName": "Body Regular",
+        "purpose": "Descriptions, methodology disclosures, and contributor remarks."
+      },
+      "label": {
+        "displayName": "Label Medium",
+        "purpose": "Filter pills, table headers, and status badges (12px)."
+      },
+      "caption": {
+        "displayName": "Caption Regular",
+        "purpose": "Secondary microcopy, timestamps, and confidence ratings (11px)."
+      },
+      "micro": {
+        "displayName": "Micro Subtext",
+        "purpose": "Compact aisle codes, footer links, and chart coordinates (10px)."
+      },
+      "nano": {
+        "displayName": "Nano Badge",
+        "purpose": "Ultra-compact OCR bounding box tags and zoom badges (9px)."
+      },
+      "mono": {
+        "displayName": "Numeric Tabular Mono",
+        "purpose": "All price points, percentages, timestamps, and chart indices."
+      }
+    },
+    "shadows": [
+      {
+        "name": "surface",
+        "value": "0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02)",
+        "purpose": "Base resting elevation for cards and containers."
+      },
+      {
+        "name": "ambient-lift",
+        "value": "0 8px 20px -4px rgba(79, 70, 229, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04)",
+        "purpose": "Interactive hover lift and floating controls."
+      },
+      {
+        "name": "floating",
+        "value": "0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05)",
+        "purpose": "Modals, bottom sheets, and OCR bounding box drawers."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-snappy",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Fast responsive state changes on touch and hover."
+      },
+      {
+        "name": "active-press",
+        "value": "scale(0.98)",
+        "purpose": "Tactile micro-interaction feedback on tap."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call to action on hero, forms, and submission confirmation.",
+      "html": "<button class=\"ds-btn-primary\">Browse Price Index</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 20px; font-family: Outfit, sans-serif; font-size: 14px; font-weight: 700; color: #ffffff; background-color: #4F46E5; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); } .ds-btn-primary:hover { background-color: #4338CA; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); } .ds-btn-primary:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Secondary Neutral Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary actions, cancel, modal dismissal, or filter triggers.",
+      "html": "<button class=\"ds-btn-secondary\">Reset Filters</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 16px; font-family: Outfit, sans-serif; font-size: 14px; font-weight: 600; color: #0F172A; background-color: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 12px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-secondary:hover { background-color: #E2E8F0; color: #0F172A; } .ds-btn-secondary:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Category Filter Pill",
+      "kind": "chip",
+      "refersTo": "chip-filter",
+      "description": "Horizontal category filter selectors with tabular counters.",
+      "html": "<button class=\"ds-chip-active\">All Groceries <span class=\"ds-chip-count\">12</span></button>",
+      "css": ".ds-chip-active { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; font-family: Outfit, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; background-color: #4F46E5; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; } .ds-chip-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; opacity: 0.85; }"
+    },
+    {
+      "name": "Verified Provenance Ribbon",
+      "kind": "custom",
+      "refersTo": "verified-ribbon",
+      "description": "Corner-clipped badge indicating community or receipt OCR provenance.",
+      "html": "<div class=\"ds-verified-ribbon\">VERIFIED PROOF</div>",
+      "css": ".ds-verified-ribbon { display: inline-block; padding: 2px 10px; font-family: Outfit, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #ffffff; background-color: #10B981; border-top-right-radius: 16px; border-bottom-left-radius: 12px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08); }"
+    },
+    {
+      "name": "Price Card Surface",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Primary container for product listings and store comparisons.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Fresh Milk 1L</div><div class=\"ds-card-price\">$3.49</div></div>",
+      "css": ".ds-card { background-color: #ffffff; border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); transition: all 0.2s ease; } .ds-card:hover { border-color: rgba(199, 210, 254, 0.8); box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.08); transform: translateY(-2px); } .ds-card-title { font-family: Outfit, sans-serif; font-size: 16px; font-weight: 700; color: #0F172A; } .ds-card-price { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; color: #0F172A; margin-top: 4px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Community Exchange",
+    "overview": "OpenPrice is a friendly, civic crowdsourced price intelligence and inflation tracking platform. It rejects sterile financial grayness and discount spam in favor of an energetic, welcoming, and intuitive consumer experience with verified shelf-tag OCR provenance, clear economic signals, and robust methodology transparency.",
+    "keyCharacteristics": [
+      "Warm & Energetic Civic Authority",
+      "Subtle Ambient Lift and Crisp 1px Framing",
+      "Strict Tabular Numeral Invariant on All Financial Figures",
+      "Zero AI Clutter or Decorative Slop",
+      "Verified Multimodal Provenance with Corner-Clipped Ribbons"
+    ],
+    "rules": [
+      {
+        "name": "The Price Direction Rule",
+        "body": "Color is never arbitrary on price figures: emerald green strictly represents price drops and savings; coral sunset red strictly represents price increases, hikes, and inflation; neutral slate represents stable prices.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Numerals Rule",
+        "body": "All monetary amounts, percentage deltas, timestamps, and chart axis labels must use tabular figures (font-variant-numeric: tabular-nums) so numbers do not cause layout shifts during live updates.",
+        "section": "typography"
+      },
+      {
+        "name": "The 44px Touch Target Rule",
+        "body": "All interactive controls, category pills, buttons, and navigation triggers must have a minimum bounding box of 44x44px for reliable mobile touch ergonomics.",
+        "section": "layout"
+      }
+    ],
+    "dos": [
+      "Do use JetBrains Mono with tabular-nums for all price amounts and delta percentages.",
+      "Do pair emerald green with price decreases and coral red with price increases.",
+      "Do preserve the 44px minimum touch target on all interactive buttons and filters.",
+      "Do display verification provenance (shelf photo, receipt OCR, flyer) alongside prices."
+    ],
+    "donts": [
+      "Don't use em-dashes (—) in headlines, eyebrows, buttons, or microcopy.",
+      "Don't add generic AI sparkles or gradient mesh blobs.",
+      "Don't use red for price savings or green for price hikes.",
+      "Don't allow number text to render without tabular-nums."
+    ]
+  }
+}
