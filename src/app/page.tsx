@@ -324,17 +324,17 @@ export default function HomePage() {
                 />
                 <span className="text-xs text-slate-500">Lowest observed price</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setComparedProduct(null)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
+                  className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors touch-target min-h-[44px] active:scale-[0.98]"
                 >
                   Close
                 </button>
                 <Link
                   href={`/product/${comparedProduct.id}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-ambient-lift transition-all"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-ambient-lift transition-all touch-target min-h-[44px] active:scale-[0.98]"
                 >
                   <span>View Full Price History</span>
                   <ArrowRight className="w-3.5 h-3.5" />

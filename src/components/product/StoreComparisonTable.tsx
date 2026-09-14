@@ -131,7 +131,7 @@ export function StoreComparisonTable({
                   <td className="py-4 px-4">
                     <Badge variant="category" size="sm" className="capitalize">
                       {item.storeType === 'online' ? (
-                        <Globe className="w-3 h-3 text-cerulean-600" />
+                        <Globe className="w-3 h-3 text-sky-600" />
                       ) : (
                         <StoreIcon className="w-3 h-3 text-slate-500" />
                       )}
@@ -220,7 +220,7 @@ export function StoreComparisonTable({
                       <button
                         type="button"
                         onClick={() => onSelectStore(item)}
-                        className="px-3 py-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors min-h-[36px]"
+                        className="inline-flex items-center justify-center px-3.5 py-2 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors touch-target min-h-[44px] active:scale-[0.98]"
                       >
                         Select
                       </button>

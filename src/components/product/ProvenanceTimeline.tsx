@@ -162,7 +162,7 @@ export function ProvenanceTimeline({
                       <button
                         type="button"
                         onClick={() => setSelectedProof(item)}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition-colors"
+                        className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-2 rounded-xl border border-indigo-200 transition-colors touch-target min-h-[44px] active:scale-[0.98]"
                       >
                         <Camera className="w-3.5 h-3.5" />
                         <span>View Proof</span>

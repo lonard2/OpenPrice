@@ -214,6 +214,7 @@ export function ProductGrid({
                     key={cat.id}
                     type="button"
                     onClick={() => handleCategorySelect(cat.id)}
+                    aria-pressed={isSelected}
                     className={cn(
                       'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none min-h-[44px] touch-target active:scale-[0.98]',
                       isSelected
@@ -252,7 +253,7 @@ export function ProductGrid({
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="text-indigo-600 hover:underline font-semibold"
+            className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold px-2 py-1 min-h-[44px] touch-target"
           >
             Clear search
           </button>
@@ -309,7 +310,8 @@ export function ProductGrid({
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button
               variant="outline"
-              size="sm"
+              size="md"
+              className="min-h-[44px] touch-target"
               onClick={() => {
                 setSearchQuery('');
                 handleCategorySelect('all');
