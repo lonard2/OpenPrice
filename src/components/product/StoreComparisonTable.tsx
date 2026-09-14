@@ -151,7 +151,7 @@ export function StoreComparisonTable({
                         {formatCurrency(item.price, currency)}
                       </span>
                       {item.originalPrice && item.originalPrice > item.price && (
-                        <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
+                        <span className="text-xs text-slate-500 line-through font-mono tabular-nums">
                           {formatCurrency(item.originalPrice, currency)}
                         </span>
                       )}
@@ -209,7 +209,7 @@ export function StoreComparisonTable({
                   {/* Last Observed */}
                   <td className="py-4 px-4 text-xs text-slate-500">
                     <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-slate-400" />
+                      <Clock className="w-3 h-3 text-slate-500" />
                       <span>{formatRelativeTime(item.lastUpdated || Date.now())}</span>
                     </div>
                   </td>
@@ -280,7 +280,7 @@ export function StoreComparisonTable({
               {/* Price & Variance */}
               <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase">
                     Store Price
                   </span>
                   <span
@@ -294,7 +294,7 @@ export function StoreComparisonTable({
                 </div>
 
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase">
                     Variance
                   </span>
                   {isCheapest ? (

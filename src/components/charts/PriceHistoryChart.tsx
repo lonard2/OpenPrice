@@ -413,7 +413,7 @@ export function PriceHistoryChart({
 
       {/* Interactive Store Legend */}
       <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-        <span className="text-xs font-semibold text-slate-400 mr-1">
+        <span className="text-xs font-semibold text-slate-500 mr-1">
           Stores:
         </span>
         {Array.from(storeMap.values()).map((store) => {

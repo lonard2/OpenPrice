@@ -281,12 +281,12 @@ export default function ProductDetailPage() {
 
             <div className="flex flex-wrap items-center gap-2 pt-2 text-xs text-slate-500">
               <span className="flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg">
-                <StoreIcon className="w-3.5 h-3.5 text-slate-400" />
-                {product.trackedStoresCount || 1} Stores Tracked
+                <StoreIcon className="w-3.5 h-3.5 text-slate-500" />
+                <span className="tabular-nums font-semibold">{product.trackedStoresCount || 1}</span> Stores Tracked
               </span>
               <span className="flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg">
-                <Layers className="w-3.5 h-3.5 text-slate-400" />
-                {product.totalSubmissionsCount || 1} Verified Observations
+                <Layers className="w-3.5 h-3.5 text-slate-500" />
+                <span className="tabular-nums font-semibold">{product.totalSubmissionsCount || 1}</span> Verified Observations
               </span>
             </div>
           </div>
@@ -294,7 +294,7 @@ export default function ProductDetailPage() {
           {/* Right: Pricing Highlights & Watchlist Action */}
           <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/80 shrink-0">
             <div className="flex flex-col items-start sm:items-end">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Lowest Observed Price
               </span>
               <PriceBadge
@@ -355,7 +355,7 @@ export default function ProductDetailPage() {
         {/* Statistical Summary Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-100">
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               All-Time Lowest
             </span>
             <span className="text-base font-bold font-mono text-emerald-600 mt-0.5 tabular-nums">
@@ -364,7 +364,7 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               All-Time Highest
             </span>
             <span className="text-base font-bold font-mono text-slate-900 mt-0.5 tabular-nums">
@@ -373,8 +373,8 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Longitudinal Average
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              Historical Average
             </span>
             <span className="text-base font-bold font-mono text-slate-900 mt-0.5 tabular-nums">
               {formatCurrency(product.averagePrice || product.currentLowestPrice * 1.1)}
@@ -382,8 +382,8 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Price Spread
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              Store Price Difference
             </span>
             <span className="text-base font-bold font-mono text-indigo-600 mt-0.5 tabular-nums">
               {formatCurrency(
@@ -486,13 +486,13 @@ export default function ProductDetailPage() {
 
           <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-bold uppercase text-slate-400">Current Lowest</span>
+              <span className="text-[10px] font-bold uppercase text-slate-500">Current Lowest</span>
               <p className="text-sm font-bold font-mono text-slate-900">
                 {formatCurrency(product.currentLowestPrice)}
               </p>
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase text-slate-400">Suggested Target</span>
+              <span className="text-[10px] font-bold uppercase text-slate-500">Suggested Target</span>
               <p className="text-sm font-bold font-mono text-emerald-600">
                 {formatCurrency(product.currentLowestPrice * 0.9)} (-10%)
               </p>
@@ -510,7 +510,7 @@ export default function ProductDetailPage() {
               min="0.01"
               value={alertTargetPrice}
               onChange={(e) => setAlertTargetPrice(parseFloat(e.target.value) || 0)}
-              leftIcon={<span className="text-slate-400 text-xs font-mono font-bold">$</span>}
+              leftIcon={<span className="text-slate-500 text-xs font-mono font-bold">$</span>}
             />
           </div>
 

@@ -111,13 +111,13 @@ export function ProvenanceTimeline({
                     )}
 
                     {item.confidenceScore !== undefined && (
-                      <span className="text-[11px] font-mono font-medium text-slate-400">
+                      <span className="text-[11px] font-mono font-medium text-slate-500">
                         {item.confidenceScore}% confidence
                       </span>
                     )}
                   </div>
 
-                  <span className="text-xs text-slate-400 font-medium">
+                  <span className="text-xs text-slate-500 font-medium">
                     {formatRelativeTime(item.timestamp)}
                   </span>
                 </div>
@@ -131,7 +131,7 @@ export function ProvenanceTimeline({
                         {formatCurrency(item.price, currency)}
                       </span>
                       {item.originalPrice && item.originalPrice > item.price && (
-                        <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
+                        <span className="text-xs text-slate-500 line-through font-mono tabular-nums">
                           {formatCurrency(item.originalPrice, currency)}
                         </span>
                       )}
@@ -168,7 +168,7 @@ export function ProvenanceTimeline({
                         <span>View Proof</span>
                       </button>
                     ) : (
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-[11px] text-slate-500">
                         No photo attached
                       </span>
                     )}
