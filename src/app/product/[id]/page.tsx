@@ -215,7 +215,7 @@ export default function ProductDetailPage() {
         </p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-500 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-500 transition-colors touch-target"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Catalog</span>
@@ -235,7 +235,7 @@ export default function ProductDetailPage() {
           type="button"
           onClick={handleBack}
           aria-label="Go back to previous page"
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/80 transition-all shadow-2xs"
+          className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/80 transition-all shadow-2xs touch-target"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -436,7 +436,7 @@ export default function ProductDetailPage() {
 
           <Link
             href="/contribute"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-2 min-h-[44px] rounded-xl transition-colors touch-target"
           >
             <span>Submit Observation</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -454,20 +454,22 @@ export default function ProductDetailPage() {
         description={`Receive instant notifications when ${product.name} drops below your target price.`}
         size="md"
         footer={
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full gap-3">
             <Button
               variant="outline"
-              size="sm"
+              size="md"
               onClick={() => setIsAlertModalOpen(false)}
+              className="touch-target"
             >
               Cancel
             </Button>
             <Button
               variant="primary"
-              size="sm"
+              size="md"
               disabled={alertTargetPrice <= 0 || isNaN(alertTargetPrice)}
               onClick={handleSavePriceAlert}
               leftIcon={<Bell className="w-3.5 h-3.5" />}
+              className="touch-target"
             >
               {alertSavedSuccess ? 'Alert Saved!' : 'Activate Alert'}
             </Button>

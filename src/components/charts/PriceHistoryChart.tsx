@@ -293,14 +293,15 @@ export function PriceHistoryChart({
         </div>
 
         {/* Timeframe Buttons */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 self-start sm:self-auto">
           {TIMEFRAMES.map((tf) => (
             <button
               key={tf.id}
               type="button"
               onClick={() => setTimeframe(tf.id)}
+              aria-pressed={timeframe === tf.id}
               className={cn(
-                'px-2.5 py-1 text-xs font-bold rounded-lg transition-all select-none',
+                'px-3 py-1.5 min-h-[36px] sm:min-h-[32px] inline-flex items-center justify-center text-xs font-bold rounded-lg transition-all select-none touch-target',
                 timeframe === tf.id
                   ? 'bg-white text-indigo-600 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -422,8 +423,10 @@ export function PriceHistoryChart({
               key={store.id}
               type="button"
               onClick={() => toggleStore(store.id)}
+              aria-pressed={!isHidden}
+              aria-label={`Toggle ${store.name} price series`}
               className={cn(
-                'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all',
+                'inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] sm:min-h-[32px] rounded-lg text-xs font-medium border transition-all touch-target',
                 isHidden
                   ? 'bg-slate-50 border-slate-200 text-slate-400 opacity-60 line-through'
                   : 'bg-white border-slate-200/90 text-slate-700 shadow-2xs hover:border-slate-300'
