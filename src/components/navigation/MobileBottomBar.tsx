@@ -52,7 +52,7 @@ export function MobileBottomBar() {
                 className="flex flex-col items-center justify-center -mt-6 group touch-target"
                 aria-label={item.name}
               >
-                <div className="flex h-13 w-13 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-4 ring-white group-active:scale-95 transition-transform">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-4 ring-white group-active:scale-95 transition-transform">
                   <Icon className="h-6 w-6" />
                 </div>
                 <span className="text-[10px] font-bold text-indigo-600 mt-0.5">{item.name}</span>

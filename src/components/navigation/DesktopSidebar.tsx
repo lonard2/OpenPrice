@@ -13,13 +13,9 @@ import {
   TrendingDown,
   ShieldCheck, 
   Award,
-  ChevronRight,
-  Users,
-  UploadCloud,
-  Shield
+  ChevronRight
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
-import { UserRole } from '@/types/user';
 import { cn } from '@/lib/utils';
 import { getStoredProducts, subscribeToStorageChanges } from '@/lib/storage';
 import { computeCatalogInflation } from '@/lib/inflation';
@@ -28,7 +24,7 @@ import type { InflationBasketReport } from '@/types';
 
 export function DesktopSidebar() {
   const pathname = usePathname();
-  const { role, setRole, isContributor, isAdmin } = useRoleView();
+  const { isContributor, isAdmin } = useRoleView();
   const [inflation, setInflation] = useState<InflationBasketReport | null>(null);
 
   useEffect(() => {
@@ -41,12 +37,6 @@ export function DesktopSidebar() {
     const unsubscribe = subscribeToStorageChanges(updateInflation);
     return () => unsubscribe();
   }, []);
-
-  const roleOptions: { id: UserRole; label: string; icon: React.ReactNode }[] = [
-    { id: 'public', label: 'Public', icon: <Users className="w-3.5 h-3.5" /> },
-    { id: 'contributor', label: 'Contributor', icon: <UploadCloud className="w-3.5 h-3.5" /> },
-    { id: 'admin', label: 'Admin', icon: <Shield className="w-3.5 h-3.5" /> },
-  ];
 
   const primaryNav = [
     {
@@ -93,7 +83,7 @@ export function DesktopSidebar() {
       {/* Navigation Links Group */}
       <div className="card-surface p-3 space-y-1">
         <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-          Navigation ({role.toUpperCase()})
+          Navigation
         </div>
         {primaryNav.map((item) => {
           const isActive = pathname === item.href;
@@ -204,42 +194,6 @@ export function DesktopSidebar() {
           </p>
         </div>
       )}
-
-      {/* Perspective / Role Switcher Widget */}
-      <div className="card-surface p-3 space-y-2 bg-slate-50/80 border border-slate-200/90">
-        <div className="flex items-center justify-between px-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Perspective Mode
-          </span>
-          <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wide bg-indigo-50 border border-indigo-200/60 px-1.5 py-0.5 rounded-md">
-            {role}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-1 p-1 bg-slate-200/60 rounded-xl">
-          {roleOptions.map((opt) => {
-            const isActive = role === opt.id;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setRole(opt.id)}
-                aria-label={`Switch to ${opt.label} perspective`}
-                aria-pressed={isActive}
-                className={cn(
-                  'flex items-center justify-center gap-1 py-1 px-1.5 rounded-lg text-[11px] font-semibold transition-all touch-target min-h-[32px]',
-                  isActive
-                    ? 'bg-white text-indigo-600 shadow-2xs font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
-                )}
-              >
-                {opt.icon}
-                <span className="truncate">{opt.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
     </nav>
   );
 }
