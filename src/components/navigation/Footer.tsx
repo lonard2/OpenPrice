@@ -4,7 +4,7 @@ import { Tag, ShieldCheck, Scale, ExternalLink } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-slate-200/90 bg-white mt-12 py-10 text-xs text-slate-500">
+    <footer className="w-full border-t border-slate-200/90 bg-white mt-12 pt-10 pb-24 lg:pb-10 text-xs text-slate-500">
       <div className="mx-auto max-w-7xl 2xl:max-w-[1440px] px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Col 1: Brand & Civic Mission */}
