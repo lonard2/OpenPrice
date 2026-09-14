@@ -7,6 +7,7 @@ import { Header } from '@/components/navigation/Header';
 import { DesktopSidebar } from '@/components/navigation/DesktopSidebar';
 import { MobileBottomBar } from '@/components/navigation/MobileBottomBar';
 import { QuickScanFAB } from '@/components/navigation/QuickScanFAB';
+import { Footer } from '@/components/navigation/Footer';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -61,6 +62,9 @@ export default function RootLayout({
                 {children}
               </main>
             </div>
+
+            {/* Civic Methodology & Transparency Footer */}
+            <Footer />
 
             {/* Mobile Bottom Navigation & Quick-Scan Floating Action */}
             <MobileBottomBar />
