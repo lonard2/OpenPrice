@@ -13,7 +13,7 @@ import {
   Layers,
   ArrowRight,
   RefreshCw,
-  Sparkles,
+  Shield,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import {
@@ -105,19 +105,17 @@ export default function AdminModerationPage() {
   return (
     <div className="space-y-6">
       {/* Admin Header Banner */}
-      <section className="bg-gradient-to-br from-amber-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-900/40 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-xl space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 text-xs font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
               <span>Admin / Community Curator Hub</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Submission Moderation Queue
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Review flagged crowdsourced submissions, verify proof documents, and resolve statistical &gt;3σ price outliers to maintain catalog integrity.
             </p>
 
@@ -126,35 +124,35 @@ export default function AdminModerationPage() {
                 <button
                   type="button"
                   onClick={() => setRole('admin')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors touch-target min-h-[44px]"
                 >
                   <span>Switch perspective to Admin</span>
-                  <ArrowRight className="w-3 h-3" />
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}
           </div>
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 min-w-[200px] flex items-center justify-between">
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/90 min-w-[200px] flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Pending Submissions
                 </span>
-                <p className="text-2xl font-extrabold font-mono text-amber-400 tabular-nums">
+                <p className="text-2xl font-extrabold font-mono text-amber-600 tabular-nums">
                   {queue.length}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5" />
               </div>
             </div>
 
             <Link
               href="/admin/taxonomy"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200/90 transition-all touch-target min-h-[44px]"
             >
-              <Layers className="w-4 h-4" />
+              <Layers className="w-4 h-4 text-slate-600" />
               <span>Store & Taxonomy Manager</span>
             </Link>
           </div>
@@ -215,7 +213,7 @@ export default function AdminModerationPage() {
                 variant="primary"
                 size="sm"
                 onClick={handleSeedQueue}
-                leftIcon={<Sparkles className="w-4 h-4" />}
+                leftIcon={<Shield className="w-4 h-4" />}
               >
                 Seed Anomaly Submission for Review
               </Button>

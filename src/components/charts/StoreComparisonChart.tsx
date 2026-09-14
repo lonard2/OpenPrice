@@ -11,7 +11,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { Sparkles } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 import type { StorePriceComparison } from '@/types';
 import { cn } from '@/lib/utils';
@@ -98,8 +98,8 @@ export function StoreComparisonChart({
         <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
           <span className="font-bold text-slate-200">{data.storeName}</span>
           {data.isCheapest && (
-            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-0.5">
-              <Sparkles className="w-2.5 h-2.5" /> Best Value
+            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+              <CheckCircle2 className="w-2.5 h-2.5" /> Best Value
             </span>
           )}
         </div>
@@ -149,7 +149,7 @@ export function StoreComparisonChart({
         </div>
 
         <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200 font-medium">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
           <span>Lowest: <strong className="font-mono">{formatCurrency(minPrice, currency)}</strong></span>
         </div>
       </div>

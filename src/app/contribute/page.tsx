@@ -7,7 +7,6 @@ import {
   Edit3,
   Globe,
   Award,
-  Sparkles,
   CheckCircle2,
   Flame,
   ArrowRight,
@@ -531,10 +530,8 @@ export default function ContributePage() {
   return (
     <div className="space-y-6">
       {/* Contributor Header Banner */}
-      <section className="bg-gradient-to-br from-indigo-50/60 via-white to-sky-50/50 rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-ambient-lift relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-xl space-y-2.5">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Crowdsource Real-World Prices
@@ -1045,7 +1042,7 @@ export default function ContributePage() {
             {/* Quick Fill Test Retailer Links */}
             <div className="space-y-2">
               <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                <Globe className="w-3.5 h-3.5 text-indigo-600" />
                 Quick-test supported online retailers:
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

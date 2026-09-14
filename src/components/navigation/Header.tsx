@@ -9,7 +9,6 @@ import {
   Shield,
   UploadCloud,
   Users,
-  Sparkles,
   X,
   Bookmark,
   ChevronDown,
@@ -119,8 +118,8 @@ export function Header() {
                 <span className="text-xl font-extrabold tracking-tight text-slate-900 font-sans">
                   Open<span className="text-indigo-600">Price</span>
                 </span>
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                  <Sparkles className="w-2.5 h-2.5" /> LIVE
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
                 </span>
               </div>
               <span className="text-[11px] font-medium text-slate-500 -mt-1 hidden sm:inline">

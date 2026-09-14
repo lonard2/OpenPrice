@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Store as StoreIcon,
   Globe,
-  Sparkles,
   Clock,
   ShieldCheck,
 } from 'lucide-react';
@@ -113,8 +112,8 @@ export function StoreComparisonTable({
                             {item.storeName}
                           </span>
                           {isCheapest && (
-                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white uppercase tracking-wider">
-                              <Sparkles className="w-2.5 h-2.5" />
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white uppercase tracking-wider">
+                              <CheckCircle2 className="w-2.5 h-2.5" />
                               Best Value
                             </span>
                           )}

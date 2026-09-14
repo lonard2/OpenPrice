@@ -128,8 +128,7 @@ export function DesktopSidebar() {
       </div>
 
       {/* Community Inflation Barometer Card */}
-      <div className="card-surface p-4 bg-gradient-to-br from-slate-900 to-indigo-950 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="card-surface p-4 bg-slate-900 text-white">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-emerald-400" />

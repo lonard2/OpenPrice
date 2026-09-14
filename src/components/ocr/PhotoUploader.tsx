@@ -5,7 +5,7 @@ import {
   UploadCloud,
   Camera,
   FileImage,
-  Sparkles,
+  FileText,
   Tag,
   Receipt,
   FileSpreadsheet,
@@ -390,7 +390,7 @@ export function PhotoUploader({
       <div className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <FileText className="w-3.5 h-3.5 text-indigo-600" />
             Or try realistic demo documents:
           </span>
           <span className="text-[11px] text-slate-500">Instant one-click demo</span>

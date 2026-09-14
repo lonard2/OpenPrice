@@ -6,7 +6,7 @@ import {
   Bookmark,
   Bell,
   Trash2,
-  Sparkles,
+  TrendingDown,
   ShoppingBag,
   Store as StoreIcon,
   Plus,
@@ -324,7 +324,7 @@ export default function WatchlistPage() {
                   variant="primary"
                   size="sm"
                   onClick={handleSeedWatchlist}
-                  leftIcon={<Sparkles className="w-4 h-4" />}
+                  leftIcon={<Plus className="w-4 h-4" />}
                 >
                   Add 5 Popular Essentials
                 </Button>
@@ -480,10 +480,10 @@ export default function WatchlistPage() {
           ) : (
             <div className="space-y-4">
               {/* Savings Highlight Hero Card */}
-              <div className="bg-gradient-to-br from-emerald-900 via-slate-900 to-indigo-950 text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-emerald-800/50 space-y-4">
+              <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-surface border border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <TrendingDown className="w-3.5 h-3.5" />
                     Split-Trip Savings
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-400 text-emerald-950">

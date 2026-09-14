@@ -6,7 +6,7 @@ import {
   ZoomOut,
   RotateCcw,
   Tag,
-  Sparkles,
+  CheckCircle2,
   ShoppingBag,
   Percent,
   CheckSquare,
@@ -176,7 +176,7 @@ export function PamphletViewer({
       {/* Viewer Header Toolbar */}
       <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50/50">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="verified" size="sm" icon={<Sparkles className="w-3 h-3" />}>
+          <Badge variant="verified" size="sm" icon={<CheckCircle2 className="w-3 h-3" />}>
             Circular Deals
           </Badge>
           <span className="text-xs font-semibold text-slate-700">
