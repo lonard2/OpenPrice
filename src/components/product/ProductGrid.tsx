@@ -215,19 +215,19 @@ export function ProductGrid({
                     type="button"
                     onClick={() => handleCategorySelect(cat.id)}
                     className={cn(
-                      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none min-h-[36px]',
+                      'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none min-h-[44px] touch-target active:scale-[0.98]',
                       isSelected
-                        ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-600/20'
-                        : 'bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                        ? 'bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-600/20'
+                        : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
                     )}
                   >
                     <span>{cat.label}</span>
                     <span
                       className={cn(
-                        'px-1.5 py-0.2 rounded-full text-[10px] font-mono',
+                        'px-1.5 py-0.5 rounded-full text-[10px] font-mono tabular-nums',
                         isSelected
                           ? 'bg-white/20 text-white'
-                          : 'bg-white text-slate-500 border border-slate-200/60'
+                          : 'bg-white text-slate-600 border border-slate-200/80'
                       )}
                     >
                       {cat.count}
