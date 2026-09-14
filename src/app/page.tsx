@@ -27,9 +27,8 @@ import {
   toggleWatchlistProduct,
   subscribeToStorageChanges,
 } from '@/lib/storage';
-import { calculateInflationIndex, calculateStorePriceVariance } from '@/lib/inflation';
+import { computeCatalogInflation, calculateStorePriceVariance } from '@/lib/inflation';
 import { formatDeltaPercent } from '@/lib/formatters';
-import { CATEGORY_METADATA } from '@/lib/mock-data';
 import type { Product, ProductCategory, StorePriceComparison, PriceSourceType } from '@/types';
 
 export default function HomePage() {
@@ -58,10 +57,14 @@ export default function HomePage() {
   // Global Keyboard Shortcut: '/' or 'Cmd+K' to focus search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Prevent stealing focus away from open modal Compare Drawer
+      if (comparedProduct) return;
+
       if (
         (e.key === '/' || (e.key === 'k' && (e.metaKey || e.ctrlKey))) &&
         document.activeElement?.tagName !== 'INPUT' &&
-        document.activeElement?.tagName !== 'TEXTAREA'
+        document.activeElement?.tagName !== 'TEXTAREA' &&
+        document.activeElement?.tagName !== 'SELECT'
       ) {
         e.preventDefault();
         const mainInput = document.getElementById('main-product-search') as HTMLInputElement | null;
@@ -77,7 +80,7 @@ export default function HomePage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [comparedProduct]);
 
   // Handle Watchlist toggle with feedback toast
   const handleToggleWatchlist = (product: Product) => {
@@ -124,20 +127,7 @@ export default function HomePage() {
 
   // Compute Macro Inflation Metrics
   const inflationReport = useMemo(() => {
-    if (products.length === 0) return null;
-
-    const currentPrices: Record<string, number> = {};
-    const basePrices: Record<string, number> = {};
-    const weights: Record<string, number> = {};
-
-    products.forEach((p) => {
-      currentPrices[p.id] = p.currentLowestPrice;
-      basePrices[p.id] = p.previousPrice || p.currentLowestPrice;
-      const catWeight = CATEGORY_METADATA[p.category]?.inflationBasketWeight || 0.15;
-      weights[p.id] = catWeight / 10;
-    });
-
-    return calculateInflationIndex(currentPrices, basePrices, weights);
+    return computeCatalogInflation(products);
   }, [products]);
 
   // Compute Store Comparisons for drawer
@@ -241,7 +231,13 @@ export default function HomePage() {
           <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
             <span>30-Day Inflation</span>
             <Tooltip content="Laspeyres weighted basket index across all tracked essentials relative to 30 days ago.">
-              <HelpCircle className="w-3.5 h-3.5 text-slate-400 cursor-pointer" />
+              <button
+                type="button"
+                aria-label="30-day inflation calculation methodology"
+                className="p-0.5 rounded-md text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 inline-flex items-center justify-center cursor-pointer"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+              </button>
             </Tooltip>
           </div>
           <div className="flex items-center gap-2 mt-1">
@@ -306,9 +302,9 @@ export default function HomePage() {
                 <Scale className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">
+                <span className="block text-base font-bold text-slate-900">
                   Store Price Comparison
-                </h3>
+                </span>
                 <p className="text-xs text-slate-500 font-normal">
                   {comparedProduct.name} ({comparedProduct.unit})
                 </p>

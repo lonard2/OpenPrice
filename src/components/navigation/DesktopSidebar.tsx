@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -10,6 +10,7 @@ import {
   CheckCircle2, 
   Layers, 
   TrendingUp, 
+  TrendingDown,
   ShieldCheck, 
   Award,
   ChevronRight,
@@ -20,10 +21,26 @@ import {
 import { useRoleView } from '@/components/providers/RoleContext';
 import { UserRole } from '@/types/user';
 import { cn } from '@/lib/utils';
+import { getStoredProducts, subscribeToStorageChanges } from '@/lib/storage';
+import { computeCatalogInflation } from '@/lib/inflation';
+import { formatDeltaPercent } from '@/lib/formatters';
+import type { InflationBasketReport } from '@/types';
 
 export function DesktopSidebar() {
   const pathname = usePathname();
   const { role, setRole, isContributor, isAdmin } = useRoleView();
+  const [inflation, setInflation] = useState<InflationBasketReport | null>(null);
+
+  useEffect(() => {
+    const updateInflation = () => {
+      const stored = getStoredProducts();
+      setInflation(computeCatalogInflation(stored));
+    };
+
+    updateInflation();
+    const unsubscribe = subscribeToStorageChanges(updateInflation);
+    return () => unsubscribe();
+  }, []);
 
   const roleOptions: { id: UserRole; label: string; icon: React.ReactNode }[] = [
     { id: 'public', label: 'Public', icon: <Users className="w-3.5 h-3.5" /> },
@@ -131,20 +148,29 @@ export function DesktopSidebar() {
       <div className="card-surface p-4 bg-slate-900 text-white">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            {inflation && (inflation.compositeInflationRate ?? inflation.inflationRatePercent) > 0 ? (
+              <TrendingUp className="w-4 h-4 text-rose-400" />
+            ) : (
+              <TrendingDown className="w-4 h-4 text-emerald-400" />
+            )}
             <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Community CPI
             </span>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            -0.8% 30D
+          <span className={cn(
+            "text-[10px] font-bold px-2 py-0.5 rounded-full border font-mono tabular-nums",
+            inflation && (inflation.compositeInflationRate ?? inflation.inflationRatePercent) > 0
+              ? "bg-rose-500/20 text-rose-300 border-rose-500/30"
+              : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+          )}>
+            {inflation ? formatDeltaPercent(inflation.compositeInflationRate ?? inflation.inflationRatePercent) : '+3.9%'} 30D
           </span>
         </div>
         <div className="text-2xl font-bold font-mono tabular-nums text-white mb-1">
-          104.2 <span className="text-xs font-normal text-slate-400">pts</span>
+          {inflation ? inflation.indexValue.toFixed(1) : '103.9'} <span className="text-xs font-normal text-slate-400">pts</span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">
-          Grocery basket prices stabilized across 7 monitored regional chains this week.
+          Grocery basket prices tracked dynamically across 7 monitored regional chains.
         </p>
       </div>
 
@@ -185,7 +211,7 @@ export function DesktopSidebar() {
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Perspective Mode
           </span>
-          <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wide bg-indigo-50 border border-indigo-200/60 px-1.5 py-0.2 rounded-md">
+          <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wide bg-indigo-50 border border-indigo-200/60 px-1.5 py-0.5 rounded-md">
             {role}
           </span>
         </div>

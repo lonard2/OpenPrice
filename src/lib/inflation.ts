@@ -10,7 +10,9 @@ import type {
   StorePriceComparison,
   PriceOutlierReport,
   PricePoint,
+  Product,
 } from '../types/index.ts';
+import { CATEGORY_METADATA } from './mock-data.ts';
 
 /**
  * Calculates price delta, percentage change, and trend classification.
@@ -253,4 +255,24 @@ export function detectPriceOutlier(
       ? `Z-Score (${zScore}σ) exceeds threshold limit (${thresholdSigma}σ)`
       : undefined,
   };
+}
+
+/**
+ * Computes composite Laspeyres inflation metrics from an array of catalog products.
+ */
+export function computeCatalogInflation(products: Product[]): InflationBasketReport | null {
+  if (!products || products.length === 0) return null;
+
+  const currentPrices: Record<string, number> = {};
+  const basePrices: Record<string, number> = {};
+  const weights: Record<string, number> = {};
+
+  products.forEach((p) => {
+    currentPrices[p.id] = p.currentLowestPrice;
+    basePrices[p.id] = p.previousPrice || p.currentLowestPrice;
+    const catWeight = CATEGORY_METADATA[p.category]?.inflationBasketWeight || 0.15;
+    weights[p.id] = catWeight / 10;
+  });
+
+  return calculateInflationIndex(currentPrices, basePrices, weights);
 }
