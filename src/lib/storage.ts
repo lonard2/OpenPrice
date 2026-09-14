@@ -336,6 +336,52 @@ export function toggleWatchlistProduct(product: Product, targetPrice?: number): 
   return true; // Added
 }
 
+/**
+ * Sets or updates a price alert on a watchlist item without toggling it off.
+ * If the product is not yet in the watchlist, it will be added.
+ */
+export function setWatchlistAlert(
+  product: Product,
+  targetPrice: number,
+  preferences?: { notifyOnPriceDrop?: boolean; notifyOnInflationSpike?: boolean }
+): WatchlistItem | null {
+  if (!isBrowser()) return null;
+
+  const watchlist = getStoredWatchlist();
+  const index = watchlist.findIndex((w) => w.productId === product.id);
+
+  if (index >= 0) {
+    watchlist[index] = {
+      ...watchlist[index],
+      targetPrice,
+      notifyOnPriceDrop: preferences?.notifyOnPriceDrop ?? watchlist[index].notifyOnPriceDrop,
+      notifyOnInflationSpike: preferences?.notifyOnInflationSpike ?? watchlist[index].notifyOnInflationSpike,
+    };
+    localStorage.setItem(STORAGE_KEYS.WATCHLIST, JSON.stringify(watchlist));
+    notifyStorageChange();
+    return watchlist[index];
+  }
+
+  const newItem: WatchlistItem = {
+    id: `watch-${product.id}`,
+    productId: product.id,
+    productName: product.name,
+    category: product.category,
+    initialPrice: product.currentLowestPrice,
+    currentPrice: product.currentLowestPrice,
+    lowestTrackedPrice: product.currentLowestPrice,
+    targetPrice,
+    notifyOnPriceDrop: preferences?.notifyOnPriceDrop ?? true,
+    notifyOnInflationSpike: preferences?.notifyOnInflationSpike ?? true,
+    addedAt: new Date().toISOString(),
+  };
+
+  watchlist.push(newItem);
+  localStorage.setItem(STORAGE_KEYS.WATCHLIST, JSON.stringify(watchlist));
+  notifyStorageChange();
+  return newItem;
+}
+
 // ============================================================================
 // Contributor Karma & Gamification
 // ============================================================================

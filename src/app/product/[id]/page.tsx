@@ -19,6 +19,7 @@ import {
   getStoredProductById,
   getStoredWatchlist,
   toggleWatchlistProduct,
+  setWatchlistAlert,
   getStoredStores,
   subscribeToStorageChanges,
 } from '@/lib/storage';
@@ -44,18 +45,24 @@ export default function ProductDetailPage() {
   const productId = params?.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [alertTargetPrice, setAlertTargetPrice] = useState<number>(0);
   const [alertSavedSuccess, setAlertSavedSuccess] = useState(false);
+  const [notifyOnDrop, setNotifyOnDrop] = useState(true);
+  const [notifyOnSpike, setNotifyOnSpike] = useState(true);
 
   // Load product from storage and subscribe to changes
   useEffect(() => {
     const loadProduct = () => {
-      if (!productId) return;
+      if (!productId) {
+        setIsLoading(false);
+        return;
+      }
       const found = getStoredProductById(productId);
+      setProduct(found || null);
       if (found) {
-        setProduct(found);
         setAlertTargetPrice(found.currentLowestPrice * 0.95); // default alert at 5% drop
       }
 
@@ -65,6 +72,7 @@ export default function ProductDetailPage() {
       if (watchItem?.targetPrice) {
         setAlertTargetPrice(watchItem.targetPrice);
       }
+      setIsLoading(false);
     };
 
     loadProduct();
@@ -130,7 +138,10 @@ export default function ProductDetailPage() {
         action: {
           label: 'Undo',
           onClick: () => {
-            toggleWatchlistProduct(product, alertTargetPrice);
+            setWatchlistAlert(product, alertTargetPrice, {
+              notifyOnPriceDrop: notifyOnDrop,
+              notifyOnInflationSpike: notifyOnSpike,
+            });
             setIsWatchlisted(true);
           },
         },
@@ -141,7 +152,10 @@ export default function ProductDetailPage() {
   // Handle Save Price Alert
   const handleSavePriceAlert = () => {
     if (!product) return;
-    toggleWatchlistProduct(product, alertTargetPrice);
+    setWatchlistAlert(product, alertTargetPrice, {
+      notifyOnPriceDrop: notifyOnDrop,
+      notifyOnInflationSpike: notifyOnSpike,
+    });
     setIsWatchlisted(true);
     setAlertSavedSuccess(true);
     showToast({
@@ -154,6 +168,39 @@ export default function ProductDetailPage() {
       setIsAlertModalOpen(false);
     }, 1200);
   };
+
+  // Resilient Back Navigation
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
+
+  // Loading Skeleton View while resolving from storage
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-pulse" aria-busy="true" aria-label="Loading product details">
+        <div className="flex items-center justify-between">
+          <div className="h-10 w-24 bg-slate-200/70 rounded-xl" />
+          <div className="h-6 w-32 bg-slate-200/70 rounded-full" />
+        </div>
+        <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 space-y-4">
+          <div className="h-4 w-28 bg-slate-200/70 rounded-md" />
+          <div className="h-8 w-72 bg-slate-200/70 rounded-lg" />
+          <div className="h-4 w-96 max-w-full bg-slate-200/70 rounded-md" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
+            <div className="h-16 bg-slate-100 rounded-2xl" />
+            <div className="h-16 bg-slate-100 rounded-2xl" />
+            <div className="h-16 bg-slate-100 rounded-2xl" />
+            <div className="h-16 bg-slate-100 rounded-2xl" />
+          </div>
+        </div>
+        <div className="h-64 bg-white rounded-2xl border border-slate-200/90" />
+      </div>
+    );
+  }
 
   // 404 Not Found View
   if (!product) {
@@ -186,7 +233,8 @@ export default function ProductDetailPage() {
       <div className="flex items-center justify-between">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={handleBack}
+          aria-label="Go back to previous page"
           className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/80 transition-all shadow-2xs"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -278,6 +326,7 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 onClick={handleToggleWatchlist}
+                aria-pressed={isWatchlisted}
                 className={cn(
                   'min-h-[44px] px-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all select-none',
                   isWatchlisted
@@ -292,6 +341,8 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 onClick={() => setIsAlertModalOpen(true)}
+                aria-haspopup="dialog"
+                aria-expanded={isAlertModalOpen}
                 className="min-h-[44px] px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 text-xs font-bold shadow-ambient-lift transition-all"
               >
                 <Bell className="w-4 h-4" />
@@ -414,6 +465,7 @@ export default function ProductDetailPage() {
             <Button
               variant="primary"
               size="sm"
+              disabled={alertTargetPrice <= 0 || isNaN(alertTargetPrice)}
               onClick={handleSavePriceAlert}
               leftIcon={<Bell className="w-3.5 h-3.5" />}
             >
@@ -446,10 +498,11 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700">
+            <label htmlFor="alert-target-price" className="text-xs font-bold text-slate-700">
               Notify me when price drops below ($):
             </label>
             <Input
+              id="alert-target-price"
               type="number"
               step="0.05"
               min="0.01"
@@ -459,12 +512,42 @@ export default function ProductDetailPage() {
             />
           </div>
 
+          {/* Quick Target Presets */}
+          <div className="flex items-center gap-2 pt-1 flex-wrap">
+            <span className="text-[11px] font-semibold text-slate-500">Presets:</span>
+            {[0.05, 0.10, 0.15].map((pct) => {
+              const target = Number((product.currentLowestPrice * (1 - pct)).toFixed(2));
+              return (
+                <button
+                  key={pct}
+                  type="button"
+                  onClick={() => setAlertTargetPrice(target)}
+                  className={cn(
+                    'px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all touch-target',
+                    Math.abs(alertTargetPrice - target) < 0.001
+                      ? 'bg-indigo-50 border-indigo-300 text-indigo-700 font-bold'
+                      : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                  )}
+                >
+                  -{pct * 100}% (${target.toFixed(2)})
+                </button>
+              );
+            })}
+          </div>
+
+          {alertTargetPrice >= product.currentLowestPrice && (
+            <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2.5 leading-relaxed">
+              Target price (${alertTargetPrice.toFixed(2)}) is equal to or higher than the current lowest price (${product.currentLowestPrice.toFixed(2)}). You will be notified on any recorded price movement.
+            </p>
+          )}
+
           <div className="space-y-2 pt-2 text-xs text-slate-600">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="notify-drop"
-                defaultChecked
+                checked={notifyOnDrop}
+                onChange={(e) => setNotifyOnDrop(e.target.checked)}
                 className="rounded text-indigo-600 focus:ring-indigo-500"
               />
               <label htmlFor="notify-drop" className="font-medium cursor-pointer">
@@ -475,7 +558,8 @@ export default function ProductDetailPage() {
               <input
                 type="checkbox"
                 id="notify-spike"
-                defaultChecked
+                checked={notifyOnSpike}
+                onChange={(e) => setNotifyOnSpike(e.target.checked)}
                 className="rounded text-indigo-600 focus:ring-indigo-500"
               />
               <label htmlFor="notify-spike" className="font-medium cursor-pointer">

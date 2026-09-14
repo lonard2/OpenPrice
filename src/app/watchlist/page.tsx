@@ -20,6 +20,7 @@ import {
   getStoredWatchlist,
   getStoredProducts,
   toggleWatchlistProduct,
+  setWatchlistAlert,
   getStoredStores,
   subscribeToStorageChanges,
 } from '@/lib/storage';
@@ -111,8 +112,8 @@ export default function WatchlistPage() {
     if (!editingItem) return;
     const prod = products.find((p) => p.id === editingItem.productId);
     if (prod) {
-      // Re-toggle with new target price
-      toggleWatchlistProduct(prod, newTargetPrice);
+      // Update target price non-destructively
+      setWatchlistAlert(prod, newTargetPrice);
       showToast({
         type: 'success',
         message: 'Price Alert Updated',

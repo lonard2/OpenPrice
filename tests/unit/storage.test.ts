@@ -9,6 +9,7 @@ import {
   savePriceSubmission,
   getStoredWatchlist,
   toggleWatchlistProduct,
+  setWatchlistAlert,
   getStoredKarma,
   addKarmaPoints,
   getModerationQueue,
@@ -209,6 +210,29 @@ describe('Unit Tests: storage.ts', () => {
       assert.strictEqual(removed, false);
       watchlist = getStoredWatchlist();
       assert.strictEqual(watchlist.length, 0);
+    });
+
+    it('sets and updates price alerts non-destructively on existing watchlist items', () => {
+      const product = getStoredProductById('prod-milk')!;
+
+      // Add to watchlist initially
+      toggleWatchlistProduct(product);
+      assert.strictEqual(getStoredWatchlist().length, 1);
+
+      // Now set alert on existing item - should NOT remove it
+      const item = setWatchlistAlert(product, 3.99, { notifyOnPriceDrop: true, notifyOnInflationSpike: false });
+      assert.ok(item);
+      assert.strictEqual(item?.targetPrice, 3.99);
+      assert.strictEqual(item?.notifyOnInflationSpike, false);
+
+      const watchlist = getStoredWatchlist();
+      assert.strictEqual(watchlist.length, 1);
+      assert.strictEqual(watchlist[0].targetPrice, 3.99);
+
+      // Updating again preserves presence
+      setWatchlistAlert(product, 3.50);
+      assert.strictEqual(getStoredWatchlist().length, 1);
+      assert.strictEqual(getStoredWatchlist()[0].targetPrice, 3.50);
     });
   });
 
