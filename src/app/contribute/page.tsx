@@ -34,7 +34,6 @@ import { PamphletViewer } from '@/components/ocr/PamphletViewer';
 import { useToast } from '@/components/ui/Toast';
 import {
   getStoredKarma,
-  addKarmaPoints,
   savePriceSubmission,
   getStoredProducts,
   getStoredStores,
@@ -674,8 +673,9 @@ export default function ContributePage() {
       });
 
       const docLabel = ocrSourceType === 'receipt' ? 'receipt' : 'shelf tag';
-      const awarded = addKarmaPoints(15 * selected.length, `Logged ${selected.length} ${docLabel} observations at ${storeName}`);
-      setKarma(awarded);
+      // savePriceSubmission in storage.ts already records +15 Karma points per non-outlier item.
+      // Sync karma state from storage without duplicate double-awarding:
+      setKarma(getStoredKarma());
 
       showToast({
         type: 'success',
@@ -719,16 +719,17 @@ export default function ContributePage() {
         });
       });
 
-      const awarded = addKarmaPoints(10 * selected.length, `Batch imported ${selected.length} flyer deals`);
-      setKarma(awarded);
+      // savePriceSubmission in storage.ts already records +15 Karma points per non-outlier deal.
+      // Sync karma state from storage without duplicate double-awarding:
+      setKarma(getStoredKarma());
 
       showToast({
         type: 'success',
         message: `Ingested ${selected.length} circular deal${selected.length > 1 ? 's' : ''}`,
-        description: `+${10 * selected.length} Karma points awarded`,
+        description: `+${15 * selected.length} Karma points awarded`,
       });
 
-      setSuccessMessage(`Successfully ingested ${selected.length} circular deals into catalog! (+${10 * selected.length} Karma)`);
+      setSuccessMessage(`Successfully ingested ${selected.length} circular deals into catalog! (+${15 * selected.length} Karma)`);
       setTimeout(() => setSuccessMessage(null), 5000);
     } finally {
       setIsImportingFlyer(false);
