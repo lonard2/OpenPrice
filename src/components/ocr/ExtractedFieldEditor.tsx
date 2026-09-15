@@ -29,6 +29,8 @@ export interface ExtractedFieldEditorProps {
   onSaveSelected?: (selectedItems: ExtractedPriceItem[]) => void;
   isSaving?: boolean;
   className?: string;
+  storeName?: string;
+  documentDate?: string;
 }
 
 const CATEGORIES: ProductCategory[] = [
@@ -51,6 +53,8 @@ export function ExtractedFieldEditor({
   onSaveSelected,
   isSaving = false,
   className,
+  storeName,
+  documentDate,
 }: ExtractedFieldEditorProps) {
   const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
   const [liveAnnouncement, setLiveAnnouncement] = useState<string>('');
@@ -277,6 +281,8 @@ export function ExtractedFieldEditor({
             </h4>
             <p className="text-xs text-slate-500">
               {selectedItems.length} of {items.length} items selected for ingestion
+              {storeName ? ` • ${storeName}` : ''}
+              {documentDate ? ` (${documentDate})` : ''}
             </p>
           </div>
         </div>
@@ -608,6 +614,7 @@ export function ExtractedFieldEditor({
                     ref={(el) => {
                       rowRefs.current[item.tempId] = el;
                     }}
+                    aria-selected={isSelected}
                     onClick={() => onItemSelect?.(item.tempId)}
                     onMouseEnter={() => onItemHover?.(item.tempId)}
                     onMouseLeave={() => onItemHover?.(null)}

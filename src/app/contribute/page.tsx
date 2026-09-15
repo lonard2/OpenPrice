@@ -13,6 +13,8 @@ import {
   UploadCloud,
   Keyboard,
   X,
+  Store as StoreIcon,
+  Calendar,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/Tabs';
@@ -161,6 +163,9 @@ export default function ContributePage() {
   const [selectedItemId, setSelectedItemId] = useState<string | null>('init-1');
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [isSavingOcr, setIsSavingOcr] = useState(false);
+  const [ocrStoreId, setOcrStoreId] = useState<string>('store-target');
+  const [ocrDate, setOcrDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  const [ocrSourceType, setOcrSourceType] = useState<'photo_shelf' | 'receipt' | 'promo_pamphlet'>('photo_shelf');
 
   // Tab 2 (Flyer) state
   const [flyerImageUrl, setFlyerImageUrl] = useState<string>('/samples/weekly-flyer-circular.jpg');
@@ -348,6 +353,24 @@ export default function ContributePage() {
         setExtractedItems(res.result.extractedItems);
         setSelectedItemId(res.result.extractedItems[0]?.tempId || null);
       }
+      if (res.result.sourceType) {
+        setOcrSourceType(res.result.sourceType);
+      }
+      if (res.result.detectedStoreName) {
+        const storeQuery = res.result.detectedStoreName.toLowerCase();
+        const matchedStore = stores.find(
+          (s) =>
+            s.name.toLowerCase().includes(storeQuery) ||
+            storeQuery.includes(s.name.toLowerCase()) ||
+            (s.chain && s.chain.toLowerCase().includes(storeQuery))
+        );
+        if (matchedStore) {
+          setOcrStoreId(matchedStore.id);
+        }
+      }
+      if (res.result.detectedDate) {
+        setOcrDate(res.result.detectedDate);
+      }
     }
   };
 
@@ -356,18 +379,29 @@ export default function ContributePage() {
     setIsSavingOcr(true);
     try {
       let outlierCount = 0;
+      const selectedStore = stores.find((s) => s.id === ocrStoreId);
+      const storeName = selectedStore?.name || 'Target';
+      const submissionTimestamp = ocrDate ? `${ocrDate}T12:00:00.000Z` : new Date().toISOString();
 
       selected.forEach((item) => {
         const prodId = item.matchedProductId || products[0]?.id || 'prod-milk';
+        const itemStoreId = item.storeName
+          ? stores.find((s) => s.name.toLowerCase() === item.storeName?.toLowerCase())?.id || ocrStoreId
+          : ocrStoreId;
+        const itemStoreName = item.storeName || storeName;
+
         const result = savePriceSubmission({
           productId: prodId,
           price: item.price,
           originalPrice: item.originalPrice,
+          storeId: itemStoreId,
+          storeName: itemStoreName,
+          timestamp: submissionTimestamp,
           unit: item.unit,
-          sourceType: 'photo_shelf',
+          sourceType: ocrSourceType,
           confidenceScore: Math.round(item.confidence * 100),
           proofImageUrl: ocrImageUrl,
-          notes: `OCR Shelf Tag parse: ${item.name}`,
+          notes: item.notes || `OCR ${ocrSourceType === 'receipt' ? 'Receipt' : 'Shelf Tag'} parse: ${item.name}`,
         });
 
         if (result.isOutlier) {
@@ -375,17 +409,18 @@ export default function ContributePage() {
         }
       });
 
-      const awarded = addKarmaPoints(15 * selected.length, `Logged ${selected.length} shelf tag observations`);
+      const docLabel = ocrSourceType === 'receipt' ? 'receipt' : 'shelf tag';
+      const awarded = addKarmaPoints(15 * selected.length, `Logged ${selected.length} ${docLabel} observations at ${storeName}`);
       setKarma(awarded);
 
       showToast({
         type: 'success',
-        message: `Logged ${selected.length} shelf tag observation${selected.length > 1 ? 's' : ''}`,
+        message: `Logged ${selected.length} ${docLabel} observation${selected.length > 1 ? 's' : ''} at ${storeName}`,
         description: `+${15 * selected.length} Karma points awarded to your rank!`,
       });
 
       setSuccessMessage(
-        `Successfully logged ${selected.length} items! (+${15 * selected.length} Karma points awarded)${
+        `Successfully logged ${selected.length} items at ${storeName}! (+${15 * selected.length} Karma points awarded)${
           outlierCount > 0 ? ` Note: ${outlierCount} flagged item(s) sent to moderation.` : ''
         }`
       );
@@ -401,15 +436,22 @@ export default function ContributePage() {
     try {
       selected.forEach((item) => {
         const prodId = item.matchedProductId || products[0]?.id || 'prod-apples';
+        const itemStoreId = item.storeName
+          ? stores.find((s) => s.name.toLowerCase() === item.storeName?.toLowerCase())?.id || 'store-walmart'
+          : 'store-walmart';
+        const itemStoreName = item.storeName || 'Walmart Supercenter';
+
         savePriceSubmission({
           productId: prodId,
           price: item.price,
           originalPrice: item.originalPrice,
+          storeId: itemStoreId,
+          storeName: itemStoreName,
           unit: item.unit,
           sourceType: 'promo_pamphlet',
           confidenceScore: Math.round(item.confidence * 100),
-          proofImageUrl: '/samples/weekly-flyer-circular.jpg',
-          notes: `Weekly circular deal: ${item.name}`,
+          proofImageUrl: flyerImageUrl || '/samples/weekly-flyer-circular.jpg',
+          notes: item.notes || `Weekly circular deal: ${item.name}`,
         });
       });
 
@@ -665,9 +707,85 @@ export default function ContributePage() {
             initialSourceType="photo_shelf"
             onImageSelected={(data) => {
               if (data.imageUrl) setOcrImageUrl(data.imageUrl);
+              if (data.sourceType) {
+                setOcrSourceType(data.sourceType);
+                if (data.sourceType === 'receipt') {
+                  const tjs = stores.find((s) => s.id === 'store-trader-joes');
+                  if (tjs) setOcrStoreId(tjs.id);
+                } else if (data.sourceType === 'promo_pamphlet') {
+                  const wm = stores.find((s) => s.id === 'store-walmart');
+                  if (wm) setOcrStoreId(wm.id);
+                } else {
+                  const tgt = stores.find((s) => s.id === 'store-target');
+                  if (tgt) setOcrStoreId(tgt.id);
+                }
+              }
             }}
             onParseComplete={handleOcrComplete}
           />
+
+          {/* Document Provenance & Retailer Attribution Header */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+                  <StoreIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Document Provenance & Attribution
+                    </h3>
+                    <Badge variant="category" size="sm">
+                      {ocrSourceType === 'receipt' ? 'Receipt' : ocrSourceType === 'promo_pamphlet' ? 'Circular' : 'Shelf Tag'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    Verify retailer location and receipt date before committing prices to public ledger
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Store Selector */}
+                <div className="flex items-center gap-2">
+                  <label htmlFor="ocr-store-select" className="text-xs font-semibold text-slate-700 whitespace-nowrap">
+                    Store:
+                  </label>
+                  <select
+                    id="ocr-store-select"
+                    value={ocrStoreId}
+                    onChange={(e) => setOcrStoreId(e.target.value)}
+                    aria-label="Verified Store Location"
+                    className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 min-h-[44px]"
+                  >
+                    {stores.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name} ({s.city || s.branchName})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Observation Date */}
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <label htmlFor="ocr-date-input" className="text-xs font-semibold text-slate-700 whitespace-nowrap">
+                    Date:
+                  </label>
+                  <input
+                    id="ocr-date-input"
+                    type="date"
+                    value={ocrDate}
+                    max={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setOcrDate(e.target.value)}
+                    aria-label="Receipt or Observation Date"
+                    className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 min-h-[44px]"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
             {/* Interactive Image Preview with Bounding Box Overlay */}
@@ -720,6 +838,8 @@ export default function ContributePage() {
                 onItemHover={setHoveredItemId}
                 onSaveSelected={handleSaveOcrItems}
                 isSaving={isSavingOcr}
+                storeName={stores.find((s) => s.id === ocrStoreId)?.name || 'Target'}
+                documentDate={ocrDate}
               />
             </div>
           </div>
