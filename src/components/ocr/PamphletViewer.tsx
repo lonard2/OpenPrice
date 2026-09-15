@@ -166,6 +166,17 @@ export function PamphletViewer({
     onSelectionChange?.(ids);
   };
 
+  const handleToggleItem = (tempId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const current = items.find((i) => i.tempId === tempId);
+    if (!current) return;
+    const isSelected = current.selected ?? false;
+    const nextSelectedIds = isSelected
+      ? items.filter((i) => i.tempId !== tempId && i.selected).map((i) => i.tempId)
+      : [...items.filter((i) => i.selected).map((i) => i.tempId), tempId];
+    onSelectionChange?.(nextSelectedIds);
+  };
+
   return (
     <div
       className={cn(
@@ -322,16 +333,19 @@ export function PamphletViewer({
                   >
                     <div
                       className={cn(
-                        'flex items-center gap-1.5 px-2 py-0.5 rounded-lg shadow-md border text-[11px] font-bold select-none',
+                        'flex items-center gap-1.5 px-2 py-0.5 rounded-lg shadow-md border text-[11px] font-bold select-none max-w-[200px] sm:max-w-[240px]',
                         hasDiscount
                           ? 'bg-emerald-600 text-white border-emerald-500'
                           : 'bg-slate-900/90 text-white border-slate-700',
                         isItemActive && 'ring-2 ring-indigo-400'
                       )}
                     >
-                      <span className="font-mono tabular-nums">{formatCurrency(item.price)}</span>
+                      <span className="font-mono tabular-nums shrink-0">{formatCurrency(item.price)}</span>
+                      <span className="text-[10px] font-medium text-white/90 truncate max-w-[110px] sm:max-w-[140px]">
+                        {item.name}
+                      </span>
                       {hasDiscount && (
-                        <span className="bg-emerald-700/80 px-1 py-0.5 rounded text-[9px] font-semibold">
+                        <span className="bg-emerald-700/80 px-1 py-0.5 rounded text-[9px] font-semibold shrink-0">
                           -{Math.round(Math.abs(discountPct))}%
                         </span>
                       )}
@@ -348,6 +362,93 @@ export function PamphletViewer({
             Click & drag to pan circular
           </div>
         )}
+      </div>
+
+      {/* Compact Deal Review Strip */}
+      <div className="p-3 sm:p-4 border-t border-slate-100 bg-slate-50/40">
+        <div className="flex items-center justify-between gap-2 mb-2 px-1">
+          <div className="flex items-center gap-1.5">
+            <Tag className="w-3.5 h-3.5 text-slate-500" />
+            <span className="text-xs font-bold text-slate-800">Verified Deal Candidates</span>
+            <span className="text-[11px] text-slate-500 font-medium">
+              ({selectedItems.length} of {items.length} queued for import)
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-500 hidden sm:inline">
+            Click any deal card to focus on flyer canvas
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          {items.map((item) => {
+            const isSelected = item.selected ?? false;
+            const isFocused = selectedItemId === item.tempId || hoveredItemId === item.tempId;
+            const hasDiscount = item.originalPrice && item.originalPrice > item.price;
+            const discountPct = hasDiscount
+              ? Math.round(Math.abs(((item.price - item.originalPrice!) / item.originalPrice!) * 100))
+              : 0;
+
+            return (
+              <div
+                key={`deal-strip-${item.tempId}`}
+                onClick={() => onItemSelect?.(item.tempId)}
+                onMouseEnter={() => onItemHover?.(item.tempId)}
+                onMouseLeave={() => onItemHover?.(null)}
+                className={cn(
+                  'p-2.5 rounded-xl border text-left transition-all duration-150 flex items-start justify-between gap-2 cursor-pointer touch-target min-h-[44px]',
+                  isFocused
+                    ? 'bg-indigo-50/80 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
+                    : isSelected
+                    ? 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80 shadow-2xs'
+                    : 'bg-slate-50/60 border-slate-200/70 opacity-60 hover:opacity-100'
+                )}
+              >
+                <div className="flex items-start gap-2 min-w-0">
+                  <button
+                    type="button"
+                    onClick={(e) => handleToggleItem(item.tempId, e)}
+                    className="mt-0.5 text-slate-400 hover:text-indigo-600 focus:outline-none touch-target p-1 -m-1"
+                    aria-label={isSelected ? `Deselect ${item.name}` : `Select ${item.name}`}
+                  >
+                    {isSelected ? (
+                      <CheckSquare className="w-4 h-4 text-indigo-600" />
+                    ) : (
+                      <Square className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900 truncate" title={item.name}>
+                      {item.name}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-500">
+                      <span className="font-mono font-bold text-slate-900 tabular-nums">
+                        {formatCurrency(item.price)}
+                      </span>
+                      {item.unit && <span>/ {item.unit}</span>}
+                      {hasDiscount && (
+                        <span className="text-emerald-600 font-semibold">
+                          (-{discountPct}%)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <span
+                  className={cn(
+                    'px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 tabular-nums',
+                    item.confidence >= 0.9
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
+                      : 'bg-amber-50 text-amber-700 border border-amber-200/80'
+                  )}
+                  title={`${Math.round(item.confidence * 100)}% OCR confidence`}
+                >
+                  {Math.round(item.confidence * 100)}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Bulk Action Footer */}
