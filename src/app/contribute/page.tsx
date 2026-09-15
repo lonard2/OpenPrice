@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Camera,
   FileSpreadsheet,
@@ -311,6 +311,7 @@ export default function ContributePage() {
     category: 'groceries' as ProductCategory,
     brand: 'Good & Gather',
     storeId: 'store-target',
+    observedDate: new Date().toISOString().split('T')[0],
     price: '',
     originalPrice: '',
     unit: '1 gal',
@@ -320,6 +321,7 @@ export default function ContributePage() {
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [proofFileName, setProofFileName] = useState<string>('');
   const [isSubmittingManual, setIsSubmittingManual] = useState(false);
+  const manualFormRef = useRef<HTMLFormElement>(null);
 
   // Tab 4 (Web URL) state
   const [webUrl, setWebUrl] = useState('https://www.target.com/p/good-gather-organic-whole-milk-1gal/-/A-123456');
@@ -354,6 +356,13 @@ export default function ContributePage() {
         return;
       }
 
+      // Cmd/Ctrl + Enter in Tab 3 submits manual observation (even when input is focused)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && activeTab === 'manual-crud') {
+        e.preventDefault();
+        manualFormRef.current?.requestSubmit();
+        return;
+      }
+
       // Quick tab switching 1-4 when not typing
       if (!isInputFocused && !e.metaKey && !e.ctrlKey && !e.altKey) {
         if (e.key === '1') {
@@ -374,7 +383,7 @@ export default function ContributePage() {
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, []);
+  }, [activeTab]);
 
   // Load Karma on storage change
   useEffect(() => {
@@ -470,6 +479,7 @@ export default function ContributePage() {
       originalPrice: '',
       proofUrl: '',
       notes: '',
+      observedDate: new Date().toISOString().split('T')[0],
     }));
     setProofPreview(null);
     setProofFileName('');
@@ -488,6 +498,7 @@ export default function ContributePage() {
       category: 'groceries',
       brand: 'Good & Gather',
       storeId: 'store-target',
+      observedDate: new Date().toISOString().split('T')[0],
       price: '4.89',
       originalPrice: '5.29',
       unit: '1 gal',
@@ -722,6 +733,9 @@ export default function ContributePage() {
         sourceType: 'manual',
         proofImageUrl: manualForm.proofUrl || undefined,
         notes: manualForm.notes,
+        timestamp: manualForm.observedDate
+          ? new Date(manualForm.observedDate + 'T12:00:00Z').toISOString()
+          : new Date().toISOString(),
       });
 
       if (result.isOutlier) {
@@ -748,6 +762,7 @@ export default function ContributePage() {
         originalPrice: '',
         proofUrl: '',
         notes: '',
+        observedDate: new Date().toISOString().split('T')[0],
       }));
       setProofPreview(null);
       setProofFileName('');
@@ -1281,7 +1296,17 @@ export default function ContributePage() {
               </button>
             </div>
 
-            <form onSubmit={handleManualSubmit} className="space-y-4">
+            <form
+              ref={manualFormRef}
+              onSubmit={handleManualSubmit}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  manualFormRef.current?.requestSubmit();
+                }
+              }}
+              className="space-y-4"
+            >
               {/* Product Select */}
               <div className="space-y-1.5">
                 <label htmlFor="manual-product-select" className="text-xs font-bold text-slate-700">
@@ -1369,8 +1394,8 @@ export default function ContributePage() {
                 </div>
               )}
 
-              {/* Store Select */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Store Select, Category, Observation Date */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
                   <label htmlFor="manual-store-select" className="text-xs font-bold text-slate-700">
                     Retailer Store
@@ -1405,6 +1430,20 @@ export default function ContributePage() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="manual-date-input" className="text-xs font-bold text-slate-700">
+                    Observation Date
+                  </label>
+                  <Input
+                    id="manual-date-input"
+                    type="date"
+                    max={new Date().toISOString().split('T')[0]}
+                    value={manualForm.observedDate}
+                    onChange={(e) => setManualForm({ ...manualForm, observedDate: e.target.value })}
+                    required
+                  />
                 </div>
               </div>
 
@@ -1557,7 +1596,10 @@ export default function ContributePage() {
                   className="flex-1 w-full min-h-[44px]"
                   leftIcon={<CheckCircle2 className="w-4 h-4" />}
                 >
-                  Submit Price Observation (+15 Karma)
+                  <span>Submit Price Observation (+15 Karma)</span>
+                  <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
+                    ⌘ Enter
+                  </kbd>
                 </Button>
                 <Button
                   type="button"
@@ -1863,6 +1905,18 @@ export default function ContributePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-700 font-medium">Reset Zoom & Pan to 100%</span>
                     <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">0</kbd>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-2">
+                  Direct Manual Observation Log
+                </h4>
+                <div className="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Submit Price Observation</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">⌘ + Enter</kbd>
                   </div>
                 </div>
               </div>
