@@ -79,47 +79,63 @@ export function PamphletViewer({
   };
 
   // Keyboard accessibility for zoom (+, -, 0) and canvas panning (Arrow keys)
+  // Scoped to canvas focus so global page scrolling is not intercepted
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
         return;
       }
-      if (e.key === '+' || e.key === '=') {
+
+      // Check if focus is within the flyer canvas container
+      const isCanvasFocused = containerRef.current && (
+        document.activeElement === containerRef.current ||
+        containerRef.current.contains(document.activeElement)
+      );
+
+      // Only handle arrow panning when canvas container is focused
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+        if (!isCanvasFocused) return;
         e.preventDefault();
-        setZoom((prev) => {
-          const next = Math.min(prev + 0.25, 3.0);
-          setLiveAnnouncement(`Zoomed to ${Math.round(next * 100)}%`);
-          return next;
-        });
-      } else if (e.key === '-') {
-        e.preventDefault();
-        setZoom((prev) => {
-          const next = Math.max(prev - 0.25, 0.75);
-          if (next === 1) setPan({ x: 0, y: 0 });
-          setLiveAnnouncement(`Zoomed out to ${Math.round(next * 100)}%`);
-          return next;
-        });
-      } else if (e.key === '0') {
-        e.preventDefault();
-        setZoom(1);
-        setPan({ x: 0, y: 0 });
-        setLiveAnnouncement('Reset zoom to 100% and centered canvas.');
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        setPan((prev) => ({ ...prev, x: prev.x + 40 }));
-        setLiveAnnouncement('Panned flyer left.');
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        setPan((prev) => ({ ...prev, x: prev.x - 40 }));
-        setLiveAnnouncement('Panned flyer right.');
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setPan((prev) => ({ ...prev, y: prev.y + 40 }));
-        setLiveAnnouncement('Panned flyer up.');
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setPan((prev) => ({ ...prev, y: prev.y - 40 }));
-        setLiveAnnouncement('Panned flyer down.');
+
+        if (e.key === 'ArrowLeft') {
+          setPan((prev) => ({ ...prev, x: prev.x + 40 }));
+          setLiveAnnouncement('Panned flyer left.');
+        } else if (e.key === 'ArrowRight') {
+          setPan((prev) => ({ ...prev, x: prev.x - 40 }));
+          setLiveAnnouncement('Panned flyer right.');
+        } else if (e.key === 'ArrowUp') {
+          setPan((prev) => ({ ...prev, y: prev.y + 40 }));
+          setLiveAnnouncement('Panned flyer up.');
+        } else if (e.key === 'ArrowDown') {
+          setPan((prev) => ({ ...prev, y: prev.y - 40 }));
+          setLiveAnnouncement('Panned flyer down.');
+        }
+        return;
+      }
+
+      // Zoom keys (+, -, 0) when canvas is focused
+      if (isCanvasFocused) {
+        if (e.key === '+' || e.key === '=') {
+          e.preventDefault();
+          setZoom((prev) => {
+            const next = Math.min(prev + 0.25, 3.0);
+            setLiveAnnouncement(`Zoomed to ${Math.round(next * 100)}%`);
+            return next;
+          });
+        } else if (e.key === '-') {
+          e.preventDefault();
+          setZoom((prev) => {
+            const next = Math.max(prev - 0.25, 0.75);
+            if (next === 1) setPan({ x: 0, y: 0 });
+            setLiveAnnouncement(`Zoomed out to ${Math.round(next * 100)}%`);
+            return next;
+          });
+        } else if (e.key === '0') {
+          e.preventDefault();
+          setZoom(1);
+          setPan({ x: 0, y: 0 });
+          setLiveAnnouncement('Reset zoom to 100% and centered canvas.');
+        }
       }
     };
 
@@ -296,8 +312,8 @@ export function PamphletViewer({
                 hoveredItemId={hoveredItemId}
                 onItemSelect={onItemSelect}
                 onItemHover={onItemHover}
-                showLabels={true}
-                showPriceBadges={true}
+                showLabels={false}
+                showPriceBadges={false}
               />
             )}
 
