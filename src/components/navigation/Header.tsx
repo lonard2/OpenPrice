@@ -129,37 +129,41 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Global Synchronized Search Bar */}
-        <form
-          onSubmit={handleSearchSubmit}
-          className="hidden md:flex flex-1 max-w-md mx-4"
-          role="search"
-        >
-          <div className="relative w-full">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-              <Search className="h-4 w-4" />
+        {/* Global Synchronized Search Bar (active on non-home routes to avoid competing with catalog search) */}
+        {pathname !== '/' ? (
+          <form
+            onSubmit={handleSearchSubmit}
+            className="hidden md:flex flex-1 max-w-md mx-4"
+            role="search"
+          >
+            <div className="relative w-full">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                <Search className="h-4 w-4" />
+              </div>
+              <input
+                id="header-global-search"
+                type="search"
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                placeholder="Search groceries, electronics, stores... (/)"
+                aria-label="Search OpenPrice catalog"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/90 py-2 pl-10 pr-9 text-sm text-slate-900 placeholder-slate-400 hover:border-indigo-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  aria-label="Clear search input"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 touch-target"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              ) : null}
             </div>
-            <input
-              id="header-global-search"
-              type="search"
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search groceries, electronics, stores... (/)"
-              aria-label="Search OpenPrice catalog"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50/90 py-2 pl-10 pr-9 text-sm text-slate-900 placeholder-slate-400 hover:border-indigo-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
-            />
-            {searchQuery ? (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                aria-label="Clear search input"
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 touch-target"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            ) : null}
-          </div>
-        </form>
+          </form>
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* Consumer Actions & Relocated Perspective Popover */}
         <div className="flex items-center gap-2.5">

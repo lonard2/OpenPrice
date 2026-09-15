@@ -102,11 +102,6 @@ export function ProductCard({
             </h3>
           </Link>
         </div>
-
-        {/* Row 4: Full 2-line Description */}
-        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2.25rem]">
-          {product.description || 'Verified crowdsourced price observation across major tracked retailers.'}
-        </p>
       </div>
 
       {/* Middle Telemetry: 30D Trend & Sparkline Strip */}
