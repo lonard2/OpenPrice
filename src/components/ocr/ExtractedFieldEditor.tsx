@@ -673,7 +673,7 @@ export function ExtractedFieldEditor({
                             onChange={(e) => handleFieldChange(item.tempId, 'brand', e.target.value)}
                             placeholder="Brand (optional)"
                             aria-label="Brand"
-                            className="text-[11px] text-slate-500 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-white focus:outline-none px-1.5 py-0.5 rounded transition-all w-28"
+                            className="text-[11px] text-slate-600 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-white focus:outline-none px-1.5 py-0.5 rounded transition-all w-28"
                           />
                           {matchedProduct && (
                             <span className="inline-flex items-center gap-1 text-[10px] text-indigo-600 font-medium bg-indigo-50 border border-indigo-200/80 px-1.5 py-0.5 rounded-md truncate max-w-[140px]" title={`Matched to catalog: ${matchedProduct.name}`}>
@@ -831,7 +831,7 @@ export function ExtractedFieldEditor({
 
       {/* Keyboard Shortcuts & Quick Action Hint Bar */}
       {items.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="font-semibold text-slate-700">Keyboard Accelerators:</span>
             <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[10px] text-slate-700 font-bold">

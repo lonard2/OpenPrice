@@ -15,6 +15,10 @@ import {
   X,
   Store as StoreIcon,
   Calendar,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Maximize2,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/Tabs';
@@ -166,6 +170,11 @@ export default function ContributePage() {
   const [ocrStoreId, setOcrStoreId] = useState<string>('store-target');
   const [ocrDate, setOcrDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [ocrSourceType, setOcrSourceType] = useState<'photo_shelf' | 'receipt' | 'promo_pamphlet'>('photo_shelf');
+  const [ocrZoom, setOcrZoom] = useState<number>(1);
+  const [ocrPan, setOcrPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isOcrPanning, setIsOcrPanning] = useState(false);
+  const [startOcrPan, setStartOcrPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [ocrFitWidth, setOcrFitWidth] = useState(false);
 
   // Tab 2 (Flyer) state
   const [flyerImageUrl, setFlyerImageUrl] = useState<string>('/samples/weekly-flyer-circular.jpg');
@@ -344,6 +353,65 @@ export default function ContributePage() {
       });
     };
     reader.readAsDataURL(file);
+  };
+
+  // Reset Tab 1 document zoom & pan when image changes
+  useEffect(() => {
+    setOcrZoom(1);
+    setOcrPan({ x: 0, y: 0 });
+    setOcrFitWidth(false);
+  }, [ocrImageUrl]);
+
+  const handleOcrZoomIn = () => {
+    setOcrZoom((prev) => Math.min(prev + 0.25, 3.0));
+  };
+
+  const handleOcrZoomOut = () => {
+    setOcrZoom((prev) => {
+      const next = Math.max(prev - 0.25, 0.75);
+      if (next === 1) setOcrPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  const handleOcrResetZoom = () => {
+    setOcrZoom(1);
+    setOcrPan({ x: 0, y: 0 });
+    setOcrFitWidth(false);
+  };
+
+  const handleToggleOcrFitWidth = () => {
+    setOcrFitWidth((prev) => {
+      const next = !prev;
+      if (next) {
+        setOcrZoom(1.5);
+        setOcrPan({ x: 0, y: 0 });
+      } else {
+        setOcrZoom(1);
+        setOcrPan({ x: 0, y: 0 });
+      }
+      return next;
+    });
+  };
+
+  const handleOcrMouseDown = (e: React.MouseEvent) => {
+    if (ocrZoom > 1 || ocrFitWidth) {
+      setIsOcrPanning(true);
+      setStartOcrPan({ x: e.clientX - ocrPan.x, y: e.clientY - ocrPan.y });
+    }
+  };
+
+  const handleOcrMouseMove = (e: React.MouseEvent) => {
+    if (isOcrPanning && (ocrZoom > 1 || ocrFitWidth)) {
+      setOcrPan({
+        x: e.clientX - startOcrPan.x,
+        y: e.clientY - startOcrPan.y,
+      });
+    }
+  };
+
+  const handleOcrMouseUp = () => {
+    setIsOcrPanning(false);
   };
 
   // OCR Parse Response Callback
@@ -604,7 +672,7 @@ export default function ContributePage() {
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Rank & Tier
                   </span>
                   <h4 className="text-sm font-bold text-slate-900 leading-tight">
@@ -617,13 +685,13 @@ export default function ContributePage() {
                 <span className="text-xl font-extrabold text-amber-600 tabular-nums">
                   {karma.totalPoints}
                 </span>
-                <span className="text-[10px] text-slate-500 font-semibold uppercase">Karma Pts</span>
+                <span className="text-[10px] text-slate-600 font-semibold uppercase">Karma Pts</span>
               </div>
             </div>
 
             {/* Progress Bar */}
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-[10px] text-slate-500">
+              <div className="flex items-center justify-between text-[10px] text-slate-600">
                 <span>Weekly Goal ({weeklyCompleted}/{weeklyTarget})</span>
                 <span className="font-mono font-bold text-slate-700">{Math.round((weeklyCompleted / weeklyTarget) * 100)}%</span>
               </div>
@@ -637,13 +705,12 @@ export default function ContributePage() {
               </div>
             </div>
 
-            {/* Streak & Badges */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+            <div className="flex items-center justify-between text-[11px] pt-1">
               <span className="inline-flex items-center gap-1 text-amber-600 font-bold">
                 <Flame className="w-3.5 h-3.5" />
                 {karma.streakDays || 5} Day Streak
               </span>
-              <span className="text-slate-500 font-medium">
+              <span className="text-slate-600 font-medium">
                 {badgeCount} Badges Earned
               </span>
             </div>
@@ -790,41 +857,128 @@ export default function ContributePage() {
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
             {/* Interactive Image Preview with Bounding Box Overlay */}
             <div className="xl:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-4 shadow-surface flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800">
-                  Interactive Document Preview
-                </span>
-                <Badge variant="ocr" size="sm">
-                  {extractedItems.length} Bounding Boxes
-                </Badge>
-              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-800">
+                    Interactive Document Preview
+                  </span>
+                  <Badge variant="ocr" size="sm">
+                    {extractedItems.length} Bounding Boxes
+                  </Badge>
+                </div>
 
-              {/* Document Preview Viewport Frame */}
-              <div className="relative w-full h-[400px] bg-slate-950/95 rounded-2xl overflow-hidden flex items-center justify-center p-2 border border-slate-800/80 shadow-inner">
-                {/* Intrinsic Image Container - shrinkwraps to exact rendered bitmap dimensions */}
-                <div className="relative inline-flex items-center justify-center max-w-full max-h-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={ocrImageUrl}
-                    alt="Shelf Tag Scan"
-                    className="block max-h-[384px] max-w-full w-auto h-auto object-contain rounded-lg pointer-events-none select-none shadow-md"
-                  />
+                {/* Document Zoom & View Controls */}
+                <div className="flex items-center gap-1.5">
+                  <div className="flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200/80">
+                    <button
+                      type="button"
+                      onClick={handleOcrZoomOut}
+                      disabled={ocrZoom <= 0.75}
+                      aria-label="Zoom out (-)"
+                      title="Zoom Out (-)"
+                      className="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors disabled:opacity-40 touch-target min-h-[44px] min-w-[32px]"
+                    >
+                      <ZoomOut className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[11px] font-mono font-semibold text-slate-700 px-1.5 min-w-[38px] text-center select-none tabular-nums">
+                      {Math.round(ocrZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleOcrZoomIn}
+                      disabled={ocrZoom >= 3.0}
+                      aria-label="Zoom in (+)"
+                      title="Zoom In (+)"
+                      className="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors disabled:opacity-40 touch-target min-h-[44px] min-w-[32px]"
+                    >
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOcrResetZoom}
+                      aria-label="Reset zoom (0)"
+                      title="Reset Zoom (0)"
+                      className="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition-colors ml-0.5 border-l border-slate-200 touch-target min-h-[44px] min-w-[32px]"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                    </button>
+                  </div>
 
-                  <BoundingBoxOverlay
-                    items={extractedItems}
-                    selectedItemId={selectedItemId}
-                    hoveredItemId={hoveredItemId}
-                    onItemSelect={setSelectedItemId}
-                    onItemHover={setHoveredItemId}
-                    showLabels={true}
-                    showPriceBadges={true}
-                  />
+                  <button
+                    type="button"
+                    onClick={handleToggleOcrFitWidth}
+                    aria-label={ocrFitWidth ? 'Fit Entire Document' : 'Fit Document Width'}
+                    title={ocrFitWidth ? 'Fit to Viewport' : 'Fit Receipt Width (Readable print)'}
+                    className={cn(
+                      'px-2.5 py-1 text-[11px] font-semibold rounded-xl border transition-colors touch-target min-h-[44px] flex items-center gap-1.5',
+                      ocrFitWidth
+                        ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                        : 'bg-slate-100 hover:bg-slate-200/80 border-slate-200 text-slate-700'
+                    )}
+                  >
+                    <Maximize2 className="w-3 h-3" />
+                    <span className="hidden sm:inline">{ocrFitWidth ? 'Fit View' : 'Fit Width'}</span>
+                  </button>
                 </div>
               </div>
 
-              <p className="text-[11px] text-slate-500 font-medium text-center">
-                Click bounding boxes to highlight & edit corresponding item fields
-              </p>
+              {/* Document Preview Viewport Frame with Zoom & Pan Canvas */}
+              <div
+                tabIndex={0}
+                role="region"
+                aria-label="Receipt preview canvas. Drag to pan when zoomed."
+                onMouseDown={handleOcrMouseDown}
+                onMouseMove={handleOcrMouseMove}
+                onMouseUp={handleOcrMouseUp}
+                onMouseLeave={handleOcrMouseUp}
+                className={cn(
+                  'relative w-full h-[400px] bg-slate-950/95 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-800/80 shadow-inner select-none focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                  ocrZoom > 1 || ocrFitWidth
+                    ? isOcrPanning
+                      ? 'cursor-grabbing'
+                      : 'cursor-grab'
+                    : 'cursor-default'
+                )}
+              >
+                <div
+                  style={{
+                    transform: `translate(${ocrPan.x}px, ${ocrPan.y}px) scale(${ocrZoom})`,
+                    transformOrigin: 'center center',
+                    transition: isOcrPanning ? 'none' : 'transform 0.15s ease-out',
+                  }}
+                  className="relative w-full h-full flex items-center justify-center p-2"
+                >
+                  {/* Intrinsic Image Container */}
+                  <div className="relative inline-flex items-center justify-center max-w-full max-h-full">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={ocrImageUrl}
+                      alt="Receipt or Shelf Tag Document"
+                      className={cn(
+                        'block rounded-lg pointer-events-none select-none shadow-md',
+                        ocrFitWidth
+                          ? 'w-full max-w-[380px] h-auto object-contain'
+                          : 'max-h-[384px] max-w-full w-auto h-auto object-contain'
+                      )}
+                    />
+
+                    <BoundingBoxOverlay
+                      items={extractedItems}
+                      selectedItemId={selectedItemId}
+                      hoveredItemId={hoveredItemId}
+                      onItemSelect={setSelectedItemId}
+                      onItemHover={setHoveredItemId}
+                      showLabels={true}
+                      showPriceBadges={true}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium px-1">
+                <span>Click bounding boxes to highlight items</span>
+                <span>Drag to pan when zoomed</span>
+              </div>
             </div>
 
             {/* Extracted Field Table Editor */}
