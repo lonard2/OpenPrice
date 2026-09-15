@@ -205,7 +205,7 @@ export function Header() {
                 className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-white border border-slate-200/90 shadow-ambient-lift p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
               >
                 <div className="px-2.5 py-1.5 border-b border-slate-100 mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     Switch App Perspective
                   </span>
                 </div>

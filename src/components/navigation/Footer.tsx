@@ -100,20 +100,20 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+        <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
           <p>
             &copy; {new Date().getFullYear()} OpenPrice Contributors. Built for consumer price transparency.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/" className="hover:text-slate-600 transition-colors">
+            <Link href="/" className="hover:text-slate-700 transition-colors">
               Terms of Use
             </Link>
             <span>&bull;</span>
-            <Link href="/" className="hover:text-slate-600 transition-colors">
+            <Link href="/" className="hover:text-slate-700 transition-colors">
               Privacy Policy
             </Link>
             <span>&bull;</span>
-            <Link href="/contribute" className="hover:text-slate-600 transition-colors">
+            <Link href="/contribute" className="hover:text-slate-700 transition-colors">
               API Documentation
             </Link>
           </div>

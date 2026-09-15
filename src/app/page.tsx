@@ -208,7 +208,7 @@ export default function HomePage() {
           </div>
 
           {/* Search Shortcut Hint */}
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400">
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500">
             <span>Search anytime:</span>
             <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-100 border border-slate-200 rounded text-slate-600 shadow-2xs">
               /
@@ -279,7 +279,10 @@ export default function HomePage() {
       </section>
 
       {/* Main Catalog & Filterable Product Grid */}
-      <section className="space-y-4">
+      <section className="space-y-4" aria-labelledby="catalog-heading">
+        <h2 id="catalog-heading" className="sr-only">
+          Community Product Catalog
+        </h2>
         <ProductGrid
           products={products}
           watchlistedIds={watchlistedIds}

@@ -263,7 +263,7 @@ export function PriceHistoryChart({
     return (
       <div
         className={cn(
-          'w-full flex flex-col items-center justify-center p-8 bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm',
+          'w-full flex flex-col items-center justify-center p-8 bg-white rounded-2xl border border-slate-200 text-slate-500 text-sm',
           className
         )}
         style={{ height }}

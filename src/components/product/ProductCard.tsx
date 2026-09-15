@@ -80,7 +80,7 @@ export function ProductCard({
         {/* Row 2 & 3: Brand Eyebrow + Unit + Product Title */}
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider">
-            <span className={product.brand ? 'text-indigo-600 truncate' : 'text-slate-400'}>
+            <span className={product.brand ? 'text-indigo-600 truncate' : 'text-slate-500'}>
               {product.brand || 'Generic Item'}
             </span>
             {product.unit && (
@@ -97,9 +97,9 @@ export function ProductCard({
             href={`/product/${product.id}`}
             className="block group-hover:text-indigo-600 transition-colors focus-visible:outline-none focus-visible:underline"
           >
-            <h4 className="text-base font-extrabold tracking-tight text-slate-900 line-clamp-2 leading-snug break-words">
+            <h3 className="text-base font-extrabold tracking-tight text-slate-900 line-clamp-2 leading-snug break-words">
               {product.name}
-            </h4>
+            </h3>
           </Link>
         </div>
 

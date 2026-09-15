@@ -82,7 +82,7 @@ export function DesktopSidebar() {
     <nav className="flex flex-col gap-6" aria-label="Desktop Navigation">
       {/* Navigation Links Group */}
       <div className="card-surface p-3 space-y-1">
-        <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
           Navigation
         </div>
         {primaryNav.map((item) => {
@@ -119,7 +119,7 @@ export function DesktopSidebar() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm leading-tight">{item.name}</span>
-                  <span className="text-[11px] text-slate-400 font-normal">{item.description}</span>
+                  <span className="text-[11px] text-slate-500 font-normal">{item.description}</span>
                 </div>
               </div>
               {item.badge ? (
