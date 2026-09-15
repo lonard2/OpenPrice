@@ -230,11 +230,11 @@ export default function HomePage() {
         <div className="px-4 py-3 sm:py-1 first:pl-2 flex items-center justify-between sm:block">
           <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
             <span>30-Day Inflation</span>
-            <Tooltip content="Laspeyres weighted basket index across all tracked essentials relative to 30 days ago.">
+            <Tooltip content="Calculated by tracking price changes across a standard basket of everyday groceries relative to 30 days ago.">
               <button
                 type="button"
                 aria-label="30-day inflation calculation methodology"
-                className="p-0.5 rounded-md text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 inline-flex items-center justify-center cursor-pointer"
+                className="min-h-[44px] min-w-[44px] -my-2 -mx-2.5 rounded-lg text-slate-500 hover:text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 inline-flex items-center justify-center cursor-pointer touch-target"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
               </button>

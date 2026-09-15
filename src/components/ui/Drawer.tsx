@@ -142,12 +142,21 @@ export function Drawer({
           <div className="flex items-center justify-between p-5 pb-3 border-b border-slate-100 shrink-0">
             <div className="space-y-0.5 pr-6">
               {title && (
-                <h2
-                  id={titleId}
-                  className="text-lg font-bold text-slate-900 leading-snug tracking-tight"
-                >
-                  {title}
-                </h2>
+                typeof title === 'string' ? (
+                  <h2
+                    id={titleId}
+                    className="text-lg font-bold text-slate-900 leading-snug tracking-tight"
+                  >
+                    {title}
+                  </h2>
+                ) : (
+                  <div
+                    id={titleId}
+                    className="text-lg font-bold text-slate-900 leading-snug tracking-tight"
+                  >
+                    {title}
+                  </div>
+                )
               )}
               {description && (
                 <p id={descId} className="text-xs text-slate-500">
@@ -161,7 +170,7 @@ export function Drawer({
                 type="button"
                 onClick={onClose}
                 aria-label="Close drawer"
-                className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="rounded-xl p-2.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 touch-target"
               >
                 <X className="h-5 w-5" />
               </button>

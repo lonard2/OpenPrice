@@ -79,7 +79,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed',
               'min-h-[44px]',
               leftIcon ? 'pl-10' : 'pl-3.5',
-              showClear || rightIcon ? 'pr-10' : 'pr-3.5',
+              showClear || rightIcon ? 'pr-11' : 'pr-3.5',
               isNumeric && 'font-mono tabular-nums text-right',
               error &&
                 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 text-rose-900',
@@ -93,7 +93,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               type="button"
               onClick={onClear}
               aria-label="Clear input"
-              className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="absolute right-1 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2.5 inline-flex items-center justify-center text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 touch-target"
             >
               <X className="h-4 w-4" />
             </button>

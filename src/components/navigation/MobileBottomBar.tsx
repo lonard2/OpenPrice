@@ -10,29 +10,48 @@ export function MobileBottomBar() {
   const pathname = usePathname();
   const { isAdmin } = useRoleView();
 
-  const navItems = [
-    {
-      name: 'Explore',
-      href: '/',
-      icon: ShoppingBag,
-    },
-    {
-      name: 'Watchlist',
-      href: '/watchlist',
-      icon: Bookmark,
-    },
-    {
-      name: 'Scan',
-      href: '/contribute',
-      icon: Camera,
-      highlight: true,
-    },
-    {
-      name: isAdmin ? 'Admin' : 'Studio',
-      href: isAdmin ? '/admin/moderation' : '/contribute',
-      icon: ShieldCheck,
-    },
-  ];
+  const navItems = isAdmin
+    ? [
+        {
+          name: 'Explore',
+          href: '/',
+          icon: ShoppingBag,
+        },
+        {
+          name: 'Watchlist',
+          href: '/watchlist',
+          icon: Bookmark,
+        },
+        {
+          name: 'Scan',
+          href: '/contribute',
+          icon: Camera,
+          highlight: true,
+        },
+        {
+          name: 'Admin',
+          href: '/admin/moderation',
+          icon: ShieldCheck,
+        },
+      ]
+    : [
+        {
+          name: 'Explore',
+          href: '/',
+          icon: ShoppingBag,
+        },
+        {
+          name: 'Scan',
+          href: '/contribute',
+          icon: Camera,
+          highlight: true,
+        },
+        {
+          name: 'Watchlist',
+          href: '/watchlist',
+          icon: Bookmark,
+        },
+      ];
 
   return (
     <nav
