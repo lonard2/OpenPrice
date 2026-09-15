@@ -309,11 +309,11 @@ export default function ContributePage() {
     category: 'groceries' as ProductCategory,
     brand: '',
     storeId: 'store-target',
-    price: '4.89',
-    originalPrice: '5.29',
+    price: '',
+    originalPrice: '',
     unit: '1 gal',
     proofUrl: '',
-    notes: 'Observed in dairy aisle refrigerated section',
+    notes: '',
   });
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [proofFileName, setProofFileName] = useState<string>('');
@@ -458,6 +458,47 @@ export default function ContributePage() {
       });
     };
     reader.readAsDataURL(file);
+  };
+
+  // Reset Tab 3 manual form fields
+  const handleResetManualForm = () => {
+    setManualForm((prev) => ({
+      ...prev,
+      price: '',
+      originalPrice: '',
+      proofUrl: '',
+      notes: '',
+    }));
+    setProofPreview(null);
+    setProofFileName('');
+    showToast({
+      type: 'info',
+      message: 'Form Reset',
+      description: 'Price, notes, and proof photo cleared.',
+    });
+  };
+
+  // Populate demo observation sample
+  const handleFillSampleManual = () => {
+    setManualForm({
+      productId: 'prod-milk',
+      productName: 'Organic Whole Milk 1 Gallon',
+      category: 'groceries',
+      brand: 'Good & Gather',
+      storeId: 'store-target',
+      price: '4.89',
+      originalPrice: '5.29',
+      unit: '1 gal',
+      proofUrl: '/samples/shelf-tag-milk.jpg',
+      notes: 'Observed in dairy aisle refrigerated section',
+    });
+    setProofPreview('/samples/shelf-tag-milk.jpg');
+    setProofFileName('shelf-tag-milk.jpg');
+    showToast({
+      type: 'info',
+      message: 'Sample Observation Loaded',
+      description: 'Demo shelf tag price point loaded into form.',
+    });
   };
 
   // Reset Tab 1 document zoom & pan when image changes
@@ -676,8 +717,7 @@ export default function ContributePage() {
         });
         setSuccessMessage('Submission flagged as a statistical price outlier (>3σ). Routed to Admin Moderation Queue for review.');
       } else {
-        const awarded = addKarmaPoints(15, `Manually recorded price for ${manualForm.productId}`);
-        setKarma(awarded);
+        setKarma(getStoredKarma());
         showToast({
           type: 'success',
           message: 'Price Observation Recorded (+15 Karma)',
@@ -685,6 +725,17 @@ export default function ContributePage() {
         });
         setSuccessMessage('Verified price point successfully recorded to product ledger! (+15 Karma points)');
       }
+
+      // Reset form fields after submission while retaining store
+      setManualForm((prev) => ({
+        ...prev,
+        price: '',
+        originalPrice: '',
+        proofUrl: '',
+        notes: '',
+      }));
+      setProofPreview(null);
+      setProofFileName('');
 
       setTimeout(() => setSuccessMessage(null), 5000);
     } finally {
@@ -1194,13 +1245,22 @@ export default function ContributePage() {
         {/* TAB 3: Direct Manual Observation */}
         <TabPanel value="manual-crud" className="space-y-6">
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-surface max-w-2xl mx-auto">
-            <div className="space-y-1 mb-6">
-              <h3 className="text-lg font-bold text-slate-900">
-                Log Direct Store Observation
-              </h3>
-              <p className="text-xs text-slate-500">
-                Manually record a store price point with empirical photo evidence and observational notes.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-slate-900">
+                  Log Direct Store Observation
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Manually record a store price point with empirical photo evidence and observational notes.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleFillSampleManual}
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200/80 transition-colors touch-target min-h-[44px] shrink-0 self-start sm:self-auto"
+              >
+                Fill Demo Sample
+              </button>
             </div>
 
             <form onSubmit={handleManualSubmit} className="space-y-4">
@@ -1402,16 +1462,26 @@ export default function ContributePage() {
                 />
               </div>
 
-              <div className="pt-3">
+              <div className="pt-3 flex flex-col sm:flex-row items-center gap-3">
                 <Button
                   type="submit"
                   variant="primary"
                   size="md"
                   isLoading={isSubmittingManual}
-                  className="w-full min-h-[44px]"
+                  className="flex-1 w-full min-h-[44px]"
                   leftIcon={<CheckCircle2 className="w-4 h-4" />}
                 >
                   Submit Price Observation (+15 Karma)
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  onClick={handleResetManualForm}
+                  className="w-full sm:w-auto min-h-[44px]"
+                  leftIcon={<RotateCcw className="w-4 h-4" />}
+                >
+                  Clear Form
                 </Button>
               </div>
             </form>
