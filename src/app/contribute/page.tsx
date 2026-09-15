@@ -19,6 +19,8 @@ import {
   ZoomOut,
   RotateCcw,
   Maximize2,
+  AlertTriangle,
+  TrendingDown,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/Tabs';
@@ -305,9 +307,9 @@ export default function ContributePage() {
   // Tab 3 (Manual Form) state
   const [manualForm, setManualForm] = useState({
     productId: 'prod-milk',
-    productName: '',
+    productName: 'Organic Whole Milk 1 Gallon',
     category: 'groceries' as ProductCategory,
-    brand: '',
+    brand: 'Good & Gather',
     storeId: 'store-target',
     price: '',
     originalPrice: '',
@@ -499,6 +501,19 @@ export default function ContributePage() {
       message: 'Sample Observation Loaded',
       description: 'Demo shelf tag price point loaded into form.',
     });
+  };
+
+  // Handle product change in Tab 3 with automatic unit/category synchronization
+  const handleManualProductChange = (productId: string) => {
+    const prod = products.find((p) => p.id === productId);
+    setManualForm((prev) => ({
+      ...prev,
+      productId,
+      productName: prod?.name || '',
+      category: prod?.category || prev.category,
+      unit: prod?.unit || prev.unit,
+      brand: prod?.brand || prev.brand,
+    }));
   };
 
   // Reset Tab 1 document zoom & pan when image changes
@@ -792,6 +807,9 @@ export default function ContributePage() {
   const weeklyCompleted = karma.weeklyGoal?.completed || 0;
   const weeklyTarget = karma.weeklyGoal?.target || 10;
   const badgeCount = karma.badges?.length || 0;
+
+  const selectedManualProduct = products.find((p) => p.id === manualForm.productId);
+  const manualPriceNum = parseFloat(manualForm.price) || 0;
 
   return (
     <div className="space-y-6">
@@ -1272,7 +1290,7 @@ export default function ContributePage() {
                 <select
                   id="manual-product-select"
                   value={manualForm.productId}
-                  onChange={(e) => setManualForm({ ...manualForm, productId: e.target.value })}
+                  onChange={(e) => handleManualProductChange(e.target.value)}
                   className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                 >
                   {products.map((p) => (
@@ -1282,6 +1300,74 @@ export default function ContributePage() {
                   ))}
                 </select>
               </div>
+
+              {/* Market Reference & Price Benchmark Card */}
+              {selectedManualProduct && (
+                <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-800">
+                        {selectedManualProduct.name}
+                      </span>
+                      <Badge variant="category" size="sm" className="capitalize text-[11px]">
+                        {selectedManualProduct.category}
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-slate-500 font-medium">
+                      Catalog Unit: <span className="font-semibold text-slate-700">{selectedManualProduct.unit}</span>
+                    </span>
+                  </div>
+
+                  {/* 3-column stats */}
+                  <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-200/80">
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
+                      <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
+                        Community Avg
+                      </p>
+                      <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                        {formatCurrency(selectedManualProduct.averagePrice)}
+                      </p>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
+                      <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
+                        Historical Range
+                      </p>
+                      <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                        {formatCurrency(selectedManualProduct.currentLowestPrice)} - {formatCurrency(selectedManualProduct.currentHighestPrice)}
+                      </p>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
+                      <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
+                        Sample Data
+                      </p>
+                      <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                        {selectedManualProduct.totalSubmissionsCount || 1} verified
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Pre-flight price check feedback */}
+                  {manualPriceNum > 0 && manualPriceNum < selectedManualProduct.currentLowestPrice && (
+                    <div className="flex items-start gap-2 p-2.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs text-emerald-800">
+                      <TrendingDown className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold">Potential new community low!</span> Current catalog low is{' '}
+                        <span className="font-mono font-bold tabular-nums">{formatCurrency(selectedManualProduct.currentLowestPrice)}</span>.
+                        Your observation will update the community benchmark.
+                      </div>
+                    </div>
+                  )}
+
+                  {manualPriceNum > 0 && manualPriceNum > selectedManualProduct.currentHighestPrice * 1.5 && (
+                    <div className="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-800">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold">Price notice:</span> Observed price ({formatCurrency(manualPriceNum)}) is significantly higher than historical range ({formatCurrency(selectedManualProduct.currentLowestPrice)} - {formatCurrency(selectedManualProduct.currentHighestPrice)}). Please verify decimal placement or attach proof photo evidence.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Store Select */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
