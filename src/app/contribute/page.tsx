@@ -210,6 +210,8 @@ const WEB_SAMPLE_URLS = [
     item: 'Good & Gather Milk ($4.89)',
     url: 'https://www.target.com/p/good-gather-organic-whole-milk-1gal/-/A-123456',
     preview: {
+      productId: 'prod-milk',
+      storeId: 'store-target',
       name: 'Organic Whole Milk 1 Gallon',
       brand: 'Good & Gather',
       category: 'groceries' as ProductCategory,
@@ -224,6 +226,8 @@ const WEB_SAMPLE_URLS = [
     item: 'Great Value Eggs ($3.49)',
     url: 'https://www.walmart.com/ip/great-value-large-white-eggs-12-count/145051',
     preview: {
+      productId: 'prod-eggs',
+      storeId: 'store-walmart',
       name: 'Large Grade A White Eggs (12 count)',
       brand: 'Great Value',
       category: 'groceries' as ProductCategory,
@@ -238,6 +242,8 @@ const WEB_SAMPLE_URLS = [
     item: 'Private Selection Coffee ($9.99)',
     url: 'https://www.kroger.com/p/private-selection-ground-coffee-12oz/00011110',
     preview: {
+      productId: 'prod-coffee',
+      storeId: 'store-kroger',
       name: 'Private Selection Medium Roast Ground Coffee',
       brand: 'Private Selection',
       category: 'groceries' as ProductCategory,
@@ -247,17 +253,19 @@ const WEB_SAMPLE_URLS = [
     },
   },
   {
-    id: 'aldi-beef',
-    retailer: 'Aldi',
-    item: 'Fresh Ground Beef ($4.49/lb)',
-    url: 'https://www.aldi.us/en/products/fresh-meat-seafood/fresh-beef/',
+    id: 'amazon-apples',
+    retailer: 'Amazon Fresh',
+    item: 'Fresh Organic Apples ($1.99/lb)',
+    url: 'https://www.amazon.com/fresh/dp/B08XYZ123/organic-fuji-apples-1lb',
     preview: {
-      name: '100% Lean Ground Beef 85/15',
-      brand: 'USDA Choice',
+      productId: 'prod-apples',
+      storeId: 'store-amazon-fresh',
+      name: 'Honeycrisp Apples Fresh',
+      brand: 'Fresh Organic',
       category: 'groceries' as ProductCategory,
-      storeName: 'Aldi Market',
-      price: 4.49,
-      unit: '1 lb pack',
+      storeName: 'Amazon Fresh',
+      price: 1.99,
+      unit: '1 lb',
     },
   },
 ];
@@ -327,6 +335,8 @@ export default function ContributePage() {
   const [webUrl, setWebUrl] = useState('https://www.target.com/p/good-gather-organic-whole-milk-1gal/-/A-123456');
   const [isParsingWeb, setIsParsingWeb] = useState(false);
   const [webParsedPreview, setWebParsedPreview] = useState<{
+    productId?: string;
+    storeId?: string;
     name: string;
     brand: string;
     category: ProductCategory;
@@ -776,20 +786,88 @@ export default function ContributePage() {
   // Parse Web URL
   const handleParseWebUrl = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!webUrl.trim()) return;
+    const cleanUrl = webUrl.trim();
+    if (!cleanUrl) return;
 
     setIsParsingWeb(true);
     setTimeout(() => {
-      // Simulate fast web crawler extraction
+      // 1. Check if URL matches one of the preset sample URLs
+      const matchedSample = WEB_SAMPLE_URLS.find(
+        (s) => s.url.toLowerCase() === cleanUrl.toLowerCase()
+      );
+      if (matchedSample) {
+        setWebParsedPreview(matchedSample.preview);
+        setIsParsingWeb(false);
+        showToast({
+          type: 'success',
+          message: `Parsed ${matchedSample.retailer} Listing`,
+          description: `Extracted ${matchedSample.preview.name} at ${formatCurrency(matchedSample.preview.price)}.`,
+        });
+        return;
+      }
+
+      // 2. Dynamic scraper extraction based on URL domain and path
+      let parsedStoreId = 'store-target';
+      let parsedStoreName = 'Target Online';
+      const urlLower = cleanUrl.toLowerCase();
+
+      if (urlLower.includes('walmart.com')) {
+        parsedStoreId = 'store-walmart';
+        parsedStoreName = 'Walmart Online';
+      } else if (urlLower.includes('kroger.com')) {
+        parsedStoreId = 'store-kroger';
+        parsedStoreName = 'Kroger Online';
+      } else if (urlLower.includes('amazon.com')) {
+        parsedStoreId = 'store-amazon-fresh';
+        parsedStoreName = 'Amazon Fresh';
+      } else if (urlLower.includes('wholefoods')) {
+        parsedStoreId = 'store-whole-foods';
+        parsedStoreName = 'Whole Foods Online';
+      } else if (urlLower.includes('traderjoes')) {
+        parsedStoreId = 'store-trader-joes';
+        parsedStoreName = "Trader Joe's Online";
+      } else if (urlLower.includes('costco')) {
+        parsedStoreId = 'store-costco';
+        parsedStoreName = 'Costco Wholesale';
+      }
+
+      // Match product from catalog based on URL keywords
+      let matchedProd = products.find((p) => {
+        const slugWords = p.name.toLowerCase().split(' ');
+        return slugWords.some((word) => word.length > 3 && urlLower.includes(word));
+      });
+
+      if (!matchedProd) {
+        if (urlLower.includes('milk')) matchedProd = products.find((p) => p.id === 'prod-milk');
+        else if (urlLower.includes('egg')) matchedProd = products.find((p) => p.id === 'prod-eggs');
+        else if (urlLower.includes('coffee')) matchedProd = products.find((p) => p.id === 'prod-coffee');
+        else if (urlLower.includes('apple')) matchedProd = products.find((p) => p.id === 'prod-apples');
+        else if (urlLower.includes('bread')) matchedProd = products.find((p) => p.id === 'prod-bread');
+        else if (urlLower.includes('chicken')) matchedProd = products.find((p) => p.id === 'prod-chicken');
+        else if (urlLower.includes('oil')) matchedProd = products.find((p) => p.id === 'prod-olive-oil');
+        else if (urlLower.includes('rice')) matchedProd = products.find((p) => p.id === 'prod-rice');
+        else matchedProd = products[0];
+      }
+
+      const effectiveProd = matchedProd || products[0];
+
       setWebParsedPreview({
-        name: 'Organic Whole Milk 1 Gallon',
-        brand: 'Good & Gather',
-        category: 'groceries',
-        storeName: 'Target Online',
-        price: 4.89,
-        unit: '1 gal',
+        productId: effectiveProd?.id || 'prod-milk',
+        storeId: parsedStoreId,
+        name: effectiveProd?.name || 'Verified Product',
+        brand: effectiveProd?.brand || 'National Brand',
+        category: effectiveProd?.category || 'groceries',
+        storeName: parsedStoreName,
+        price: effectiveProd?.averagePrice || 4.89,
+        unit: effectiveProd?.unit || '1 each',
       });
       setIsParsingWeb(false);
+
+      showToast({
+        type: 'success',
+        message: 'Web Listing Extracted',
+        description: `Synced ${effectiveProd?.name} from ${parsedStoreName}.`,
+      });
     }, 600);
   };
 
@@ -797,24 +875,39 @@ export default function ContributePage() {
   const handleIngestWebParsed = () => {
     if (!webParsedPreview) return;
 
-    savePriceSubmission({
-      productId: 'prod-milk',
+    const targetProductId = webParsedPreview.productId || 'prod-milk';
+    const targetStoreId = webParsedPreview.storeId || 'store-target';
+
+    const result = savePriceSubmission({
+      productId: targetProductId,
       price: webParsedPreview.price,
-      storeId: 'store-target',
+      storeId: targetStoreId,
       storeName: webParsedPreview.storeName,
       unit: webParsedPreview.unit,
       sourceType: 'web_crawler',
       notes: `Web synced from ${webUrl}`,
     });
 
-    const awarded = addKarmaPoints(20, 'Imported verified web listing');
-    setKarma(awarded);
-    showToast({
-      type: 'success',
-      message: 'Web Listing Synced (+20 Karma)',
-      description: 'E-commerce price verified and catalog updated.',
-    });
-    setSuccessMessage('Web listing synced and added to price index! (+20 Karma points)');
+    // savePriceSubmission in storage.ts already records +15 Karma points to ledger.
+    // Sync karma state from storage without duplicate double-awarding:
+    setKarma(getStoredKarma());
+
+    if (result.isOutlier) {
+      showToast({
+        type: 'warning',
+        message: 'Price Flagged for Moderation (>3σ)',
+        description: 'Web crawler price variance flagged for review.',
+      });
+      setSuccessMessage('Web price flagged as statistical outlier (>3σ). Queued for moderation review.');
+    } else {
+      showToast({
+        type: 'success',
+        message: 'Web Listing Synced (+15 Karma)',
+        description: `${webParsedPreview.name} verified and catalog updated.`,
+      });
+      setSuccessMessage(`Verified web price for ${webParsedPreview.name} recorded to catalog index! (+15 Karma points)`);
+    }
+
     setWebParsedPreview(null);
     setTimeout(() => setSuccessMessage(null), 5000);
   };
@@ -1729,12 +1822,12 @@ export default function ContributePage() {
                   <Button
                     type="button"
                     variant="primary"
-                    size="sm"
+                    size="md"
                     onClick={handleIngestWebParsed}
                     leftIcon={<CheckCircle2 className="w-4 h-4" />}
                     className="min-h-[44px]"
                   >
-                    Ingest into Index (+20 Karma)
+                    Ingest into Index (+15 Karma)
                   </Button>
                 </div>
               </div>
