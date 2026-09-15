@@ -334,6 +334,9 @@ export default function ContributePage() {
   // Tab 4 (Web URL) state
   const [webUrl, setWebUrl] = useState('https://www.target.com/p/good-gather-organic-whole-milk-1gal/-/A-123456');
   const [isParsingWeb, setIsParsingWeb] = useState(false);
+  const [webError, setWebError] = useState<string | null>(null);
+  const webFormRef = useRef<HTMLFormElement>(null);
+  const ingestButtonRef = useRef<HTMLButtonElement>(null);
   const [webParsedPreview, setWebParsedPreview] = useState<{
     productId?: string;
     storeId?: string;
@@ -373,6 +376,17 @@ export default function ContributePage() {
         return;
       }
 
+      // Cmd/Ctrl + Enter in Tab 4 parses URL or ingests reconciled preview
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && activeTab === 'web-url') {
+        e.preventDefault();
+        if (webParsedPreview) {
+          ingestButtonRef.current?.click();
+        } else {
+          webFormRef.current?.requestSubmit();
+        }
+        return;
+      }
+
       // Quick tab switching 1-4 when not typing
       if (!isInputFocused && !e.metaKey && !e.ctrlKey && !e.altKey) {
         if (e.key === '1') {
@@ -393,7 +407,7 @@ export default function ContributePage() {
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [activeTab]);
+  }, [activeTab, webParsedPreview]);
 
   // Load Karma on storage change
   useEffect(() => {
@@ -786,8 +800,54 @@ export default function ContributePage() {
   // Parse Web URL
   const handleParseWebUrl = (e: React.FormEvent) => {
     e.preventDefault();
+    setWebError(null);
     const cleanUrl = webUrl.trim();
-    if (!cleanUrl) return;
+    if (!cleanUrl) {
+      setWebError('Please enter a retailer product URL to fetch.');
+      return;
+    }
+
+    // Validate URL syntax
+    let urlObj: URL;
+    try {
+      urlObj = new URL(cleanUrl);
+      if (!['http:', 'https:'].includes(urlObj.protocol)) {
+        throw new Error('Invalid protocol');
+      }
+    } catch {
+      setWebError('Please enter a valid web URL starting with http:// or https:// (e.g. https://www.target.com/p/...).');
+      showToast({
+        type: 'warning',
+        message: 'Invalid URL Format',
+        description: 'Ensure the link starts with http:// or https://.',
+      });
+      return;
+    }
+
+    // Validate retailer domain support
+    const hostname = urlObj.hostname.toLowerCase();
+    const isSupportedDomain = [
+      'target.com',
+      'walmart.com',
+      'kroger.com',
+      'amazon.com',
+      'wholefoods',
+      'traderjoes',
+      'costco.com',
+      'aldi.us',
+    ].some((d) => hostname.includes(d));
+
+    if (!isSupportedDomain) {
+      setWebError(
+        `Unsupported Retailer Domain (${urlObj.hostname}): Automated web extraction currently supports Target, Walmart, Kroger, Amazon Fresh, Whole Foods, Trader Joe's, Costco, and Aldi. For other stores, log directly via Tab 3 (Direct Manual Log).`
+      );
+      showToast({
+        type: 'warning',
+        message: 'Unsupported Retailer Domain',
+        description: 'See supported retailer list or log manually in Tab 3.',
+      });
+      return;
+    }
 
     setIsParsingWeb(true);
     setTimeout(() => {
@@ -1733,7 +1793,9 @@ export default function ContributePage() {
                   <button
                     key={sample.id}
                     type="button"
+                    aria-pressed={webUrl === sample.url}
                     onClick={() => {
+                      setWebError(null);
                       setWebUrl(sample.url);
                       setWebParsedPreview(sample.preview);
                       showToast({
@@ -1755,13 +1817,47 @@ export default function ContributePage() {
                       </span>
                       <p className="text-xs font-medium truncate">{sample.item}</p>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <ArrowRight
+                      className={cn(
+                        'w-3.5 h-3.5 shrink-0 transition-colors',
+                        webUrl === sample.url ? 'text-indigo-600' : 'text-slate-500'
+                      )}
+                    />
                   </button>
                 ))}
               </div>
             </div>
 
-            <form onSubmit={handleParseWebUrl} className="space-y-4">
+            {/* Scraper Error Notice Banner */}
+            {webError && (
+              <div
+                role="alert"
+                className="p-4 bg-rose-50 rounded-2xl border border-rose-200/90 flex items-start justify-between gap-3 text-xs text-rose-800 animate-in fade-in duration-150"
+              >
+                <div className="flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-rose-900">Scraper Notice</p>
+                    <p className="leading-relaxed">{webError}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWebError(null)}
+                  className="text-rose-500 hover:text-rose-800 transition-colors touch-target min-h-[44px] flex items-center justify-center shrink-0"
+                  aria-label="Dismiss scraper error"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <form
+              ref={webFormRef}
+              onSubmit={handleParseWebUrl}
+              aria-busy={isParsingWeb}
+              className="space-y-4"
+            >
               <div className="space-y-1.5">
                 <label htmlFor="web-url-input" className="text-xs font-bold text-slate-700">
                   Store Product URL
@@ -1773,7 +1869,10 @@ export default function ContributePage() {
                       type="url"
                       required
                       value={webUrl}
-                      onChange={(e) => setWebUrl(e.target.value)}
+                      onChange={(e) => {
+                        setWebUrl(e.target.value);
+                        if (webError) setWebError(null);
+                      }}
                       placeholder="https://www.target.com/p/..."
                       leftIcon={<Globe className="w-4 h-4 text-slate-500" />}
                     />
@@ -1785,7 +1884,10 @@ export default function ContributePage() {
                     isLoading={isParsingWeb}
                     className="min-h-[44px] shrink-0"
                   >
-                    Fetch Listing
+                    <span>Fetch Listing</span>
+                    <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
+                      ⌘ Enter
+                    </kbd>
                   </Button>
                 </div>
               </div>
@@ -1982,6 +2084,7 @@ export default function ContributePage() {
                     Cancel
                   </Button>
                   <Button
+                    ref={ingestButtonRef}
                     type="button"
                     variant="primary"
                     size="md"
@@ -1989,7 +2092,10 @@ export default function ContributePage() {
                     leftIcon={<CheckCircle2 className="w-4 h-4" />}
                     className="min-h-[44px]"
                   >
-                    Ingest into Index (+15 Karma)
+                    <span>Ingest into Index (+15 Karma)</span>
+                    <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
+                      ⌘ Enter
+                    </kbd>
                   </Button>
                 </div>
               </div>
@@ -2171,6 +2277,18 @@ export default function ContributePage() {
                 <div className="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-700 font-medium">Submit Price Observation</span>
+                    <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">⌘ + Enter</kbd>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px] mb-2">
+                  Online Retailer Web Scraper & Importer
+                </h4>
+                <div className="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700 font-medium">Fetch Listing / Ingest Reconciled Item</span>
                     <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">⌘ + Enter</kbd>
                   </div>
                 </div>
