@@ -918,6 +918,7 @@ export default function ContributePage() {
 
   const selectedManualProduct = products.find((p) => p.id === manualForm.productId);
   const manualPriceNum = parseFloat(manualForm.price) || 0;
+  const matchedWebProduct = products.find((p) => p.id === webParsedPreview?.productId);
 
   return (
     <div className="space-y-6">
@@ -1790,35 +1791,196 @@ export default function ContributePage() {
               </div>
             </form>
 
-            {/* Extracted Preview */}
+            {/* Extracted Preview & Field Reconciliation */}
             {webParsedPreview && (
-              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-4 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                    Extracted Web Listing
-                  </span>
-                  <Badge variant="verified" size="sm">
-                    Synced from {webParsedPreview.storeName}
-                  </Badge>
+              <div
+                aria-live="polite"
+                className="p-5 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-4 animate-in fade-in duration-200"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Reconcile Scraped Listing
+                    </span>
+                    <Badge variant="verified" size="sm">
+                      {webParsedPreview.storeName}
+                    </Badge>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setWebParsedPreview(null)}
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors touch-target min-h-[44px] flex items-center gap-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Discard</span>
+                  </button>
                 </div>
 
-                <div className="space-y-1">
-                  <h4 className="text-base font-bold text-slate-900">
-                    {webParsedPreview.name}
-                  </h4>
-                  <p className="text-xs text-slate-600">
-                    Brand: <strong className="text-slate-800">{webParsedPreview.brand}</strong> • Unit: {webParsedPreview.unit}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-500">Online Price</span>
-                    <p className="text-lg font-bold font-mono text-slate-900">
-                      {formatCurrency(webParsedPreview.price)}
-                    </p>
+                {/* Editable reconciliation fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                  <div className="space-y-1.5">
+                    <label htmlFor="web-target-product-select" className="text-xs font-bold text-slate-700">
+                      Target Catalog Product
+                    </label>
+                    <select
+                      id="web-target-product-select"
+                      value={webParsedPreview.productId || ''}
+                      onChange={(e) => {
+                        const newProdId = e.target.value;
+                        const prod = products.find((p) => p.id === newProdId);
+                        setWebParsedPreview((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                productId: newProdId,
+                                name: prod?.name || prev.name,
+                                brand: prod?.brand || prev.brand,
+                                category: prod?.category || prev.category,
+                                unit: prod?.unit || prev.unit,
+                              }
+                            : null
+                        );
+                      }}
+                      className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    >
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} ({p.unit})
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
+                  <div className="space-y-1.5">
+                    <label htmlFor="web-target-store-select" className="text-xs font-bold text-slate-700">
+                      Retailer Store
+                    </label>
+                    <select
+                      id="web-target-store-select"
+                      value={webParsedPreview.storeId || 'store-target'}
+                      onChange={(e) => {
+                        const newStoreId = e.target.value;
+                        const store = stores.find((s) => s.id === newStoreId);
+                        setWebParsedPreview((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                storeId: newStoreId,
+                                storeName: store?.name || prev.storeName,
+                              }
+                            : null
+                        );
+                      }}
+                      className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    >
+                      {stores.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.type})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="web-price-input" className="text-xs font-bold text-slate-700">
+                      Scraped Online Price ($)
+                    </label>
+                    <Input
+                      id="web-price-input"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      value={webParsedPreview.price}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        setWebParsedPreview((prev) => (prev ? { ...prev, price: val } : null));
+                      }}
+                      leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="web-unit-input" className="text-xs font-bold text-slate-700">
+                      Unit Quantity
+                    </label>
+                    <Input
+                      id="web-unit-input"
+                      type="text"
+                      value={webParsedPreview.unit}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setWebParsedPreview((prev) => (prev ? { ...prev, unit: val } : null));
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Market Benchmark Reference Card */}
+                {matchedWebProduct && (
+                  <div className="p-3.5 bg-white rounded-xl border border-slate-200/90 space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
+                      <span className="font-semibold text-slate-700">
+                        Catalog Benchmark: <span className="font-bold text-slate-900">{matchedWebProduct.name}</span>
+                      </span>
+                      <span className="text-slate-500 font-medium">
+                        Standard Unit: <span className="font-semibold text-slate-700">{matchedWebProduct.unit}</span>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100 text-center">
+                      <div className="p-2 bg-slate-50 rounded-lg">
+                        <p className="text-[10px] uppercase font-semibold text-slate-500">Community Avg</p>
+                        <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
+                          {formatCurrency(matchedWebProduct.averagePrice)}
+                        </p>
+                      </div>
+                      <div className="p-2 bg-slate-50 rounded-lg">
+                        <p className="text-[10px] uppercase font-semibold text-slate-500">Market Range</p>
+                        <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
+                          {formatCurrency(matchedWebProduct.currentLowestPrice)} - {formatCurrency(matchedWebProduct.currentHighestPrice)}
+                        </p>
+                      </div>
+                      <div className="p-2 bg-slate-50 rounded-lg">
+                        <p className="text-[10px] uppercase font-semibold text-slate-500">Submissions</p>
+                        <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
+                          {matchedWebProduct.totalSubmissionsCount || 1} verified
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pre-flight price alerts */}
+                    {webParsedPreview.price > 0 && webParsedPreview.price < matchedWebProduct.currentLowestPrice && (
+                      <div className="flex items-start gap-2 p-2 bg-emerald-50 border border-emerald-200/80 rounded-lg text-xs text-emerald-800">
+                        <TrendingDown className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold">Potential new low!</span> Lower than current catalog low of{' '}
+                          <span className="font-mono font-bold tabular-nums">{formatCurrency(matchedWebProduct.currentLowestPrice)}</span>.
+                        </div>
+                      </div>
+                    )}
+
+                    {webParsedPreview.price > 0 && webParsedPreview.price > matchedWebProduct.currentHighestPrice * 1.5 && (
+                      <div className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-200/80 rounded-lg text-xs text-amber-800">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold">Price notice:</span> Scraped price ({formatCurrency(webParsedPreview.price)}) is higher than historical range ({formatCurrency(matchedWebProduct.currentLowestPrice)} - {formatCurrency(matchedWebProduct.currentHighestPrice)}). Check for bundle or multi-pack pricing.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Ingest Action Strip */}
+                <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="md"
+                    onClick={() => setWebParsedPreview(null)}
+                    className="min-h-[44px]"
+                  >
+                    Cancel
+                  </Button>
                   <Button
                     type="button"
                     variant="primary"
