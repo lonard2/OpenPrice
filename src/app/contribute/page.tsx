@@ -58,6 +58,119 @@ const CATEGORIES: ProductCategory[] = [
   'services',
 ];
 
+const SAMPLE_FLYER_DEALS: Record<string, ExtractedPriceItem[]> = {
+  'target-circular': [
+    {
+      tempId: 'deal-target-1',
+      name: 'Honeycrisp Apples Fresh',
+      category: 'groceries',
+      price: 1.99,
+      originalPrice: 2.99,
+      unit: '1 lb',
+      confidence: 0.94,
+      selected: true,
+      boundingBox: { xMin: 8.0, yMin: 12.0, xMax: 46.0, yMax: 48.0 },
+      matchedProductId: 'prod-apples',
+      storeName: 'Target',
+    },
+    {
+      tempId: 'deal-target-2',
+      name: 'Fair Trade Dark Roast Coffee Beans',
+      category: 'beverages',
+      price: 9.99,
+      originalPrice: 12.99,
+      unit: '12 oz',
+      confidence: 0.91,
+      selected: true,
+      boundingBox: { xMin: 54.0, yMin: 12.0, xMax: 92.0, yMax: 48.0 },
+      matchedProductId: 'prod-coffee',
+      storeName: 'Target',
+    },
+    {
+      tempId: 'deal-target-3',
+      name: 'Large Grade A Brown Eggs (12pk)',
+      category: 'groceries',
+      price: 3.49,
+      originalPrice: 4.29,
+      unit: 'dozen',
+      confidence: 0.95,
+      selected: true,
+      boundingBox: { xMin: 8.0, yMin: 54.0, xMax: 46.0, yMax: 90.0 },
+      matchedProductId: 'prod-eggs',
+      storeName: 'Target',
+    },
+    {
+      tempId: 'deal-target-4',
+      name: 'Artisan Sourdough Loaf Bread',
+      category: 'groceries',
+      price: 3.99,
+      originalPrice: 4.79,
+      unit: '24 oz loaf',
+      confidence: 0.89,
+      selected: true,
+      boundingBox: { xMin: 54.0, yMin: 54.0, xMax: 92.0, yMax: 90.0 },
+      matchedProductId: 'prod-bread',
+      storeName: 'Target',
+    },
+  ],
+  'aldi-circular': [
+    {
+      tempId: 'deal-aldi-1',
+      name: 'Friendly Farms Whole Vitamin D Milk',
+      category: 'groceries',
+      price: 2.79,
+      originalPrice: 3.29,
+      unit: '1 gal',
+      confidence: 0.96,
+      selected: true,
+      boundingBox: { xMin: 18.0, yMin: 22.0, xMax: 82.0, yMax: 78.0 },
+      matchedProductId: 'prod-milk',
+      storeName: 'Aldi',
+    },
+  ],
+  'kroger-circular': [
+    {
+      tempId: 'deal-kroger-1',
+      name: 'Extra Virgin Olive Oil Cold Pressed',
+      category: 'groceries',
+      price: 13.99,
+      originalPrice: 16.50,
+      unit: '500 ml',
+      confidence: 0.93,
+      selected: true,
+      boundingBox: { xMin: 15.0, yMin: 16.0, xMax: 85.0, yMax: 38.0 },
+      matchedProductId: 'prod-olive-oil',
+      storeName: 'Ralphs / QFC',
+    },
+    {
+      tempId: 'deal-kroger-2',
+      name: 'Pure Butter Unsalted Sticks',
+      category: 'groceries',
+      price: 4.29,
+      originalPrice: 5.00,
+      unit: '8 oz',
+      confidence: 0.91,
+      selected: true,
+      boundingBox: { xMin: 15.0, yMin: 42.0, xMax: 85.0, yMax: 62.0 },
+      matchedProductId: 'prod-butter',
+      storeName: 'Ralphs / QFC',
+    },
+    {
+      tempId: 'deal-kroger-3',
+      name: 'Organic Jasmine Long Grain Rice',
+      category: 'groceries',
+      price: 7.49,
+      originalPrice: 8.50,
+      unit: '5 lb bag',
+      confidence: 0.95,
+      selected: true,
+      boundingBox: { xMin: 15.0, yMin: 66.0, xMax: 85.0, yMax: 86.0 },
+      matchedProductId: 'prod-rice',
+      storeName: 'Ralphs / QFC',
+    },
+  ],
+};
+
 const CIRCULAR_SAMPLES = [
   {
     id: 'target-circular',
@@ -65,6 +178,7 @@ const CIRCULAR_SAMPLES = [
     store: 'Target',
     imageUrl: '/samples/weekly-flyer-circular.jpg',
     dealsCount: 4,
+    items: SAMPLE_FLYER_DEALS['target-circular'],
   },
   {
     id: 'aldi-circular',
@@ -72,6 +186,7 @@ const CIRCULAR_SAMPLES = [
     store: 'Aldi',
     imageUrl: '/samples/shelf-tag-milk.jpg',
     dealsCount: 1,
+    items: SAMPLE_FLYER_DEALS['aldi-circular'],
   },
   {
     id: 'kroger-circular',
@@ -79,6 +194,7 @@ const CIRCULAR_SAMPLES = [
     store: 'Kroger',
     imageUrl: '/samples/receipt-supermarket.jpg',
     dealsCount: 3,
+    items: SAMPLE_FLYER_DEALS['kroger-circular'],
   },
 ];
 
@@ -178,56 +294,9 @@ export default function ContributePage() {
 
   // Tab 2 (Flyer) state
   const [flyerImageUrl, setFlyerImageUrl] = useState<string>('/samples/weekly-flyer-circular.jpg');
-  const [flyerItems, setFlyerItems] = useState<ExtractedPriceItem[]>([
-    {
-      tempId: 'deal-1',
-      name: 'Honeycrisp Apples Fresh',
-      category: 'groceries',
-      price: 1.99,
-      originalPrice: 2.99,
-      unit: '1 lb',
-      confidence: 0.94,
-      selected: true,
-      boundingBox: { xMin: 8.0, yMin: 12.0, xMax: 46.0, yMax: 48.0 },
-      matchedProductId: 'prod-apples',
-    },
-    {
-      tempId: 'deal-2',
-      name: 'Fair Trade Dark Roast Coffee Beans',
-      category: 'beverages',
-      price: 9.99,
-      originalPrice: 12.99,
-      unit: '12 oz',
-      confidence: 0.91,
-      selected: true,
-      boundingBox: { xMin: 54.0, yMin: 12.0, xMax: 92.0, yMax: 48.0 },
-      matchedProductId: 'prod-coffee',
-    },
-    {
-      tempId: 'deal-3',
-      name: 'Large Grade A Brown Eggs (12pk)',
-      category: 'groceries',
-      price: 3.49,
-      originalPrice: 4.29,
-      unit: 'dozen',
-      confidence: 0.95,
-      selected: true,
-      boundingBox: { xMin: 8.0, yMin: 54.0, xMax: 46.0, yMax: 90.0 },
-      matchedProductId: 'prod-eggs',
-    },
-    {
-      tempId: 'deal-4',
-      name: 'Artisan Sourdough Loaf Bread',
-      category: 'groceries',
-      price: 3.99,
-      originalPrice: 4.79,
-      unit: '24 oz loaf',
-      confidence: 0.89,
-      selected: true,
-      boundingBox: { xMin: 54.0, yMin: 54.0, xMax: 92.0, yMax: 90.0 },
-      matchedProductId: 'prod-bread',
-    },
-  ]);
+  const [flyerItems, setFlyerItems] = useState<ExtractedPriceItem[]>(SAMPLE_FLYER_DEALS['target-circular']);
+  const [selectedFlyerItemId, setSelectedFlyerItemId] = useState<string | null>(null);
+  const [hoveredFlyerItemId, setHoveredFlyerItemId] = useState<string | null>(null);
   const [isImportingFlyer, setIsImportingFlyer] = useState(false);
 
   // Tab 3 (Manual Form) state
@@ -319,6 +388,36 @@ export default function ContributePage() {
     reader.onload = () => {
       const dataUrl = reader.result as string;
       setFlyerImageUrl(dataUrl);
+      setSelectedFlyerItemId(null);
+      setHoveredFlyerItemId(null);
+      setFlyerItems([
+        {
+          tempId: `custom-deal-${Date.now()}-1`,
+          name: 'Detected Promotional Deal 1',
+          category: 'groceries',
+          price: 4.99,
+          originalPrice: 6.49,
+          unit: '1 item',
+          confidence: 0.91,
+          selected: true,
+          boundingBox: { xMin: 15.0, yMin: 20.0, xMax: 48.0, yMax: 50.0 },
+          matchedProductId: 'prod-milk',
+          storeName: 'Local Store',
+        },
+        {
+          tempId: `custom-deal-${Date.now()}-2`,
+          name: 'Detected Promotional Deal 2',
+          category: 'groceries',
+          price: 2.49,
+          originalPrice: 3.29,
+          unit: '1 item',
+          confidence: 0.88,
+          selected: true,
+          boundingBox: { xMin: 52.0, yMin: 20.0, xMax: 85.0, yMax: 50.0 },
+          matchedProductId: 'prod-bread',
+          storeName: 'Local Store',
+        },
+      ]);
       showToast({
         type: 'info',
         message: 'Flyer Uploaded & Ready',
@@ -331,10 +430,13 @@ export default function ContributePage() {
   // Preset circular selector handler
   const handleSelectCircularSample = (sample: (typeof CIRCULAR_SAMPLES)[number]) => {
     setFlyerImageUrl(sample.imageUrl);
+    setFlyerItems(sample.items);
+    setSelectedFlyerItemId(null);
+    setHoveredFlyerItemId(null);
     showToast({
       type: 'info',
       message: `Loaded ${sample.name}`,
-      description: `${sample.store} circular loaded into viewer.`,
+      description: `${sample.store} circular loaded with ${sample.items.length} verified deals.`,
     });
   };
 
@@ -1063,6 +1165,14 @@ export default function ContributePage() {
             imageUrl={flyerImageUrl}
             imageAlt="Weekly Supermarket Circular"
             items={flyerItems}
+            selectedItemId={selectedFlyerItemId}
+            hoveredItemId={hoveredFlyerItemId}
+            onItemSelect={(tempId) => {
+              setSelectedFlyerItemId((prev) => (prev === tempId ? null : tempId));
+            }}
+            onItemHover={(tempId) => {
+              setHoveredFlyerItemId(tempId);
+            }}
             onSelectionChange={(selectedIds) => {
               const idSet = new Set(selectedIds);
               setFlyerItems((prev) =>
