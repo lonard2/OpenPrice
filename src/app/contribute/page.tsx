@@ -178,6 +178,7 @@ const CIRCULAR_SAMPLES = [
     store: 'Target',
     imageUrl: '/samples/weekly-flyer-circular.jpg',
     dealsCount: 4,
+    validityDate: 'Valid Sep 14 - Sep 20',
     items: SAMPLE_FLYER_DEALS['target-circular'],
   },
   {
@@ -186,6 +187,7 @@ const CIRCULAR_SAMPLES = [
     store: 'Aldi',
     imageUrl: '/samples/shelf-tag-milk.jpg',
     dealsCount: 1,
+    validityDate: 'Valid Sep 17 - Sep 23',
     items: SAMPLE_FLYER_DEALS['aldi-circular'],
   },
   {
@@ -194,6 +196,7 @@ const CIRCULAR_SAMPLES = [
     store: 'Kroger',
     imageUrl: '/samples/receipt-supermarket.jpg',
     dealsCount: 3,
+    validityDate: 'Valid Sep 13 - Sep 19',
     items: SAMPLE_FLYER_DEALS['kroger-circular'],
   },
 ];
@@ -845,7 +848,7 @@ export default function ContributePage() {
               1. Photo & Receipt OCR
             </Tab>
             <Tab value="flyer-circular" icon={<FileSpreadsheet className="w-4 h-4" />}>
-              2. Weekly Circular Explorer
+              2. Store Flyers & Circulars
             </Tab>
             <Tab value="manual-crud" icon={<Edit3 className="w-4 h-4" />}>
               3. Direct Manual Log
@@ -1101,17 +1104,17 @@ export default function ContributePage() {
           </div>
         </TabPanel>
 
-        {/* TAB 2: Weekly Circular Flyer Parser */}
+        {/* TAB 2: Store Flyers & Weekly Circulars */}
         <TabPanel value="flyer-circular" className="space-y-6">
           {/* Circular Selector & Upload Bar */}
           <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900">
-                  Select or Upload Weekly Circular Flyer
+                  Select or Upload Store Flyer & Weekly Circular
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Inspect multi-product circulars with high-resolution pan/zoom and batch deal ingestion
+                  Inspect multi-deal promotional flyers with pan/zoom canvas and batch price ingestion
                 </p>
               </div>
 
@@ -1149,9 +1152,13 @@ export default function ContributePage() {
                       : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80 shadow-surface'
                   )}
                 >
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-900">{sample.name}</p>
                     <p className="text-[11px] text-slate-500">{sample.store} • {sample.dealsCount} verified deals</p>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-indigo-700 bg-indigo-50/80 px-1.5 py-0.5 rounded-md">
+                      <Calendar className="w-2.5 h-2.5" />
+                      {sample.validityDate}
+                    </span>
                   </div>
                   <Badge variant={flyerImageUrl === sample.imageUrl ? 'verified' : 'category'} size="sm">
                     {sample.store}
@@ -1625,7 +1632,7 @@ export default function ContributePage() {
                     <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">1</kbd>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-700 font-medium">Switch to Circular Flyer</span>
+                    <span className="text-slate-700 font-medium">Switch to Store Flyers & Circulars</span>
                     <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] font-bold text-slate-800">2</kbd>
                   </div>
                   <div className="flex items-center justify-between">
