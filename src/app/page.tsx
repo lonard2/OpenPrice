@@ -296,6 +296,7 @@ export default function HomePage() {
           onCompare={handleCompare}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
+          categoryMetadata={categoryMetadata}
         />
       </section>
 

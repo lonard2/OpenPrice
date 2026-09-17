@@ -12,6 +12,8 @@ import {
   saveCategoryWeight,
   saveCategoryWeights,
   resetCategoryWeights,
+  saveCategory,
+  deleteCustomCategory,
   savePriceSubmission,
   getStoredWatchlist,
   toggleWatchlistProduct,
@@ -189,9 +191,11 @@ describe('Unit Tests: storage.ts', () => {
     it('returns default category weights on initial call', () => {
       const metadata = getStoredCategoryMetadata();
       assert.ok(metadata.groceries);
-      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.35);
-      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.15);
-      assert.strictEqual(metadata.household.inflationBasketWeight, 0.15);
+      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.20);
+      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.10);
+      assert.strictEqual(metadata.household.inflationBasketWeight, 0.10);
+      assert.strictEqual(metadata.bakery.inflationBasketWeight, 0.08);
+      assert.strictEqual(metadata.meat_seafood.inflationBasketWeight, 0.12);
     });
 
     it('saves and overrides an individual category basket weight', () => {
@@ -202,20 +206,25 @@ describe('Unit Tests: storage.ts', () => {
 
     it('saves a full mapping of normalized category weights', () => {
       const customWeights = {
-        groceries: 0.30,
-        beverages: 0.20,
-        household: 0.15,
-        pharmacy: 0.15,
-        electronics: 0.10,
-        apparel: 0.05,
-        services: 0.05,
+        groceries: 0.25,
+        meat_seafood: 0.15,
+        bakery: 0.10,
+        beverages: 0.10,
+        household: 0.10,
+        personal_care: 0.08,
+        pharmacy: 0.08,
+        baby_care: 0.04,
+        pet_supplies: 0.04,
+        electronics: 0.03,
+        apparel: 0.02,
+        services: 0.01,
       };
 
       saveCategoryWeights(customWeights);
       const metadata = getStoredCategoryMetadata();
-      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.30);
-      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.20);
-      assert.strictEqual(metadata.apparel.inflationBasketWeight, 0.05);
+      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.25);
+      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.10);
+      assert.strictEqual(metadata.apparel.inflationBasketWeight, 0.02);
 
       const sum = Object.values(metadata).reduce((acc, c) => acc + c.inflationBasketWeight, 0);
       assert.strictEqual(Number(sum.toFixed(2)), 1.00);
@@ -226,7 +235,48 @@ describe('Unit Tests: storage.ts', () => {
       assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.70);
 
       resetCategoryWeights();
-      assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.35);
+      assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.20);
+    });
+
+    it('saves custom category and retrieves it in stored category metadata', () => {
+      saveCategory({
+        id: 'deli_prepared',
+        displayName: 'Deli & Prepared Foods',
+        description: 'Hot rotisserie chickens, deli sandwiches, salads, and prepared meals',
+        iconName: 'Utensils',
+        inflationBasketWeight: 0.05,
+        colorAccent: '#F97316',
+        standardUnits: ['lb', 'pack', 'each'],
+      });
+
+      const metadata = getStoredCategoryMetadata();
+      assert.ok(metadata['deli_prepared']);
+      assert.strictEqual(metadata['deli_prepared'].displayName, 'Deli & Prepared Foods');
+      assert.strictEqual(metadata['deli_prepared'].isCustom, true);
+      assert.strictEqual(metadata['deli_prepared'].inflationBasketWeight, 0.05);
+    });
+
+    it('deletes custom category but protects canonical categories from deletion', () => {
+      saveCategory({
+        id: 'bulk_wholesale',
+        displayName: 'Bulk Wholesale Goods',
+        description: 'Large quantity club pack staples and institutional sizes',
+        iconName: 'Package',
+        inflationBasketWeight: 0.04,
+        colorAccent: '#64748B',
+      });
+
+      assert.ok(getStoredCategoryMetadata()['bulk_wholesale']);
+
+      // Attempt to delete canonical category: should return false and not delete
+      const deletedCanonical = deleteCustomCategory('groceries');
+      assert.strictEqual(deletedCanonical, false);
+      assert.ok(getStoredCategoryMetadata()['groceries']);
+
+      // Delete custom category: should return true
+      const deletedCustom = deleteCustomCategory('bulk_wholesale');
+      assert.strictEqual(deletedCustom, true);
+      assert.strictEqual(getStoredCategoryMetadata()['bulk_wholesale'], undefined);
     });
   });
 

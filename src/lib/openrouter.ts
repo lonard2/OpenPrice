@@ -67,7 +67,7 @@ CRITICAL RULES:
 3. price must be a positive number representing the current/deal price.
 4. originalPrice is the regular pre-discount price if crossed out or marked as 'was $X.XX'.
 5. confidence scores must be a float between 0.0 and 1.0.
-6. category must strictly match one of the 7 valid ProductCategory values.`;
+6. category must strictly match one of the valid ProductCategory values (e.g. groceries, bakery, meat_seafood, beverages, household, personal_care, pharmacy, baby_care, pet_supplies, electronics, apparel, services).`;
 
 /**
  * Clamps a number to the [min, max] range.
@@ -226,6 +226,11 @@ export function normalizeExtractedItems(
     'apparel',
     'beverages',
     'services',
+    'bakery',
+    'meat_seafood',
+    'personal_care',
+    'pet_supplies',
+    'baby_care',
   ];
 
   return rawItems.map((rawItem, index) => {

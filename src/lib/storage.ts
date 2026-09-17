@@ -25,6 +25,7 @@ const STORAGE_KEYS = {
   MODERATION: 'openprice_moderation_queue',
   ROLE: 'openprice_user_role',
   CATEGORY_WEIGHTS: 'openprice_category_weights',
+  CUSTOM_CATEGORIES: 'openprice_custom_categories',
 } as const;
 
 const EVENT_NAME = 'openprice-storage-change';
@@ -200,30 +201,113 @@ export function saveStoredStores(stores: Store[]): Store[] {
 // ============================================================================
 
 /**
- * Retrieves category metadata with persisted inflation basket weights applied.
+ * Retrieves custom categories created by admins or users.
+ */
+export function getCustomCategories(): CategoryMetadata[] {
+  if (!isBrowser()) return [];
+  const raw = localStorage.getItem(STORAGE_KEYS.CUSTOM_CATEGORIES);
+  return safeJsonParse<CategoryMetadata[]>(raw, []);
+}
+
+/**
+ * Retrieves category metadata with custom categories merged and persisted inflation basket weights applied.
  */
 export function getStoredCategoryMetadata(): Record<ProductCategory, CategoryMetadata> {
-  if (!isBrowser()) return CATEGORY_METADATA;
+  const result: Record<string, CategoryMetadata> = { ...CATEGORY_METADATA };
 
+  if (!isBrowser()) return result as Record<ProductCategory, CategoryMetadata>;
+
+  // Merge custom categories
+  const customCategories = getCustomCategories();
+  for (const custom of customCategories) {
+    result[custom.id] = {
+      ...custom,
+      isCustom: true,
+    };
+  }
+
+  // Apply weight overrides
   const raw = localStorage.getItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
-  if (!raw) return CATEGORY_METADATA;
-
-  const overrides = safeJsonParse<Record<string, number>>(raw, {});
-  const result = { ...CATEGORY_METADATA };
-
-  for (const [key, weight] of Object.entries(overrides)) {
-    const cat = key as ProductCategory;
-    if (result[cat]) {
-      result[cat] = {
-        ...result[cat],
-        inflationBasketWeight: weight,
-      };
-      // Keep in-memory CATEGORY_METADATA synchronized
-      CATEGORY_METADATA[cat].inflationBasketWeight = weight;
+  if (raw) {
+    const overrides = safeJsonParse<Record<string, number>>(raw, {});
+    for (const [key, weight] of Object.entries(overrides)) {
+      if (result[key]) {
+        result[key] = {
+          ...result[key],
+          inflationBasketWeight: weight,
+        };
+        // Keep in-memory CATEGORY_METADATA synchronized if canonical
+        if (CATEGORY_METADATA[key as ProductCategory]) {
+          CATEGORY_METADATA[key as ProductCategory].inflationBasketWeight = weight;
+        }
+      }
     }
   }
 
-  return result;
+  return result as Record<ProductCategory, CategoryMetadata>;
+}
+
+/**
+ * Saves a new or updated category metadata definition (custom or canonical).
+ */
+export function saveCategory(category: CategoryMetadata): void {
+  if (!isBrowser()) return;
+
+  // If it is a canonical category, update its weight
+  if (category.id in CATEGORY_METADATA) {
+    const canonicalKey = category.id as ProductCategory;
+    if (typeof category.inflationBasketWeight === 'number') {
+      saveCategoryWeight(canonicalKey, category.inflationBasketWeight);
+    }
+    return;
+  }
+
+  const custom = getCustomCategories();
+  const index = custom.findIndex((c) => c.id === category.id);
+  const normalizedCategory: CategoryMetadata = {
+    ...category,
+    isCustom: true,
+  };
+
+  if (index >= 0) {
+    custom[index] = normalizedCategory;
+  } else {
+    custom.push(normalizedCategory);
+  }
+
+  localStorage.setItem(STORAGE_KEYS.CUSTOM_CATEGORIES, JSON.stringify(custom));
+
+  if (typeof category.inflationBasketWeight === 'number') {
+    saveCategoryWeight(category.id as ProductCategory, category.inflationBasketWeight);
+  } else {
+    notifyStorageChange();
+  }
+}
+
+/**
+ * Deletes a custom category by id. Canonical categories cannot be deleted.
+ */
+export function deleteCustomCategory(categoryId: string): boolean {
+  if (!isBrowser()) return false;
+  if (categoryId in CATEGORY_METADATA) {
+    return false;
+  }
+
+  const custom = getCustomCategories();
+  const filtered = custom.filter((c) => c.id !== categoryId);
+  localStorage.setItem(STORAGE_KEYS.CUSTOM_CATEGORIES, JSON.stringify(filtered));
+
+  const rawWeights = localStorage.getItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
+  if (rawWeights) {
+    const weights = safeJsonParse<Record<string, number>>(rawWeights, {});
+    if (categoryId in weights) {
+      delete weights[categoryId];
+      localStorage.setItem(STORAGE_KEYS.CATEGORY_WEIGHTS, JSON.stringify(weights));
+    }
+  }
+
+  notifyStorageChange();
+  return true;
 }
 
 /**
@@ -268,13 +352,18 @@ export function resetCategoryWeights(): void {
   localStorage.removeItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
   // Restore initial weights from seed
   const defaultWeights: Record<ProductCategory, number> = {
-    groceries: 0.35,
-    beverages: 0.15,
-    household: 0.15,
-    pharmacy: 0.10,
-    electronics: 0.10,
-    apparel: 0.10,
-    services: 0.05,
+    groceries: 0.20,
+    meat_seafood: 0.12,
+    bakery: 0.08,
+    beverages: 0.10,
+    household: 0.10,
+    personal_care: 0.08,
+    pharmacy: 0.08,
+    baby_care: 0.06,
+    pet_supplies: 0.06,
+    electronics: 0.05,
+    apparel: 0.04,
+    services: 0.03,
   };
   for (const [cat, weight] of Object.entries(defaultWeights)) {
     if (CATEGORY_METADATA[cat as ProductCategory]) {
@@ -757,6 +846,7 @@ export function resetStorageToDefaults(): void {
   localStorage.setItem(STORAGE_KEYS.MODERATION, JSON.stringify([]));
   localStorage.setItem(STORAGE_KEYS.ROLE, 'public');
   localStorage.removeItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
+  localStorage.removeItem(STORAGE_KEYS.CUSTOM_CATEGORIES);
   resetCategoryWeights();
   notifyStorageChange();
 }

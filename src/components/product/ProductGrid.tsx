@@ -12,8 +12,8 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import type { Product, ProductCategory } from '@/types';
-import { CATEGORY_METADATA } from '@/lib/mock-data';
+import type { Product, ProductCategory, CategoryMetadata } from '@/types';
+import { getStoredCategoryMetadata, subscribeToStorageChanges } from '@/lib/storage';
 import { cn } from '@/lib/utils';
 
 export type ProductSortOption =
@@ -32,6 +32,7 @@ export interface ProductGridProps {
   showFilters?: boolean;
   selectedCategory?: ProductCategory | 'all';
   onCategoryChange?: (category: ProductCategory | 'all') => void;
+  categoryMetadata?: Record<ProductCategory, CategoryMetadata>;
   className?: string;
 }
 
@@ -44,11 +45,26 @@ export function ProductGrid({
   showFilters = true,
   selectedCategory = 'all',
   onCategoryChange,
+  categoryMetadata: propCategoryMetadata,
   className,
 }: ProductGridProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [internalCategory, setInternalCategory] = useState<ProductCategory | 'all'>('all');
   const [sortOption, setSortOption] = useState<ProductSortOption>('lowest_price');
+  const [storedCategoryMetadata, setStoredCategoryMetadata] = useState<Record<ProductCategory, CategoryMetadata>>(() =>
+    propCategoryMetadata || getStoredCategoryMetadata()
+  );
+
+  React.useEffect(() => {
+    if (propCategoryMetadata) {
+      setStoredCategoryMetadata(propCategoryMetadata);
+    } else {
+      const unsubscribe = subscribeToStorageChanges(() => {
+        setStoredCategoryMetadata(getStoredCategoryMetadata());
+      });
+      return unsubscribe;
+    }
+  }, [propCategoryMetadata]);
 
   // Synchronize search query across components and URL
   React.useEffect(() => {
@@ -107,17 +123,18 @@ export function ProductGrid({
       { id: 'all', label: 'All Items', count: searchFiltered.length },
     ];
 
-    Object.keys(CATEGORY_METADATA).forEach((catKey) => {
+    const metaSource = propCategoryMetadata || storedCategoryMetadata;
+    Object.keys(metaSource).forEach((catKey) => {
       const key = catKey as ProductCategory;
       allCats.push({
         id: key,
-        label: CATEGORY_METADATA[key]?.displayName || key,
+        label: metaSource[key]?.displayName || key,
         count: counts[key] || 0,
       });
     });
 
     return allCats;
-  }, [products, searchQuery]);
+  }, [products, searchQuery, propCategoryMetadata, storedCategoryMetadata]);
 
   // Filtered and sorted products
   const filteredProducts = useMemo(() => {

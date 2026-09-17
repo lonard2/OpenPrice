@@ -38,6 +38,7 @@ import {
   savePriceSubmission,
   getStoredProducts,
   getStoredStores,
+  getStoredCategoryMetadata,
   subscribeToStorageChanges,
 } from '@/lib/storage';
 import { formatCurrency, formatRelativeTime } from '@/lib/formatters';
@@ -47,20 +48,10 @@ import type {
   OcrParseResponse,
   ContributionKarma,
   ProductCategory,
+  CategoryMetadata,
   Store,
   Product,
 } from '@/types';
-import { CATEGORY_METADATA } from '@/lib/mock-data';
-
-const CATEGORIES: ProductCategory[] = [
-  'groceries',
-  'beverages',
-  'household',
-  'pharmacy',
-  'electronics',
-  'apparel',
-  'services',
-];
 
 const SAMPLE_FLYER_DEALS: Record<string, ExtractedPriceItem[]> = {
   'target-circular': [
@@ -279,6 +270,9 @@ export default function ContributePage() {
   const [karma, setKarma] = useState<ContributionKarma>(getStoredKarma());
   const [stores, setStores] = useState<Store[]>(() => getStoredStores());
   const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
+  const [categoryMetadata, setCategoryMetadata] = useState<Record<ProductCategory, CategoryMetadata>>(() =>
+    getStoredCategoryMetadata()
+  );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Tab 1 (Photo OCR) state
@@ -419,6 +413,7 @@ export default function ContributePage() {
       setKarma(getStoredKarma());
       setStores(getStoredStores());
       setProducts(getStoredProducts());
+      setCategoryMetadata(getStoredCategoryMetadata());
     };
     loadStorageData();
     const unsubscribe = subscribeToStorageChanges(loadStorageData);
@@ -1712,9 +1707,9 @@ export default function ContributePage() {
                         onChange={(e) => setManualForm({ ...manualForm, category: e.target.value as ProductCategory })}
                         className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 capitalize"
                       >
-                        {CATEGORIES.map((c) => (
-                          <option key={c} value={c}>
-                            {CATEGORY_METADATA[c]?.displayName || c}
+                        {Object.entries(categoryMetadata).map(([key, meta]) => (
+                          <option key={key} value={key}>
+                            {meta?.displayName || key}
                           </option>
                         ))}
                       </select>

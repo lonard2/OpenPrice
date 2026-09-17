@@ -2,14 +2,21 @@
  * OpenPrice Product & Pricing Domain Models
  */
 
-export type ProductCategory =
+export type CanonicalProductCategory =
   | 'groceries'
   | 'electronics'
   | 'household'
   | 'pharmacy'
   | 'apparel'
   | 'beverages'
-  | 'services';
+  | 'services'
+  | 'bakery'
+  | 'meat_seafood'
+  | 'personal_care'
+  | 'pet_supplies'
+  | 'baby_care';
+
+export type ProductCategory = CanonicalProductCategory | (string & {});
 
 export interface CategoryMetadata {
   id: ProductCategory;
@@ -18,6 +25,8 @@ export interface CategoryMetadata {
   iconName: string; // Lucide icon name, e.g. 'ShoppingBasket', 'Smartphone', 'Home'
   inflationBasketWeight: number; // Sum of all weights = 1.0
   colorAccent: string;
+  standardUnits?: string[];
+  isCustom?: boolean;
 }
 
 export type PriceTrendStatus =

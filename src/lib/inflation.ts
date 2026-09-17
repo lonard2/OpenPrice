@@ -11,7 +11,6 @@ import type {
   PriceOutlierReport,
   PricePoint,
   Product,
-  ProductCategory,
   CategoryMetadata,
 } from '../types/index.ts';
 import { CATEGORY_METADATA } from './mock-data.ts';
@@ -264,7 +263,7 @@ export function detectPriceOutlier(
  */
 export function computeCatalogInflation(
   products: Product[],
-  categoryMetadata?: Record<ProductCategory, CategoryMetadata>
+  categoryMetadata?: Record<string, CategoryMetadata>
 ): InflationBasketReport | null {
   if (!products || products.length === 0) return null;
 

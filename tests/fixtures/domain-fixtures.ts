@@ -12,7 +12,13 @@ export type ProductCategory =
   | 'pharmacy'
   | 'beverages'
   | 'services'
-  | 'apparel';
+  | 'apparel'
+  | 'bakery'
+  | 'meat_seafood'
+  | 'personal_care'
+  | 'pet_supplies'
+  | 'baby_care'
+  | (string & {});
 
 export type PriceTrendStatus =
   | 'price_drop'

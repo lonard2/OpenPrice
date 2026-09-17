@@ -15,6 +15,7 @@ import {
   Sparkles,
   RotateCcw,
   AlertCircle,
+  Trash2,
 } from 'lucide-react';
 import {
   getStoredStores,
@@ -24,6 +25,8 @@ import {
   saveCategoryWeight,
   saveCategoryWeights,
   resetCategoryWeights,
+  saveCategory,
+  deleteCustomCategory,
   subscribeToStorageChanges,
 } from '@/lib/storage';
 import { Badge } from '@/components/ui/Badge';
@@ -32,14 +35,19 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import type { Store, ProductCategory, CategoryMetadata } from '@/types';
 
-const STANDARD_UNITS: Record<ProductCategory, string[]> = {
-  groceries: ['1 gal', '1 lb', '12 oz', 'dozen', 'loaf', 'each'],
+const STANDARD_UNITS: Record<string, string[]> = {
+  groceries: ['1 gal', '1 lb', '12 oz', 'dozen', 'each', '3 lb bag'],
   beverages: ['12 oz', '16 oz', '2 L', '6-pack', '1 gal', 'can'],
   household: ['pack', 'box', 'roll', 'count', 'bottle', 'each'],
   pharmacy: ['100 ct', 'bottle', 'box', 'tube', 'pack', 'unit'],
   electronics: ['each', 'unit', 'pack', 'set'],
   apparel: ['each', 'pair', 'pack', 'unit'],
   services: ['hr', 'session', 'visit', 'month'],
+  bakery: ['loaf', 'pack', '6-pack', 'dozen', 'each', 'bag'],
+  meat_seafood: ['1 lb', '16 oz', 'pack', 'fillet', 'kg', 'each'],
+  personal_care: ['bottle', 'tube', 'bar', 'pack', 'count', 'oz'],
+  pet_supplies: ['15 lb', 'bag', 'can', 'pack', 'bottle', 'box'],
+  baby_care: ['pack', 'box', 'count', 'canister', 'bottle'],
 };
 
 export default function AdminTaxonomyPage() {
@@ -93,6 +101,25 @@ export default function AdminTaxonomyPage() {
     units: string[];
   } | null>(null);
   const [categoryWeightInput, setCategoryWeightInput] = useState<string>('0.15');
+
+  // Add Category Modal state
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [categoryForm, setCategoryForm] = useState<{
+    displayName: string;
+    id: string;
+    description: string;
+    standardUnits: string;
+    inflationBasketWeight: string;
+    colorAccent: string;
+  }>({
+    displayName: '',
+    id: '',
+    description: '',
+    standardUnits: 'each, pack, unit',
+    inflationBasketWeight: '0.05',
+    colorAccent: '#10B981',
+  });
+  const [categoryFormError, setCategoryFormError] = useState<string | null>(null);
 
   // Open Add Store modal
   const handleOpenAddStore = () => {
@@ -209,6 +236,80 @@ export default function AdminTaxonomyPage() {
     setCategoryMetadata(getStoredCategoryMetadata());
     setFeedback('Reset category weights to standard index benchmarks.');
     setTimeout(() => setFeedback(null), 4000);
+  };
+
+  // Open Add Category modal
+  const handleOpenAddCategory = () => {
+    setCategoryForm({
+      displayName: '',
+      id: '',
+      description: '',
+      standardUnits: 'each, pack, unit',
+      inflationBasketWeight: '0.05',
+      colorAccent: '#10B981',
+    });
+    setCategoryFormError(null);
+    setIsAddCategoryModalOpen(true);
+  };
+
+  // Save Custom Category
+  const handleSaveCustomCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = categoryForm.displayName.trim();
+    if (!name) {
+      setCategoryFormError('Category display name is required.');
+      return;
+    }
+
+    const slug = categoryForm.id.trim()
+      ? categoryForm.id.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_')
+      : name.toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 24);
+
+    if (!slug) {
+      setCategoryFormError('Valid category identifier is required.');
+      return;
+    }
+
+    if (categoryMetadata[slug as ProductCategory]) {
+      setCategoryFormError(`A category with key "${slug}" already exists.`);
+      return;
+    }
+
+    const desc = categoryForm.description.trim() || `Inclusion criteria and taxonomy standard for ${name}`;
+    const weightNum = parseFloat(categoryForm.inflationBasketWeight);
+    const validWeight = !isNaN(weightNum) && weightNum >= 0 && weightNum <= 1 ? weightNum : 0.05;
+
+    const units = categoryForm.standardUnits
+      .split(',')
+      .map((u) => u.trim())
+      .filter(Boolean);
+
+    const newCategory: CategoryMetadata = {
+      id: slug as ProductCategory,
+      displayName: name,
+      description: desc,
+      iconName: 'Tag',
+      inflationBasketWeight: validWeight,
+      colorAccent: categoryForm.colorAccent || '#6366F1',
+      standardUnits: units.length > 0 ? units : ['each', 'unit'],
+      isCustom: true,
+    };
+
+    saveCategory(newCategory);
+    setCategoryMetadata(getStoredCategoryMetadata());
+    setIsAddCategoryModalOpen(false);
+    setFeedback(`Successfully created new category "${name}".`);
+    setTimeout(() => setFeedback(null), 4000);
+  };
+
+  // Delete Custom Category
+  const handleDeleteCustomCategory = (catKey: string, displayName: string) => {
+    const ok = deleteCustomCategory(catKey);
+    if (ok) {
+      setCategoryMetadata(getStoredCategoryMetadata());
+      setFeedback(`Removed custom category "${displayName}".`);
+      setTimeout(() => setFeedback(null), 4000);
+    }
   };
 
   return (
@@ -480,17 +581,35 @@ export default function AdminTaxonomyPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
-            <h3 className="text-base font-bold text-slate-900">
-              Canonical Product Categories & Index Weights
-            </h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">
+                Product Categories & Index Weights
+              </h3>
+              <p className="text-xs text-slate-500">
+                Manage canonical sectors, taxonomy inclusion criteria, standard units, and Laspeyres basket weights.
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handleOpenAddCategory}
+              className="min-h-[44px] flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Category / Criteria</span>
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Object.entries(categoryMetadata).map(([catKey, meta]) => {
               const categoryKey = catKey as ProductCategory;
               const count = products.filter((p) => p.category === categoryKey).length;
-              const commonUnits = STANDARD_UNITS[categoryKey] || ['each', 'unit'];
+              const commonUnits = meta.standardUnits && meta.standardUnits.length > 0
+                ? meta.standardUnits
+                : STANDARD_UNITS[categoryKey] || ['each', 'unit'];
 
               return (
                 <div
@@ -508,9 +627,16 @@ export default function AdminTaxonomyPage() {
                           {meta.displayName}
                         </h4>
                       </div>
-                      <Badge variant="category" size="sm" className="tabular-nums">
-                        {count} {count === 1 ? 'item' : 'items'}
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        {meta.isCustom && (
+                          <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold uppercase tracking-wider">
+                            Custom
+                          </span>
+                        )}
+                        <Badge variant="category" size="sm" className="tabular-nums">
+                          {count} {count === 1 ? 'item' : 'items'}
+                        </Badge>
+                      </div>
                     </div>
 
                     <p className="text-xs text-slate-500 leading-relaxed">
@@ -545,22 +671,36 @@ export default function AdminTaxonomyPage() {
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingCategory({
-                          key: categoryKey,
-                          name: meta.displayName,
-                          weight: meta.inflationBasketWeight,
-                          units: commonUnits,
-                        });
-                        setCategoryWeightInput(meta.inflationBasketWeight.toString());
-                      }}
-                      className="w-full min-h-[44px] py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors border border-slate-200/80 flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                    >
-                      <Sliders className="w-3.5 h-3.5" />
-                      <span>Adjust Basket Weight</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingCategory({
+                            key: categoryKey,
+                            name: meta.displayName,
+                            weight: meta.inflationBasketWeight,
+                            units: commonUnits,
+                          });
+                          setCategoryWeightInput(meta.inflationBasketWeight.toString());
+                        }}
+                        className="flex-1 min-h-[44px] py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors border border-slate-200/80 flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                      >
+                        <Sliders className="w-3.5 h-3.5" />
+                        <span>Adjust Weight</span>
+                      </button>
+
+                      {meta.isCustom && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCustomCategory(catKey, meta.displayName)}
+                          aria-label={`Delete custom category ${meta.displayName}`}
+                          title={`Delete custom category ${meta.displayName}`}
+                          className="min-h-[44px] min-w-[44px] p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-colors border border-rose-200/80 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -680,6 +820,150 @@ export default function AdminTaxonomyPage() {
                   onChange={(e) => setStoreForm({ ...storeForm, color: e.target.value })}
                 />
               </div>
+            </div>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Add Custom Category & Criteria Modal */}
+      <Modal
+        isOpen={isAddCategoryModalOpen}
+        onClose={() => setIsAddCategoryModalOpen(false)}
+        title="Add Product Category & Criteria"
+        description="Define a new market sector, inclusion criteria, standard units of measurement, and basket weight."
+        size="md"
+        footer={
+          <div className="flex items-center justify-between w-full">
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              className="min-h-[44px]"
+              onClick={() => setIsAddCategoryModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              className="min-h-[44px]"
+              onClick={handleSaveCustomCategory}
+              leftIcon={<CheckCircle2 className="w-4 h-4" />}
+            >
+              Create Category
+            </Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleSaveCustomCategory} className="space-y-4 py-2">
+          {categoryFormError && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{categoryFormError}</span>
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <label htmlFor="cat-display-name" className="text-xs font-bold text-slate-700">
+              Category Display Name *
+            </label>
+            <Input
+              id="cat-display-name"
+              placeholder="e.g. Deli & Prepared Foods"
+              value={categoryForm.displayName}
+              onChange={(e) => {
+                const name = e.target.value;
+                const autoSlug = name.toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 24);
+                setCategoryForm((prev) => ({
+                  ...prev,
+                  displayName: name,
+                  id: prev.id === '' || prev.id === prev.displayName.toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 24) ? autoSlug : prev.id,
+                }));
+              }}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label htmlFor="cat-id-slug" className="text-xs font-bold text-slate-700">
+                Category Identifier / Slug *
+              </label>
+              <Input
+                id="cat-id-slug"
+                placeholder="e.g. deli_prepared"
+                value={categoryForm.id}
+                onChange={(e) => setCategoryForm({ ...categoryForm, id: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })}
+                required
+              />
+              <span className="text-[10px] text-slate-400">Unique alphanumeric key used in database</span>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="cat-weight-input" className="text-xs font-bold text-slate-700">
+                Basket Weight (0.01 - 1.00)
+              </label>
+              <Input
+                id="cat-weight-input"
+                type="number"
+                step="0.01"
+                min="0.01"
+                max="1.0"
+                value={categoryForm.inflationBasketWeight}
+                onChange={(e) => setCategoryForm({ ...categoryForm, inflationBasketWeight: e.target.value })}
+              />
+              <span className="text-[10px] text-slate-400">e.g. 0.05 for 5% inflation basket allocation</span>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="cat-description" className="text-xs font-bold text-slate-700">
+              Inclusion Criteria & Description *
+            </label>
+            <textarea
+              id="cat-description"
+              rows={3}
+              placeholder="Detail what items belong in this category (e.g. Hot rotisserie chickens, deli sandwiches, salads, and prepared ready-to-eat meals)."
+              value={categoryForm.description}
+              onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400 resize-none"
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="cat-units" className="text-xs font-bold text-slate-700">
+              Standard Units (comma-separated)
+            </label>
+            <Input
+              id="cat-units"
+              placeholder="lb, pack, container, each"
+              value={categoryForm.standardUnits}
+              onChange={(e) => setCategoryForm({ ...categoryForm, standardUnits: e.target.value })}
+            />
+            <span className="text-[10px] text-slate-400">Allowed standardized units of sale for price tracking</span>
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="cat-color-hex" className="text-xs font-bold text-slate-700">
+              Color Accent Hex
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="cat-color-picker"
+                aria-label="Pick category accent color"
+                type="color"
+                value={categoryForm.colorAccent}
+                onChange={(e) => setCategoryForm({ ...categoryForm, colorAccent: e.target.value })}
+                className="w-10 h-10 rounded-xl border border-slate-200 cursor-pointer p-0.5 shrink-0"
+              />
+              <Input
+                id="cat-color-hex"
+                value={categoryForm.colorAccent}
+                onChange={(e) => setCategoryForm({ ...categoryForm, colorAccent: e.target.value })}
+                className="font-mono text-xs"
+              />
             </div>
           </div>
         </form>
