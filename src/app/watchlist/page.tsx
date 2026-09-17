@@ -61,13 +61,11 @@ export default function WatchlistPage() {
 
       setStores(getStoredStores());
 
-      // Initialize basket quantities for all watchlisted items
+      // Sync basket quantities with current watchlisted items, pruning orphaned keys
       setBasketQuantities((prev) => {
-        const next = { ...prev };
+        const next: Record<string, number> = {};
         storedWatchlist.forEach((w) => {
-          if (next[w.productId] === undefined) {
-            next[w.productId] = 1;
-          }
+          next[w.productId] = prev[w.productId] !== undefined ? prev[w.productId] : 1;
         });
         return next;
       });
@@ -81,6 +79,11 @@ export default function WatchlistPage() {
   // Remove from watchlist with Undo toast
   const handleRemove = (product: Product) => {
     toggleWatchlistProduct(product);
+    setBasketQuantities((prev) => {
+      const next = { ...prev };
+      delete next[product.id];
+      return next;
+    });
     showToast({
       type: 'info',
       message: 'Removed from Watchlist',
@@ -89,6 +92,7 @@ export default function WatchlistPage() {
         label: 'Undo',
         onClick: () => {
           toggleWatchlistProduct(product);
+          setBasketQuantities((prev) => ({ ...prev, [product.id]: 1 }));
         },
       },
     });
@@ -416,10 +420,6 @@ export default function WatchlistPage() {
       <section className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
-              <Bookmark className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
-              <span>Personal Watchlist & Basket Optimizer</span>
-            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Tracked Items & Smart Routing
             </h1>
@@ -887,51 +887,99 @@ export default function WatchlistPage() {
       </div>
 
       {/* Edit Alert Target Price Modal */}
-      {editingItem && (
-        <Modal
-          isOpen={Boolean(editingItem)}
-          onClose={() => setEditingItem(null)}
-          title="Update Target Price Alert"
-          description={`Set your threshold alert price for ${editingItem.productName}.`}
-          size="sm"
-          footer={
-            <div className="flex items-center justify-between w-full gap-3">
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => setEditingItem(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handleSaveAlert}
-                leftIcon={<CheckCircle2 className="w-4 h-4" />}
-              >
-                Save Alert
-              </Button>
+      {editingItem && (() => {
+        const basePrice = editingItem.currentPrice || products.find((p) => p.id === editingItem.productId)?.currentLowestPrice || 0;
+        return (
+          <Modal
+            isOpen={Boolean(editingItem)}
+            onClose={() => setEditingItem(null)}
+            title="Update Target Price Alert"
+            description={`Set your threshold alert price for ${editingItem.productName}.`}
+            size="sm"
+            footer={
+              <div className="flex items-center justify-between w-full gap-3">
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={() => setEditingItem(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={handleSaveAlert}
+                  leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                >
+                  Save Alert
+                </Button>
+              </div>
+            }
+          >
+            <div className="space-y-4 py-2">
+              <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/80">
+                <span>Current Lowest Benchmark:</span>
+                <strong className="font-mono tabular-nums text-slate-900 text-sm">{formatCurrency(basePrice)}</strong>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Quick Target Presets
+                </label>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {[
+                    { label: '-5%', pct: 0.05 },
+                    { label: '-10%', pct: 0.10 },
+                    { label: '-15%', pct: 0.15 },
+                    { label: '-20%', pct: 0.20 },
+                  ].map((preset) => {
+                    const presetValue = Number((basePrice * (1 - preset.pct)).toFixed(2));
+                    const isSelected = Math.abs(newTargetPrice - presetValue) < 0.01;
+                    return (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => setNewTargetPrice(presetValue)}
+                        aria-label={`Set alert target to ${preset.label} discount (${formatCurrency(presetValue)})`}
+                        className={cn(
+                          'px-2.5 py-1.5 min-h-[36px] rounded-lg text-xs font-medium border transition-colors touch-target',
+                          isSelected
+                            ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold shadow-xs'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                        )}
+                      >
+                        <span>{preset.label}</span>
+                        <span className="ml-1 font-mono text-[11px] text-slate-500 tabular-nums">
+                          {formatCurrency(presetValue)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <Input
+                id="target-price-input"
+                label="Target Price ($)"
+                type="number"
+                step="0.05"
+                min="0.01"
+                value={newTargetPrice}
+                onChange={(e) => setNewTargetPrice(parseFloat(e.target.value) || 0)}
+                leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
+                isNumeric
+              />
+
+              {newTargetPrice > 0 && newTargetPrice < basePrice && (
+                <p className="text-[11px] text-emerald-700 flex items-center gap-1 font-medium">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  Alert triggers when price drops by {formatCurrency(basePrice - newTargetPrice)} ({Math.round(((basePrice - newTargetPrice) / basePrice) * 100)}% off).
+                </p>
+              )}
             </div>
-          }
-        >
-          <div className="space-y-3 py-2">
-            <Input
-              id="target-price-input"
-              label="Target Price ($)"
-              type="number"
-              step="0.05"
-              min="0.01"
-              value={newTargetPrice}
-              onChange={(e) => setNewTargetPrice(parseFloat(e.target.value) || 0)}
-              leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
-              isNumeric
-            />
-            <p className="text-[11px] text-slate-500">
-              Current Lowest: <strong className="font-mono tabular-nums text-slate-800">{formatCurrency(editingItem.currentPrice || 0)}</strong>
-            </p>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        );
+      })()}
     </div>
   );
 }
