@@ -283,7 +283,7 @@ export default function WatchlistPage() {
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-3 py-2 rounded-xl">
+            <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-3 py-2 rounded-xl tabular-nums">
               {watchlist.length} {watchlist.length === 1 ? 'Tracked Item' : 'Tracked Items'}
             </span>
           </div>
@@ -323,7 +323,7 @@ export default function WatchlistPage() {
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <Button
                   variant="primary"
-                  size="sm"
+                  size="md"
                   onClick={handleSeedWatchlist}
                   leftIcon={<Plus className="w-4 h-4" />}
                 >
@@ -331,10 +331,10 @@ export default function WatchlistPage() {
                 </Button>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors touch-target"
                 >
                   <span>Browse Catalog</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function WatchlistPage() {
                         type="button"
                         onClick={() => handleRemove(prod)}
                         aria-label={`Remove ${prod.name} from watchlist`}
-                        className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors shrink-0"
+                        className="min-h-[44px] min-w-[44px] p-2.5 inline-flex items-center justify-center text-slate-500 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors shrink-0 touch-target"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -406,8 +406,10 @@ export default function WatchlistPage() {
                           setEditingItem(item);
                           setNewTargetPrice(item.targetPrice || prod.currentLowestPrice * 0.95);
                         }}
+                        aria-haspopup="dialog"
+                        aria-label={`Configure target price alert for ${prod.name}. Current alert: ${formatCurrency(item.targetPrice || prod.currentLowestPrice)}`}
                         className={cn(
-                          'inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold border transition-colors',
+                          'inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold border transition-colors touch-target',
                           hasDroppedBelowTarget
                             ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                             : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -429,21 +431,21 @@ export default function WatchlistPage() {
                           type="button"
                           onClick={() => handleQuantityChange(prod.id, -1)}
                           disabled={qty <= 0}
-                          aria-label="Decrease quantity"
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 disabled:opacity-40"
+                          aria-label={`Decrease quantity of ${prod.name}`}
+                          className="min-w-[44px] min-h-[44px] rounded-xl bg-white border border-slate-200/90 flex items-center justify-center text-slate-700 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition-colors touch-target"
                         >
-                          <Minus className="w-3.5 h-3.5" />
+                          <Minus className="w-4 h-4" />
                         </button>
-                        <span className="w-6 text-center font-bold font-mono text-slate-900 tabular-nums">
+                        <span className="w-8 text-center font-bold font-mono text-sm text-slate-900 tabular-nums">
                           {qty}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleQuantityChange(prod.id, 1)}
-                          aria-label="Increase quantity"
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100"
+                          aria-label={`Increase quantity of ${prod.name}`}
+                          className="min-w-[44px] min-h-[44px] rounded-xl bg-white border border-slate-200/90 flex items-center justify-center text-slate-700 hover:bg-slate-100 hover:text-slate-900 shadow-xs transition-colors touch-target"
                         >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -487,7 +489,7 @@ export default function WatchlistPage() {
                     <TrendingDown className="w-3.5 h-3.5" />
                     Split-Trip Savings
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-400 text-emerald-950">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-400 text-emerald-950 tabular-nums">
                     Save {basketOptimization.totalSavingsPercent}%
                   </span>
                 </div>
@@ -518,47 +520,73 @@ export default function WatchlistPage() {
 
               {/* Single-Store Ranking Table */}
               <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Single-Store Checkout Ranking
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Single-Store Checkout Ranking
+                  </h4>
+                  <span className="text-[11px] text-slate-500 font-medium font-mono tabular-nums">
+                    {basketOptimization.activeItemCount} items evaluated
+                  </span>
+                </div>
 
                 <div className="divide-y divide-slate-100 text-xs">
                   {basketOptimization.singleStoreResults.map((res, idx) => {
                     const isWinner = idx === 0;
+                    const totalItems = res.availableItemsCount + res.missingItemsCount;
+                    const allInStock = res.missingItemsCount === 0;
+
                     return (
                       <div
                         key={res.storeId}
                         className={cn(
-                          'py-2.5 flex items-center justify-between transition-colors px-2 rounded-xl',
+                          'py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition-colors px-2.5 rounded-xl',
                           isWinner ? 'bg-emerald-50/70 font-semibold' : ''
                         )}
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 text-slate-400 font-mono text-[11px]">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="w-5 text-slate-500 font-mono text-[11px] tabular-nums">
                             #{idx + 1}
                           </span>
                           <span className="font-bold text-slate-900">
                             {res.storeName}
                           </span>
                           {isWinner && (
-                            <span className="text-[9px] font-bold uppercase bg-emerald-600 text-white px-1.5 py-0.2 rounded-full">
+                            <span className="text-[9px] font-bold uppercase bg-emerald-600 text-white px-1.5 py-0.5 rounded-full">
                               Best 1-Stop
+                            </span>
+                          )}
+                          {allInStock ? (
+                            <span className="text-[10px] font-medium text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md inline-flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              All {totalItems} in stock
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-medium text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-md">
+                              {res.availableItemsCount}/{totalItems} in stock ({res.missingItemsCount} estimated)
                             </span>
                           )}
                         </div>
 
-                        <span
-                          className={cn(
-                            'font-mono tabular-nums font-bold',
-                            isWinner ? 'text-emerald-700 text-sm' : 'text-slate-700'
-                          )}
-                        >
-                          {formatCurrency(res.totalCost)}
-                        </span>
+                        <div className="flex items-center justify-between sm:justify-end gap-2 pl-7 sm:pl-0">
+                          <span
+                            className={cn(
+                              'font-mono tabular-nums font-bold',
+                              isWinner ? 'text-emerald-700 text-sm sm:text-base' : 'text-slate-700 text-sm'
+                            )}
+                          >
+                            {formatCurrency(res.totalCost)}
+                          </span>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
+
+                {basketOptimization.singleStoreResults.some((r) => r.missingItemsCount > 0) && (
+                  <p className="text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                    * Note: Unlisted items are estimated at +15% of lowest verified market price.
+                  </p>
+                )}
               </div>
 
               {/* Optimal Split-Trip Multi-Store Routing Breakdown */}
@@ -619,19 +647,19 @@ export default function WatchlistPage() {
           description={`Set your threshold alert price for ${editingItem.productName}.`}
           size="sm"
           footer={
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-between w-full gap-3">
               <Button
                 variant="outline"
-                size="sm"
+                size="md"
                 onClick={() => setEditingItem(null)}
               >
                 Cancel
               </Button>
               <Button
                 variant="primary"
-                size="sm"
+                size="md"
                 onClick={handleSaveAlert}
-                leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                leftIcon={<CheckCircle2 className="w-4 h-4" />}
               >
                 Save Alert
               </Button>
@@ -639,21 +667,19 @@ export default function WatchlistPage() {
           }
         >
           <div className="space-y-3 py-2">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700">
-                Target Price ($):
-              </label>
-              <Input
-                type="number"
-                step="0.05"
-                min="0.01"
-                value={newTargetPrice}
-                onChange={(e) => setNewTargetPrice(parseFloat(e.target.value) || 0)}
-                leftIcon={<span className="text-xs font-mono font-bold text-slate-400">$</span>}
-              />
-            </div>
+            <Input
+              id="target-price-input"
+              label="Target Price ($)"
+              type="number"
+              step="0.05"
+              min="0.01"
+              value={newTargetPrice}
+              onChange={(e) => setNewTargetPrice(parseFloat(e.target.value) || 0)}
+              leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
+              isNumeric
+            />
             <p className="text-[11px] text-slate-500">
-              Current Lowest: <strong className="font-mono text-slate-800">{formatCurrency(editingItem.currentPrice || 0)}</strong>
+              Current Lowest: <strong className="font-mono tabular-nums text-slate-800">{formatCurrency(editingItem.currentPrice || 0)}</strong>
             </p>
           </div>
         </Modal>
