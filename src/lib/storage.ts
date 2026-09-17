@@ -517,18 +517,27 @@ export function resolveModerationItem(
     const product = products.find((p) => p.id === item.productId);
 
     if (product) {
+      const storeId = item.pricePoint?.storeId || 'store-target';
+      const sourceType = item.pricePoint?.sourceType || 'photo_shelf';
+      const contributorId = item.contributorId || item.pricePoint?.contributorId || 'contrib-user';
+      const contributorName = item.contributorName || item.pricePoint?.contributorName || 'Community Contributor';
+
       const verifiedPoint: PricePoint = {
         id: item.pricePointId,
         productId: item.productId,
-        storeId: 'store-target',
+        storeId,
         storeName: item.storeName,
         price: finalPrice,
         currency: 'USD',
         unit: product.unit,
         timestamp: item.submittedAt,
-        sourceType: 'manual',
+        sourceType,
         isVerified: true,
         proofImageUrl: item.proofImageUrl,
+        contributorId,
+        contributorName,
+        confidenceScore: item.pricePoint?.confidenceScore ?? 95,
+        notes: item.pricePoint?.notes,
       };
 
       product.historicalPrices.push(verifiedPoint);
@@ -540,6 +549,9 @@ export function resolveModerationItem(
       const prices = product.historicalPrices.map((p) => p.price);
       product.averagePrice = Number((prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2));
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+
+      // Award +25 contributor karma for approved / adjusted observation
+      addKarmaPoints(25, `Verified price point approved for ${product.name}`);
     }
   }
 

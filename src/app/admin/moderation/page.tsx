@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ShieldCheck,
   AlertTriangle,
   CheckCircle2,
   XCircle,
@@ -108,10 +107,6 @@ export default function AdminModerationPage() {
       <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-xl space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-              <span>Admin / Community Curator Hub</span>
-            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Submission Moderation Queue
             </h1>

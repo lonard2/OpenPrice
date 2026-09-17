@@ -250,11 +250,13 @@ describe('Unit Tests: storage.ts', () => {
 
   describe('Moderation Resolution', () => {
     it('approves quarantined item and integrates into product historical prices', () => {
+      const karmaBefore = getStoredKarma().totalPoints;
       const submission = savePriceSubmission({
         productId: 'prod-eggs',
         price: 25.00,
-        storeId: 'store-target',
-        storeName: 'Target',
+        storeId: 'store-kroger',
+        storeName: 'Kroger Fresh',
+        sourceType: 'photo_shelf',
       });
       assert.strictEqual(submission.isOutlier, true);
 
@@ -271,6 +273,9 @@ describe('Unit Tests: storage.ts', () => {
       const point = product.historicalPrices.find((p) => p.id === modItem.pricePointId);
       assert.ok(point);
       assert.strictEqual(point?.isVerified, true);
+      assert.strictEqual(point?.storeId, 'store-kroger');
+      assert.strictEqual(point?.sourceType, 'photo_shelf');
+      assert.strictEqual(getStoredKarma().totalPoints, karmaBefore + 25);
     });
 
     it('rejects quarantined item and drops without polluting product history', () => {
