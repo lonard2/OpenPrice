@@ -14,6 +14,7 @@ import {
   addKarmaPoints,
   getModerationQueue,
   resolveModerationItem,
+  restoreModerationItem,
   getStoredRole,
   setStoredRole,
   resetStorageToDefaults,
@@ -293,6 +294,31 @@ describe('Unit Tests: storage.ts', () => {
 
       const product = getStoredProductById('prod-bread')!;
       const point = product.historicalPrices.find((p) => p.price === 99.00);
+      assert.strictEqual(point, undefined);
+    });
+
+    it('restores a previously approved item back to the moderation queue', () => {
+      savePriceSubmission({
+        productId: 'prod-coffee',
+        price: 88.00,
+        storeId: 'store-aldi',
+        storeName: 'ALDI',
+      });
+      const modItem = getModerationQueue()[0];
+      assert.ok(modItem);
+
+      resolveModerationItem(modItem.id, 'approve');
+      assert.strictEqual(getModerationQueue().length, 0);
+
+      // Revert moderation approval
+      restoreModerationItem(modItem, 'approve');
+      const restoredQueue = getModerationQueue();
+      assert.strictEqual(restoredQueue.length, 1);
+      assert.strictEqual(restoredQueue[0].id, modItem.id);
+
+      // Verify the price point was removed from product history
+      const product = getStoredProductById('prod-coffee')!;
+      const point = product.historicalPrices.find((p) => p.id === modItem.pricePointId);
       assert.strictEqual(point, undefined);
     });
   });

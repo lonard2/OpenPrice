@@ -18,6 +18,7 @@ import { useRoleView } from '@/components/providers/RoleContext';
 import {
   getModerationQueue,
   resolveModerationItem,
+  restoreModerationItem,
   getStoredProducts,
   savePriceSubmission,
   subscribeToStorageChanges,
@@ -27,13 +28,14 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import type { ModerationItem, Product } from '@/types';
 
 export default function AdminModerationPage() {
   const { role, setRole } = useRoleView();
+  const { showToast } = useToast();
   const [queue, setQueue] = useState<ModerationItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [feedback, setFeedback] = useState<string | null>(null);
 
   // Adjust Price Modal state
   const [adjustingItem, setAdjustingItem] = useState<ModerationItem | null>(null);
@@ -54,30 +56,73 @@ export default function AdminModerationPage() {
     return () => unsubscribe();
   }, []);
 
-  // Handle Approve
-  const handleApprove = (id: string, productName: string) => {
-    resolveModerationItem(id, 'approve');
-    setFeedback(`Approved submission for "${productName}". Price point integrated into historical catalog.`);
-    setTimeout(() => setFeedback(null), 4000);
+  // Handle Approve with Undo
+  const handleApprove = (item: ModerationItem) => {
+    resolveModerationItem(item.id, 'approve');
+    showToast({
+      type: 'success',
+      message: 'Approved Price Submission',
+      description: `${item.productName} (${formatCurrency(item.submittedPrice)}) integrated into catalog.`,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          restoreModerationItem(item, 'approve');
+          showToast({
+            type: 'info',
+            message: 'Moderation Action Reverted',
+            description: `${item.productName} restored to moderation queue.`,
+          });
+        },
+      },
+    });
   };
 
-  // Handle Reject
-  const handleReject = (id: string, productName: string) => {
-    resolveModerationItem(id, 'reject');
-    setFeedback(`Rejected submission for "${productName}". Anomaly discarded without affecting price index.`);
-    setTimeout(() => setFeedback(null), 4000);
+  // Handle Reject with Undo
+  const handleReject = (item: ModerationItem) => {
+    resolveModerationItem(item.id, 'reject');
+    showToast({
+      type: 'info',
+      message: 'Rejected Submission',
+      description: `Anomaly for ${item.productName} discarded without affecting catalog.`,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          restoreModerationItem(item, 'reject');
+          showToast({
+            type: 'info',
+            message: 'Moderation Action Reverted',
+            description: `${item.productName} restored to moderation queue.`,
+          });
+        },
+      },
+    });
   };
 
-  // Handle Adjust and Approve
+  // Handle Adjust and Approve with Undo
   const handleAdjustSubmit = () => {
     if (!adjustingItem) return;
     const priceNum = parseFloat(adjustedPriceInput);
     if (isNaN(priceNum) || priceNum <= 0) return;
 
-    resolveModerationItem(adjustingItem.id, 'adjust', priceNum);
-    setFeedback(`Adjusted price to ${formatCurrency(priceNum)} and approved for "${adjustingItem.productName}".`);
+    const itemToAdjust = adjustingItem;
+    resolveModerationItem(itemToAdjust.id, 'adjust', priceNum);
     setAdjustingItem(null);
-    setTimeout(() => setFeedback(null), 4000);
+    showToast({
+      type: 'success',
+      message: 'Adjusted and Approved',
+      description: `Price corrected to ${formatCurrency(priceNum)} for ${itemToAdjust.productName}.`,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          restoreModerationItem(itemToAdjust, 'adjust');
+          showToast({
+            type: 'info',
+            message: 'Moderation Action Reverted',
+            description: `${itemToAdjust.productName} restored to moderation queue.`,
+          });
+        },
+      },
+    });
   };
 
   // Seed sample flagged items for testing
@@ -99,8 +144,11 @@ export default function AdminModerationPage() {
       });
     }
 
-    setFeedback('Generated sample >3σ outlier price submission for review.');
-    setTimeout(() => setFeedback(null), 4000);
+    showToast({
+      type: 'info',
+      message: 'Simulated Outlier Queued',
+      description: 'Generated sample >3σ outlier price submission for moderation review.',
+    });
   };
 
   return (
@@ -155,28 +203,6 @@ export default function AdminModerationPage() {
           </div>
         </div>
       </section>
-
-      {/* Action Feedback Banner */}
-      {feedback && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-semibold text-emerald-900 flex items-center justify-between gap-3 animate-in fade-in duration-200"
-        >
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{feedback}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setFeedback(null)}
-            aria-label="Dismiss feedback notification"
-            className="text-emerald-700 hover:text-emerald-950 font-bold px-3 py-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg touch-target"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
 
       {/* Main Moderation Queue Content */}
       <section className="space-y-4">
@@ -359,7 +385,7 @@ export default function AdminModerationPage() {
                       <Button
                         variant="primary"
                         size="md"
-                        onClick={() => handleApprove(item.id, item.productName)}
+                        onClick={() => handleApprove(item)}
                         leftIcon={<CheckCircle2 className="w-4 h-4" />}
                         className="bg-emerald-600 hover:bg-emerald-500 text-white min-h-[44px]"
                         aria-label={`Approve price of ${formatCurrency(item.submittedPrice)} for ${item.productName}`}
@@ -391,7 +417,7 @@ export default function AdminModerationPage() {
                       <Button
                         variant="danger"
                         size="md"
-                        onClick={() => handleReject(item.id, item.productName)}
+                        onClick={() => handleReject(item)}
                         leftIcon={<XCircle className="w-4 h-4" />}
                         className="min-h-[44px]"
                         aria-label={`Reject and discard submission for ${item.productName}`}

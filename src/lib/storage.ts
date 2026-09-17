@@ -561,6 +561,42 @@ export function resolveModerationItem(
   notifyStorageChange();
 }
 
+/**
+ * Restores a previously resolved moderation item back to the pending queue.
+ */
+export function restoreModerationItem(
+  item: ModerationItem,
+  previousAction: 'approve' | 'reject' | 'adjust'
+): void {
+  if (!isBrowser()) return;
+
+  if (previousAction === 'approve' || previousAction === 'adjust') {
+    const products = getStoredProducts();
+    const product = products.find((p) => p.id === item.productId);
+    if (product) {
+      const pIdx = product.historicalPrices.findIndex((p) => p.id === item.pricePointId);
+      if (pIdx !== -1) {
+        product.historicalPrices.splice(pIdx, 1);
+        product.totalSubmissionsCount = Math.max(0, product.totalSubmissionsCount - 1);
+        if (product.historicalPrices.length > 0) {
+          const prices = product.historicalPrices.map((p) => p.price);
+          product.currentLowestPrice = Math.min(...prices);
+          product.currentHighestPrice = Math.max(...prices);
+          product.averagePrice = Number((prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2));
+        }
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      }
+    }
+  }
+
+  const queue = getModerationQueue();
+  if (!queue.some((m) => m.id === item.id)) {
+    queue.unshift({ ...item, status: 'pending' });
+    localStorage.setItem(STORAGE_KEYS.MODERATION, JSON.stringify(queue));
+    notifyStorageChange();
+  }
+}
+
 // ============================================================================
 // User Role Preference
 // ============================================================================
