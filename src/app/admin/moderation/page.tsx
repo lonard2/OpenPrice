@@ -156,7 +156,11 @@ export default function AdminModerationPage() {
 
       {/* Action Feedback Banner */}
       {feedback && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-semibold text-emerald-900 flex items-center justify-between gap-3 animate-in fade-in duration-200">
+        <div
+          role="status"
+          aria-live="polite"
+          className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-semibold text-emerald-900 flex items-center justify-between gap-3 animate-in fade-in duration-200"
+        >
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{feedback}</span>
@@ -164,7 +168,8 @@ export default function AdminModerationPage() {
           <button
             type="button"
             onClick={() => setFeedback(null)}
-            className="text-emerald-700 hover:text-emerald-950 font-bold"
+            aria-label="Dismiss feedback notification"
+            className="text-emerald-700 hover:text-emerald-950 font-bold px-3 py-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg touch-target"
           >
             Dismiss
           </button>
@@ -180,9 +185,10 @@ export default function AdminModerationPage() {
 
           <Button
             variant="outline"
-            size="sm"
+            size="md"
             onClick={handleSeedQueue}
-            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            leftIcon={<RefreshCw className="w-4 h-4" />}
+            aria-label="Simulate flagged outlier submission"
           >
             Simulate Flagged Outlier
           </Button>
@@ -206,9 +212,10 @@ export default function AdminModerationPage() {
             <div className="pt-2">
               <Button
                 variant="primary"
-                size="sm"
+                size="md"
                 onClick={handleSeedQueue}
                 leftIcon={<Shield className="w-4 h-4" />}
+                aria-label="Seed anomaly submission for review"
               >
                 Seed Anomaly Submission for Review
               </Button>
@@ -249,30 +256,42 @@ export default function AdminModerationPage() {
                   {/* Side-by-Side Diff Inspector */}
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
                     {/* Left: Proof Document Photo */}
-                    <div className="md:col-span-4 bg-slate-950 rounded-2xl p-2 flex flex-col items-center justify-center min-h-[160px] relative overflow-hidden group">
+                    <div className="md:col-span-4 bg-slate-900 rounded-2xl p-2 flex flex-col items-center justify-center min-h-[160px] relative overflow-hidden group">
                       {item.proofImageUrl ? (
                         <>
                           <div className="relative w-full h-36">
                             <Image
                               src={item.proofImageUrl}
-                              alt={`Proof for ${item.productName}`}
+                              alt={`Proof document photo for ${item.productName}`}
                               fill
                               unoptimized
                               className="object-contain rounded-xl"
                             />
                           </div>
+                          {/* Desktop hover & focus trigger */}
                           <button
                             type="button"
                             onClick={() => setPreviewProof(item.proofImageUrl!)}
-                            className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity"
+                            aria-label={`Enlarge proof photo for ${item.productName}`}
+                            className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity cursor-pointer"
                           >
                             <Camera className="w-4 h-4" />
                             <span>Enlarge Proof Photo</span>
                           </button>
+                          {/* Visible mobile tap pill */}
+                          <button
+                            type="button"
+                            onClick={() => setPreviewProof(item.proofImageUrl!)}
+                            aria-label={`Enlarge proof photo for ${item.productName}`}
+                            className="absolute bottom-2 right-2 md:hidden bg-slate-800/90 text-white px-3 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 shadow-md touch-target min-h-[44px]"
+                          >
+                            <Camera className="w-3.5 h-3.5" />
+                            <span>Enlarge</span>
+                          </button>
                         </>
                       ) : (
-                        <div className="text-slate-500 text-xs flex flex-col items-center gap-1">
-                          <Camera className="w-6 h-6 text-slate-600" />
+                        <div className="text-slate-400 text-xs flex flex-col items-center gap-1">
+                          <Camera className="w-6 h-6 text-slate-500" />
                           <span>No proof image attached</span>
                         </div>
                       )}
@@ -282,19 +301,19 @@ export default function AdminModerationPage() {
                     <div className="md:col-span-5 space-y-3">
                       <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs">
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-slate-400">
+                          <span className="text-[10px] font-bold uppercase text-slate-500">
                             Submitted Price
                           </span>
                           <p className="text-lg font-extrabold font-mono text-rose-600 tabular-nums">
                             {formatCurrency(item.submittedPrice)}
                           </p>
-                          <span className="text-[11px] text-slate-500">
+                          <span className="text-[11px] text-slate-600">
                             Observed at {item.storeName}
                           </span>
                         </div>
 
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-slate-400">
+                          <span className="text-[10px] font-bold uppercase text-slate-500">
                             Historical Lowest
                           </span>
                           <p className="text-lg font-extrabold font-mono text-slate-900 tabular-nums">
@@ -311,7 +330,7 @@ export default function AdminModerationPage() {
                           Contributor: <strong className="text-slate-900">{item.contributorName || 'Community Member'}</strong>
                         </p>
                         {item.pricePoint?.notes && (
-                          <p className="italic text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                          <p className="italic text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
                             &quot;{item.pricePoint.notes}&quot;
                           </p>
                         )}
@@ -322,17 +341,18 @@ export default function AdminModerationPage() {
                     <div className="md:col-span-3 flex flex-col gap-2">
                       <Button
                         variant="primary"
-                        size="sm"
+                        size="md"
                         onClick={() => handleApprove(item.id, item.productName)}
                         leftIcon={<CheckCircle2 className="w-4 h-4" />}
-                        className="bg-emerald-600 hover:bg-emerald-500 text-white"
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white min-h-[44px]"
+                        aria-label={`Approve price of ${formatCurrency(item.submittedPrice)} for ${item.productName}`}
                       >
                         Approve Price
                       </Button>
 
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="md"
                         onClick={() => {
                           setAdjustingItem(item);
                           setAdjustedPriceInput(
@@ -341,16 +361,20 @@ export default function AdminModerationPage() {
                               : item.submittedPrice.toFixed(2)
                           );
                         }}
-                        leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+                        leftIcon={<Edit2 className="w-4 h-4" />}
+                        className="min-h-[44px]"
+                        aria-label={`Adjust price before approving for ${item.productName}`}
                       >
                         Adjust & Approve
                       </Button>
 
                       <Button
                         variant="danger"
-                        size="sm"
+                        size="md"
                         onClick={() => handleReject(item.id, item.productName)}
                         leftIcon={<XCircle className="w-4 h-4" />}
+                        className="min-h-[44px]"
+                        aria-label={`Reject and discard submission for ${item.productName}`}
                       >
                         Reject & Dismiss
                       </Button>
@@ -372,19 +396,19 @@ export default function AdminModerationPage() {
           description={`Correct typographic or OCR scan errors before integrating into catalog for ${adjustingItem.productName}.`}
           size="sm"
           footer={
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-between w-full gap-3">
               <Button
                 variant="outline"
-                size="sm"
+                size="md"
                 onClick={() => setAdjustingItem(null)}
               >
                 Cancel
               </Button>
               <Button
                 variant="primary"
-                size="sm"
+                size="md"
                 onClick={handleAdjustSubmit}
-                leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                leftIcon={<CheckCircle2 className="w-4 h-4" />}
               >
                 Save & Approve
               </Button>
@@ -394,32 +418,30 @@ export default function AdminModerationPage() {
           <div className="space-y-4 py-2">
             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between text-xs">
               <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400">Original Submitted</span>
-                <p className="text-base font-bold font-mono text-rose-600">
+                <span className="text-[10px] font-bold uppercase text-slate-500">Original Submitted</span>
+                <p className="text-base font-bold font-mono text-rose-600 tabular-nums">
                   {formatCurrency(adjustingItem.submittedPrice)}
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-bold uppercase text-slate-400">Store</span>
+                <span className="text-[10px] font-bold uppercase text-slate-500">Store</span>
                 <p className="text-xs font-semibold text-slate-800">
                   {adjustingItem.storeName}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">
-                Corrected Verified Price ($):
-              </label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={adjustedPriceInput}
-                onChange={(e) => setAdjustedPriceInput(e.target.value)}
-                leftIcon={<span className="text-xs font-mono font-bold text-slate-400">$</span>}
-              />
-            </div>
+            <Input
+              id="adjusted-price-input"
+              label="Corrected Verified Price ($)"
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={adjustedPriceInput}
+              onChange={(e) => setAdjustedPriceInput(e.target.value)}
+              leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
+              isNumeric
+            />
           </div>
         </Modal>
       )}
@@ -432,10 +454,10 @@ export default function AdminModerationPage() {
           title="Original Proof Document"
           size="lg"
         >
-          <div className="relative w-full h-96 bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center p-2">
+          <div className="relative w-full h-80 sm:h-96 md:h-[480px] bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center p-2">
             <Image
               src={previewProof}
-              alt="Proof Document"
+              alt="Proof Document enlarged view"
               fill
               unoptimized
               className="object-contain rounded-xl shadow-lg"
