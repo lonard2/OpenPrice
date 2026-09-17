@@ -136,9 +136,15 @@ export default function WatchlistPage() {
   const watchlistProducts = useMemo(() => {
     return watchlist.map((item) => {
       const prod = products.find((p) => p.id === item.productId);
+      let cheapestStoreName: string | null = null;
+      if (prod?.historicalPrices && prod.historicalPrices.length > 0) {
+        const match = prod.historicalPrices.find((p) => p.price === prod.currentLowestPrice);
+        cheapestStoreName = match ? match.storeName : prod.historicalPrices[0]?.storeName || null;
+      }
       return {
         ...item,
         product: prod,
+        cheapestStoreName,
       };
     });
   }, [watchlist, products]);
@@ -354,99 +360,124 @@ export default function WatchlistPage() {
                     key={item.productId}
                     className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-surface hover:shadow-ambient-lift transition-all space-y-3"
                   >
-                    {/* Top Row: Title, Category & Delete */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-0.5 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="category" size="sm" className="capitalize">
-                            {prod.category}
-                          </Badge>
-                          {prod.brand && (
-                            <span className="text-xs font-semibold text-slate-500 truncate">
-                              {prod.brand}
-                            </span>
-                          )}
-                        </div>
-                        <Link
-                          href={`/product/${prod.id}`}
-                          className="font-bold text-sm text-slate-900 hover:text-indigo-600 transition-colors line-clamp-1 block"
-                        >
-                          {prod.name}
-                        </Link>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleRemove(prod)}
-                        aria-label={`Remove ${prod.name} from watchlist`}
-                        className="min-h-[44px] min-w-[44px] p-2.5 inline-flex items-center justify-center text-slate-500 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors shrink-0 touch-target"
+                    {/* Top Identity Cluster with Packaging Thumbnail */}
+                    <div className="flex items-start gap-3.5">
+                      {/* Packaging Thumbnail */}
+                      <Link
+                        href={`/product/${prod.id}`}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shrink-0 flex items-center justify-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                        tabIndex={-1}
+                        aria-hidden="true"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                        {prod.imageUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={prod.imageUrl}
+                            alt=""
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <ShoppingBag className="w-6 h-6 text-slate-400" />
+                        )}
+                      </Link>
+
+                      {/* Info & Remove */}
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-0.5 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge variant="category" size="sm" className="capitalize text-[10px]">
+                                {prod.category}
+                              </Badge>
+                              {prod.brand && (
+                                <span className="text-xs font-semibold text-slate-500 truncate max-w-[140px]">
+                                  {prod.brand}
+                                </span>
+                              )}
+                            </div>
+                            <Link
+                              href={`/product/${prod.id}`}
+                              className="font-bold text-sm sm:text-base text-slate-900 hover:text-indigo-600 transition-colors line-clamp-1 block tracking-tight"
+                            >
+                              {prod.name}
+                            </Link>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemove(prod)}
+                            aria-label={`Remove ${prod.name} from watchlist`}
+                            className="min-h-[44px] min-w-[44px] p-2.5 inline-flex items-center justify-center text-slate-500 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors shrink-0 touch-target"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Middle: Prices & Drop Alert Trigger */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
-                      <div className="flex items-baseline gap-2">
+                    {/* Bottom Actions Cluster: Price with Winning Store + Alert + Inline Stepper */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <PriceBadge
                           price={prod.currentLowestPrice}
                           previousPrice={prod.previousPrice}
+                          storeName={item.cheapestStoreName || undefined}
+                          unit={prod.unit ? `(${prod.unit})` : undefined}
                           size="md"
                           showIcon
                         />
-                        <span className="text-xs text-slate-500 font-medium">
-                          ({prod.unit})
-                        </span>
                       </div>
 
-                      {/* Alert Target Price Pill */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingItem(item);
-                          setNewTargetPrice(item.targetPrice || prod.currentLowestPrice * 0.95);
-                        }}
-                        aria-haspopup="dialog"
-                        aria-label={`Configure target price alert for ${prod.name}. Current alert: ${formatCurrency(item.targetPrice || prod.currentLowestPrice)}`}
-                        className={cn(
-                          'inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold border transition-colors touch-target',
-                          hasDroppedBelowTarget
-                            ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                        )}
-                      >
-                        <Bell className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>
-                          Alert: <strong className="font-mono tabular-nums">{formatCurrency(item.targetPrice || prod.currentLowestPrice)}</strong>
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Bottom: Basket Quantity Selector */}
-                    <div className="flex items-center justify-between pt-2 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                      <span className="font-semibold">Quantity in Basket Optimizer:</span>
-
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* Alert Target Price Pill */}
                         <button
                           type="button"
-                          onClick={() => handleQuantityChange(prod.id, -1)}
-                          disabled={qty <= 0}
-                          aria-label={`Decrease quantity of ${prod.name}`}
-                          className="min-w-[44px] min-h-[44px] rounded-xl bg-white border border-slate-200/90 flex items-center justify-center text-slate-700 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition-colors touch-target"
+                          onClick={() => {
+                            setEditingItem(item);
+                            setNewTargetPrice(item.targetPrice || prod.currentLowestPrice * 0.95);
+                          }}
+                          aria-haspopup="dialog"
+                          aria-label={`Configure target price alert for ${prod.name}. Current alert: ${formatCurrency(item.targetPrice || prod.currentLowestPrice)}`}
+                          className={cn(
+                            'inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[38px] rounded-xl text-xs font-semibold border transition-colors touch-target',
+                            hasDroppedBelowTarget
+                              ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                          )}
                         >
-                          <Minus className="w-4 h-4" />
+                          <Bell className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>
+                            Alert: <strong className="font-mono tabular-nums">{formatCurrency(item.targetPrice || prod.currentLowestPrice)}</strong>
+                          </span>
                         </button>
-                        <span className="w-8 text-center font-bold font-mono text-sm text-slate-900 tabular-nums">
-                          {qty}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleQuantityChange(prod.id, 1)}
-                          aria-label={`Increase quantity of ${prod.name}`}
-                          className="min-w-[44px] min-h-[44px] rounded-xl bg-white border border-slate-200/90 flex items-center justify-center text-slate-700 hover:bg-slate-100 hover:text-slate-900 shadow-xs transition-colors touch-target"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+
+                        {/* Inline Basket Quantity Stepper */}
+                        <div className="inline-flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/70">
+                          <span className="text-[11px] font-semibold text-slate-500 pl-2 pr-0.5 hidden sm:inline">
+                            Basket:
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleQuantityChange(prod.id, -1)}
+                            disabled={qty <= 0}
+                            aria-label={`Decrease quantity of ${prod.name}`}
+                            className="w-8 h-8 rounded-lg bg-white border border-slate-200/90 flex items-center justify-center text-slate-700 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs transition-colors touch-target min-w-[36px] min-h-[36px]"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="w-6 text-center font-bold font-mono text-xs text-slate-900 tabular-nums">
+                            {qty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleQuantityChange(prod.id, 1)}
+                            aria-label={`Increase quantity of ${prod.name}`}
+                            className="w-8 h-8 rounded-lg bg-white border border-slate-200/90 flex items-center justify-center text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-2xs transition-colors touch-target min-w-[36px] min-h-[36px]"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
