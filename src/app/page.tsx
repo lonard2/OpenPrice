@@ -24,12 +24,13 @@ import { useToast } from '@/components/ui/Toast';
 import {
   getStoredProducts,
   getStoredWatchlist,
+  getStoredCategoryMetadata,
   toggleWatchlistProduct,
   subscribeToStorageChanges,
 } from '@/lib/storage';
 import { computeCatalogInflation, calculateStorePriceVariance } from '@/lib/inflation';
 import { formatDeltaPercent } from '@/lib/formatters';
-import type { Product, ProductCategory, StorePriceComparison, PriceSourceType } from '@/types';
+import type { Product, ProductCategory, CategoryMetadata, StorePriceComparison, PriceSourceType } from '@/types';
 
 export default function HomePage() {
   const { role } = useRoleView();
@@ -38,8 +39,11 @@ export default function HomePage() {
   const [watchlistedIds, setWatchlistedIds] = useState<string[]>([]);
   const [comparedProduct, setComparedProduct] = useState<Product | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>('all');
+  const [categoryMetadata, setCategoryMetadata] = useState<Record<ProductCategory, CategoryMetadata>>(() =>
+    getStoredCategoryMetadata()
+  );
 
-  // Load products and watchlist from reactive storage
+  // Load products, watchlist, and category weights from reactive storage
   useEffect(() => {
     const loadData = () => {
       const storedProducts = getStoredProducts();
@@ -47,6 +51,8 @@ export default function HomePage() {
 
       const watchlist = getStoredWatchlist();
       setWatchlistedIds(watchlist.map((w) => w.productId));
+
+      setCategoryMetadata(getStoredCategoryMetadata());
     };
 
     loadData();
@@ -125,10 +131,10 @@ export default function HomePage() {
     setComparedProduct(product);
   };
 
-  // Compute Macro Inflation Metrics
+  // Compute Macro Inflation Metrics with calibrated category weights
   const inflationReport = useMemo(() => {
-    return computeCatalogInflation(products);
-  }, [products]);
+    return computeCatalogInflation(products, categoryMetadata);
+  }, [products, categoryMetadata]);
 
   // Compute Store Comparisons for drawer
   const comparedStoreVariances = useMemo<StorePriceComparison[]>(() => {

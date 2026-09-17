@@ -6,7 +6,9 @@ import {
   calculateStorePriceVariance,
   detectPriceOutlier,
   calculateStandardDeviation,
+  computeCatalogInflation,
 } from '../../src/lib/inflation.ts';
+import type { Product } from '../../src/types/index.ts';
 
 describe('Unit Tests: inflation.ts', () => {
   describe('calculatePriceDelta', () => {
@@ -229,6 +231,84 @@ describe('Unit Tests: inflation.ts', () => {
 
       const reportLenient = detectPriceOutlier(13.0, historical, 4.0); // Z < 4.0 -> not outlier
       assert.strictEqual(reportLenient.isOutlier, false);
+    });
+  });
+
+  describe('computeCatalogInflation', () => {
+    const mockProducts = [
+      {
+        id: 'prod-milk',
+        name: 'Whole Milk',
+        category: 'groceries' as const,
+        brand: 'StoreBrand',
+        unit: '1 gal',
+        currentLowestPrice: 5.0,
+        currentHighestPrice: 5.5,
+        averagePrice: 5.25,
+        previousPrice: 4.0, // +25% increase
+        isVerified: true,
+        verificationStatus: 'community_verified' as const,
+        historicalPrices: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'prod-towel',
+        name: 'Paper Towels',
+        category: 'household' as const,
+        brand: 'PaperCo',
+        unit: 'pack',
+        currentLowestPrice: 10.0,
+        currentHighestPrice: 10.0,
+        averagePrice: 10.0,
+        previousPrice: 10.0, // 0% increase
+        isVerified: true,
+        verificationStatus: 'community_verified' as const,
+        historicalPrices: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+
+    it('returns null when product list is empty', () => {
+      assert.strictEqual(computeCatalogInflation([]), null);
+    });
+
+    it('calculates composite inflation rate using default category weights', () => {
+      const report = computeCatalogInflation(mockProducts as unknown as Product[]);
+      assert.ok(report !== null);
+      assert.ok(report.compositeInflationRate! > 0);
+      assert.strictEqual(report.itemsCount, 2);
+    });
+
+    it('recalculates composite inflation dynamically when custom category weights are provided', () => {
+      // Default: groceries = 0.35, household = 0.15
+      const defaultReport = computeCatalogInflation(mockProducts as unknown as Product[]);
+
+      // Custom override: heavily weight groceries (which inflated +25%)
+      const customMeta = {
+        groceries: {
+          id: 'groceries' as const,
+          displayName: 'Groceries',
+          description: '',
+          iconName: 'ShoppingBasket',
+          inflationBasketWeight: 0.90,
+          colorAccent: '#10B981',
+        },
+        beverages: { id: 'beverages' as const, displayName: 'Beverages', description: '', iconName: '', inflationBasketWeight: 0.01, colorAccent: '' },
+        household: { id: 'household' as const, displayName: 'Household', description: '', iconName: '', inflationBasketWeight: 0.05, colorAccent: '' },
+        pharmacy: { id: 'pharmacy' as const, displayName: 'Pharmacy', description: '', iconName: '', inflationBasketWeight: 0.01, colorAccent: '' },
+        electronics: { id: 'electronics' as const, displayName: 'Electronics', description: '', iconName: '', inflationBasketWeight: 0.01, colorAccent: '' },
+        apparel: { id: 'apparel' as const, displayName: 'Apparel', description: '', iconName: '', inflationBasketWeight: 0.01, colorAccent: '' },
+        services: { id: 'services' as const, displayName: 'Services', description: '', iconName: '', inflationBasketWeight: 0.01, colorAccent: '' },
+      };
+
+      const highGroceriesReport = computeCatalogInflation(mockProducts as unknown as Product[], customMeta);
+      assert.ok(highGroceriesReport !== null);
+      assert.ok(defaultReport !== null);
+      // Because groceries inflated (+25%) and household stayed flat (0%),
+      // higher grocery weight must result in a higher overall inflation rate
+      assert.ok(highGroceriesReport.compositeInflationRate! > defaultReport.compositeInflationRate!);
     });
   });
 });

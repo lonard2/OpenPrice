@@ -35,7 +35,7 @@ import { StoreComparisonTable } from '@/components/product/StoreComparisonTable'
 import { StoreComparisonChart } from '@/components/charts/StoreComparisonChart';
 import { ProvenanceTimeline } from '@/components/product/ProvenanceTimeline';
 import { useToast } from '@/components/ui/Toast';
-import type { Product, StorePriceComparison, PriceSourceType } from '@/types';
+import type { Product, Store, StorePriceComparison, PriceSourceType } from '@/types';
 import { cn } from '@/lib/utils';
 
 export default function ProductDetailPage() {
@@ -52,6 +52,7 @@ export default function ProductDetailPage() {
   const [alertSavedSuccess, setAlertSavedSuccess] = useState(false);
   const [notifyOnDrop, setNotifyOnDrop] = useState(true);
   const [notifyOnSpike, setNotifyOnSpike] = useState(true);
+  const [stores, setStores] = useState<Store[]>(() => getStoredStores());
 
   // Load product from storage and subscribe to changes
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function ProductDetailPage() {
       }
       const found = getStoredProductById(productId);
       setProduct(found || null);
+      setStores(getStoredStores());
       if (found) {
         setAlertTargetPrice(found.currentLowestPrice * 0.95); // default alert at 5% drop
       }
@@ -79,8 +81,6 @@ export default function ProductDetailPage() {
     const unsubscribe = subscribeToStorageChanges(loadProduct);
     return () => unsubscribe();
   }, [productId]);
-
-  const stores = useMemo(() => getStoredStores(), []);
 
   // Compute store comparisons
   const storeComparisons = useMemo<StorePriceComparison[]>(() => {

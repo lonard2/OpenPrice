@@ -47,6 +47,8 @@ import type {
   OcrParseResponse,
   ContributionKarma,
   ProductCategory,
+  Store,
+  Product,
 } from '@/types';
 import { CATEGORY_METADATA } from '@/lib/mock-data';
 
@@ -275,6 +277,8 @@ export default function ContributePage() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('photo-ocr');
   const [karma, setKarma] = useState<ContributionKarma>(getStoredKarma());
+  const [stores, setStores] = useState<Store[]>(() => getStoredStores());
+  const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Tab 1 (Photo OCR) state
@@ -409,16 +413,17 @@ export default function ContributePage() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [activeTab, webParsedPreview]);
 
-  // Load Karma on storage change
+  // Load Karma, Stores, and Products on storage change
   useEffect(() => {
-    const loadKarma = () => setKarma(getStoredKarma());
-    loadKarma();
-    const unsubscribe = subscribeToStorageChanges(loadKarma);
+    const loadStorageData = () => {
+      setKarma(getStoredKarma());
+      setStores(getStoredStores());
+      setProducts(getStoredProducts());
+    };
+    loadStorageData();
+    const unsubscribe = subscribeToStorageChanges(loadStorageData);
     return () => unsubscribe();
   }, []);
-
-  const products = getStoredProducts();
-  const stores = getStoredStores();
 
   // Custom flyer upload handler
   const handleCustomFlyerUpload = (file: File) => {

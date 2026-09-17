@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { cn } from '@/lib/utils';
-import { getStoredProducts, getStoredWatchlist, subscribeToStorageChanges } from '@/lib/storage';
+import { getStoredProducts, getStoredWatchlist, getStoredCategoryMetadata, subscribeToStorageChanges } from '@/lib/storage';
 import { computeCatalogInflation } from '@/lib/inflation';
 import { formatDeltaPercent } from '@/lib/formatters';
 import type { InflationBasketReport } from '@/types';
@@ -31,7 +31,7 @@ export function DesktopSidebar() {
   useEffect(() => {
     const updateSidebarData = () => {
       const stored = getStoredProducts();
-      setInflation(computeCatalogInflation(stored));
+      setInflation(computeCatalogInflation(stored, getStoredCategoryMetadata()));
       setWatchlistCount(getStoredWatchlist().length);
     };
 

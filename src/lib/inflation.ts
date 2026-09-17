@@ -11,6 +11,8 @@ import type {
   PriceOutlierReport,
   PricePoint,
   Product,
+  ProductCategory,
+  CategoryMetadata,
 } from '../types/index.ts';
 import { CATEGORY_METADATA } from './mock-data.ts';
 
@@ -260,9 +262,13 @@ export function detectPriceOutlier(
 /**
  * Computes composite Laspeyres inflation metrics from an array of catalog products.
  */
-export function computeCatalogInflation(products: Product[]): InflationBasketReport | null {
+export function computeCatalogInflation(
+  products: Product[],
+  categoryMetadata?: Record<ProductCategory, CategoryMetadata>
+): InflationBasketReport | null {
   if (!products || products.length === 0) return null;
 
+  const metadata = categoryMetadata || CATEGORY_METADATA;
   const currentPrices: Record<string, number> = {};
   const basePrices: Record<string, number> = {};
   const weights: Record<string, number> = {};
@@ -270,7 +276,7 @@ export function computeCatalogInflation(products: Product[]): InflationBasketRep
   products.forEach((p) => {
     currentPrices[p.id] = p.currentLowestPrice;
     basePrices[p.id] = p.previousPrice || p.currentLowestPrice;
-    const catWeight = CATEGORY_METADATA[p.category]?.inflationBasketWeight || 0.15;
+    const catWeight = metadata[p.category]?.inflationBasketWeight ?? 0.15;
     weights[p.id] = catWeight / 10;
   });
 
