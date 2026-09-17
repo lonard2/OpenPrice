@@ -1,14 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, Bookmark, Camera, ShieldCheck } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
+import { getStoredWatchlist, subscribeToStorageChanges } from '@/lib/storage';
 
 export function MobileBottomBar() {
   const pathname = usePathname();
   const { isAdmin } = useRoleView();
+  const [watchlistCount, setWatchlistCount] = useState<number>(0);
+
+  useEffect(() => {
+    const updateWatchlist = () => {
+      setWatchlistCount(getStoredWatchlist().length);
+    };
+
+    updateWatchlist();
+    const unsubscribe = subscribeToStorageChanges(updateWatchlist);
+    return () => unsubscribe();
+  }, []);
 
   const navItems = isAdmin
     ? [
@@ -89,7 +101,14 @@ export function MobileBottomBar() {
                   : 'text-slate-500 hover:text-slate-900 active:bg-slate-100'
               }`}
             >
-              <Icon className="h-5 w-5" />
+              <div className="relative flex items-center justify-center">
+                <Icon className="h-5 w-5" />
+                {item.href === '/watchlist' && watchlistCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-indigo-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center tabular-nums shadow-xs">
+                    {watchlistCount > 99 ? '99+' : watchlistCount}
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] tracking-tight">{item.name}</span>
             </Link>
           );

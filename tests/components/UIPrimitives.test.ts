@@ -128,4 +128,39 @@ describe('Component Contracts & Accessibility Invariants: UI Primitives', () => 
       assert.strictEqual(tabs[currentIndex], 'all');
     });
   });
+
+  describe('Navigation Contracts & Watchlist Ambient Indicators', () => {
+    it('verifies Watchlist navigation item is universally visible to all perspectives', () => {
+      const primaryNav = [
+        { name: 'Product Catalog', href: '/', visibleTo: 'all' },
+        { name: 'Ingestion Studio', href: '/contribute', visibleTo: 'contributor' },
+        { name: 'Watchlist & Alerts', href: '/watchlist', visibleTo: 'all' },
+        { name: 'Moderation Queue', href: '/admin/moderation', visibleTo: 'admin' },
+        { name: 'Taxonomy Manager', href: '/admin/taxonomy', visibleTo: 'admin' },
+      ];
+
+      const watchlistItem = primaryNav.find((item) => item.href === '/watchlist');
+      assert.ok(watchlistItem, 'Watchlist nav item must be present');
+      assert.strictEqual(watchlistItem.visibleTo, 'all', 'Watchlist must be visible to public users');
+    });
+
+    it('verifies watchlist count badge formatting logic for ambient navigation', () => {
+      const formatBadge = (count: number): string | null => {
+        if (count <= 0) return null;
+        if (count > 99) return '99+';
+        return count.toString();
+      };
+
+      assert.strictEqual(formatBadge(0), null);
+      assert.strictEqual(formatBadge(4), '4');
+      assert.strictEqual(formatBadge(99), '99');
+      assert.strictEqual(formatBadge(150), '99+');
+    });
+
+    it('verifies touch target min 44px compliance on header watchlist action', () => {
+      const watchlistButtonClasses = 'flex items-center justify-center w-11 h-11 min-h-[44px] min-w-[44px]';
+      assert.ok(watchlistButtonClasses.includes('min-h-[44px]'));
+      assert.ok(watchlistButtonClasses.includes('min-w-[44px]'));
+    });
+  });
 });

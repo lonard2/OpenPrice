@@ -17,14 +17,27 @@ import {
 import { useRoleView } from '@/components/providers/RoleContext';
 import { UserRole } from '@/types/user';
 import { cn } from '@/lib/utils';
+import { getStoredWatchlist, subscribeToStorageChanges } from '@/lib/storage';
 
 export function Header() {
   const { role, setRole } = useRoleView();
   const router = useRouter();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
+  const [watchlistCount, setWatchlistCount] = useState<number>(0);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
   const roleMenuRef = useRef<HTMLDivElement>(null);
+
+  // Subscribe to stored watchlist updates across tabs and interactions
+  useEffect(() => {
+    const updateWatchlist = () => {
+      setWatchlistCount(getStoredWatchlist().length);
+    };
+
+    updateWatchlist();
+    const unsubscribe = subscribeToStorageChanges(updateWatchlist);
+    return () => unsubscribe();
+  }, []);
 
   // Synchronize search query across header and catalog components
   useEffect(() => {
@@ -176,13 +189,18 @@ export function Header() {
             <span>Log Price</span>
           </Link>
 
-          {/* Quick Watchlist Action */}
+          {/* Quick Watchlist Action with Ambient Count Badge */}
           <Link
             href="/watchlist"
-            aria-label="View Watchlist"
-            className="flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 transition-colors shrink-0 touch-target min-h-[44px] min-w-[44px] shadow-2xs active:scale-[0.98]"
+            aria-label={watchlistCount > 0 ? `View Watchlist (${watchlistCount} items)` : 'View Watchlist'}
+            className="relative flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 transition-colors shrink-0 touch-target min-h-[44px] min-w-[44px] shadow-2xs active:scale-[0.98]"
           >
             <Bookmark className="w-4 h-4" />
+            {watchlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center tabular-nums shadow-xs">
+                {watchlistCount > 99 ? '99+' : watchlistCount}
+              </span>
+            )}
           </Link>
 
           {/* Compact Role / Perspective Dropdown */}

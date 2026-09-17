@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { cn } from '@/lib/utils';
-import { getStoredProducts, subscribeToStorageChanges } from '@/lib/storage';
+import { getStoredProducts, getStoredWatchlist, subscribeToStorageChanges } from '@/lib/storage';
 import { computeCatalogInflation } from '@/lib/inflation';
 import { formatDeltaPercent } from '@/lib/formatters';
 import type { InflationBasketReport } from '@/types';
@@ -26,15 +26,17 @@ export function DesktopSidebar() {
   const pathname = usePathname();
   const { isContributor, isAdmin } = useRoleView();
   const [inflation, setInflation] = useState<InflationBasketReport | null>(null);
+  const [watchlistCount, setWatchlistCount] = useState<number>(0);
 
   useEffect(() => {
-    const updateInflation = () => {
+    const updateSidebarData = () => {
       const stored = getStoredProducts();
       setInflation(computeCatalogInflation(stored));
+      setWatchlistCount(getStoredWatchlist().length);
     };
 
-    updateInflation();
-    const unsubscribe = subscribeToStorageChanges(updateInflation);
+    updateSidebarData();
+    const unsubscribe = subscribeToStorageChanges(updateSidebarData);
     return () => unsubscribe();
   }, []);
 
@@ -59,7 +61,7 @@ export function DesktopSidebar() {
       href: '/watchlist',
       icon: Bookmark,
       description: 'Price drops & alerts',
-      visibleTo: 'contributor',
+      visibleTo: 'all',
     },
     {
       name: 'Moderation Queue',
@@ -125,6 +127,10 @@ export function DesktopSidebar() {
               {item.badge ? (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 border border-violet-200">
                   {item.badge}
+                </span>
+              ) : item.href === '/watchlist' && watchlistCount > 0 ? (
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80 tabular-nums font-mono">
+                  {watchlistCount}
                 </span>
               ) : (
                 <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
