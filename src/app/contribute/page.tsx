@@ -1432,8 +1432,8 @@ export default function ContributePage() {
 
         {/* TAB 3: Direct Manual Observation */}
         <TabPanel value="manual-crud" className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-surface max-w-2xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div className="space-y-1">
                 <h3 className="text-lg font-bold text-slate-900">
                   Log Direct Store Observation
@@ -1460,312 +1460,328 @@ export default function ContributePage() {
                   manualFormRef.current?.requestSubmit();
                 }
               }}
-              className="space-y-4"
             >
-              {/* Product Select */}
-              <div className="space-y-1.5">
-                <label htmlFor="manual-product-select" className="text-xs font-bold text-slate-700">
-                  Target Product Catalog Item
-                </label>
-                <select
-                  id="manual-product-select"
-                  value={manualForm.productId}
-                  onChange={(e) => handleManualProductChange(e.target.value)}
-                  className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                >
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.brand || 'Generic'} - {p.unit})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Market Reference & Price Benchmark Card */}
-              {selectedManualProduct && (
-                <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-800">
-                        {selectedManualProduct.name}
-                      </span>
-                      <Badge variant="category" size="sm" className="capitalize text-[11px]">
-                        {selectedManualProduct.category}
-                      </Badge>
-                    </div>
-                    <span className="text-xs text-slate-500 font-medium">
-                      Catalog Unit: <span className="font-semibold text-slate-700">{selectedManualProduct.unit}</span>
-                    </span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Left Column (5 cols): Product Selection, Market Benchmark, Proof Photo */}
+                <div className="lg:col-span-5 space-y-5">
+                  {/* Product Select */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="manual-product-select" className="text-xs font-bold text-slate-700">
+                      Target Product Catalog Item
+                    </label>
+                    <select
+                      id="manual-product-select"
+                      value={manualForm.productId}
+                      onChange={(e) => handleManualProductChange(e.target.value)}
+                      className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    >
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} ({p.brand || 'Generic'} - {p.unit})
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  {/* 3-column stats */}
-                  <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-200/80">
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
-                      <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
-                        Community Avg
-                      </p>
-                      <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
-                        {formatCurrency(selectedManualProduct.averagePrice)}
-                      </p>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
-                      <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
-                        Historical Range
-                      </p>
-                      <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
-                        {formatCurrency(selectedManualProduct.currentLowestPrice)} - {formatCurrency(selectedManualProduct.currentHighestPrice)}
-                      </p>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
-                      <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
-                        Sample Data
-                      </p>
-                      <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
-                        {selectedManualProduct.totalSubmissionsCount || 1} verified
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Pre-flight price check feedback */}
-                  {manualPriceNum > 0 && manualPriceNum < selectedManualProduct.currentLowestPrice && (
-                    <div className="flex items-start gap-2 p-2.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs text-emerald-800">
-                      <TrendingDown className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold">Potential new community low!</span> Current catalog low is{' '}
-                        <span className="font-mono font-bold tabular-nums">{formatCurrency(selectedManualProduct.currentLowestPrice)}</span>.
-                        Your observation will update the community benchmark.
+                  {/* Market Reference & Price Benchmark Card */}
+                  {selectedManualProduct && (
+                    <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-800">
+                            {selectedManualProduct.name}
+                          </span>
+                          <Badge variant="category" size="sm" className="capitalize text-[11px]">
+                            {selectedManualProduct.category}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-slate-500 font-medium">
+                          Catalog Unit: <span className="font-semibold text-slate-700">{selectedManualProduct.unit}</span>
+                        </span>
                       </div>
+
+                      {/* 3-column stats */}
+                      <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-200/80">
+                        <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
+                          <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
+                            Community Avg
+                          </p>
+                          <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                            {formatCurrency(selectedManualProduct.averagePrice)}
+                          </p>
+                        </div>
+                        <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
+                          <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
+                            Historical Range
+                          </p>
+                          <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                            {formatCurrency(selectedManualProduct.currentLowestPrice)} - {formatCurrency(selectedManualProduct.currentHighestPrice)}
+                          </p>
+                        </div>
+                        <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 text-center">
+                          <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">
+                            Sample Data
+                          </p>
+                          <p className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                            {selectedManualProduct.totalSubmissionsCount || 1} verified
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Pre-flight price check feedback */}
+                      {manualPriceNum > 0 && manualPriceNum < selectedManualProduct.currentLowestPrice && (
+                        <div className="flex items-start gap-2 p-2.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs text-emerald-800">
+                          <TrendingDown className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold">Potential new community low!</span> Current catalog low is{' '}
+                            <span className="font-mono font-bold tabular-nums">{formatCurrency(selectedManualProduct.currentLowestPrice)}</span>.
+                            Your observation will update the community benchmark.
+                          </div>
+                        </div>
+                      )}
+
+                      {manualPriceNum > 0 && manualPriceNum > selectedManualProduct.currentHighestPrice * 1.5 && (
+                        <div className="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-800">
+                          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold">Price notice:</span> Observed price ({formatCurrency(manualPriceNum)}) is significantly higher than historical range ({formatCurrency(selectedManualProduct.currentLowestPrice)} - {formatCurrency(selectedManualProduct.currentHighestPrice)}). Please verify decimal placement or attach proof photo evidence.
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {manualPriceNum > 0 && manualPriceNum > selectedManualProduct.currentHighestPrice * 1.5 && (
-                    <div className="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-800">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold">Price notice:</span> Observed price ({formatCurrency(manualPriceNum)}) is significantly higher than historical range ({formatCurrency(selectedManualProduct.currentLowestPrice)} - {formatCurrency(selectedManualProduct.currentHighestPrice)}). Please verify decimal placement or attach proof photo evidence.
+                  {/* Proof Photo Upload / Camera Capture */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                      <span>Proof Photo Evidence (Optional)</span>
+                      <span className="text-[11px] font-normal text-slate-500">Camera tag / receipt photo</span>
+                    </label>
+
+                    {proofPreview ? (
+                      <div className="relative p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={proofPreview}
+                          alt="Proof preview"
+                          className="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-slate-800 truncate">
+                            {proofFileName || 'Proof Image Attached'}
+                          </p>
+                          <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Evidence attached to submission
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProofPreview(null);
+                            setProofFileName('');
+                            setManualForm({ ...manualForm, proofUrl: '' });
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-colors touch-target min-h-[44px]"
+                        >
+                          Remove
+                        </button>
                       </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <label
+                          htmlFor="manual-proof-file-input"
+                          className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]"
+                        >
+                          <UploadCloud className="w-4 h-4 text-indigo-600" />
+                          <span>Upload Photo File</span>
+                          <input
+                            id="manual-proof-file-input"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleProofFileSelect(file);
+                            }}
+                          />
+                        </label>
+
+                        <label
+                          htmlFor="manual-proof-camera-input"
+                          className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]"
+                        >
+                          <Camera className="w-4 h-4 text-indigo-600" />
+                          <span>Snap Camera Photo</span>
+                          <input
+                            id="manual-proof-camera-input"
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleProofFileSelect(file);
+                            }}
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Column (7 cols): Store, Category, Date, Price, Original Price, Unit, Notes, Submit */}
+                <div className="lg:col-span-7 space-y-5 bg-slate-50/70 p-5 sm:p-6 rounded-2xl border border-slate-200/90">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200/80">
+                    <StoreIcon className="w-4 h-4 text-indigo-600" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Observation Details & Pricing
+                    </h4>
+                  </div>
+
+                  {/* Store Select, Category, Observation Date */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label htmlFor="manual-store-select" className="text-xs font-bold text-slate-700">
+                        Retailer Store
+                      </label>
+                      <select
+                        id="manual-store-select"
+                        value={manualForm.storeId}
+                        onChange={(e) => setManualForm({ ...manualForm, storeId: e.target.value })}
+                        className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                      >
+                        {stores.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} ({s.type})
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  )}
-                </div>
-              )}
 
-              {/* Store Select, Category, Observation Date */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="manual-store-select" className="text-xs font-bold text-slate-700">
-                    Retailer Store
-                  </label>
-                  <select
-                    id="manual-store-select"
-                    value={manualForm.storeId}
-                    onChange={(e) => setManualForm({ ...manualForm, storeId: e.target.value })}
-                    className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                  >
-                    {stores.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name} ({s.type})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="manual-category-select" className="text-xs font-bold text-slate-700">
+                        Category
+                      </label>
+                      <select
+                        id="manual-category-select"
+                        value={manualForm.category}
+                        onChange={(e) => setManualForm({ ...manualForm, category: e.target.value as ProductCategory })}
+                        className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 capitalize"
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {CATEGORY_METADATA[c]?.displayName || c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="manual-category-select" className="text-xs font-bold text-slate-700">
-                    Category
-                  </label>
-                  <select
-                    id="manual-category-select"
-                    value={manualForm.category}
-                    onChange={(e) => setManualForm({ ...manualForm, category: e.target.value as ProductCategory })}
-                    className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 capitalize"
-                  >
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {CATEGORY_METADATA[c]?.displayName || c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="manual-date-input" className="text-xs font-bold text-slate-700">
+                        Observation Date
+                      </label>
+                      <Input
+                        id="manual-date-input"
+                        type="date"
+                        max={new Date().toISOString().split('T')[0]}
+                        value={manualForm.observedDate}
+                        onChange={(e) => setManualForm({ ...manualForm, observedDate: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="manual-date-input" className="text-xs font-bold text-slate-700">
-                    Observation Date
-                  </label>
-                  <Input
-                    id="manual-date-input"
-                    type="date"
-                    max={new Date().toISOString().split('T')[0]}
-                    value={manualForm.observedDate}
-                    onChange={(e) => setManualForm({ ...manualForm, observedDate: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
+                  {/* Price & Was Price */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label htmlFor="manual-price-input" className="text-xs font-bold text-slate-700">
+                        Observed Price ($)
+                      </label>
+                      <Input
+                        id="manual-price-input"
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        required
+                        value={manualForm.price}
+                        onChange={(e) => setManualForm({ ...manualForm, price: e.target.value })}
+                        leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
+                      />
+                    </div>
 
-              {/* Price & Was Price */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="manual-price-input" className="text-xs font-bold text-slate-700">
-                    Observed Price ($)
-                  </label>
-                  <Input
-                    id="manual-price-input"
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    required
-                    value={manualForm.price}
-                    onChange={(e) => setManualForm({ ...manualForm, price: e.target.value })}
-                    leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
-                  />
-                </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="manual-original-price-input" className="text-xs font-bold text-slate-700">
+                        Original Price ($)
+                      </label>
+                      <Input
+                        id="manual-original-price-input"
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="Optional"
+                        value={manualForm.originalPrice}
+                        onChange={(e) => setManualForm({ ...manualForm, originalPrice: e.target.value })}
+                        leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
+                      />
+                    </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="manual-original-price-input" className="text-xs font-bold text-slate-700">
-                    Original Price ($)
-                  </label>
-                  <Input
-                    id="manual-original-price-input"
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="Optional"
-                    value={manualForm.originalPrice}
-                    onChange={(e) => setManualForm({ ...manualForm, originalPrice: e.target.value })}
-                    leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
-                  />
-                </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="manual-unit-input" className="text-xs font-bold text-slate-700">
+                        Unit
+                      </label>
+                      <Input
+                        id="manual-unit-input"
+                        type="text"
+                        value={manualForm.unit}
+                        onChange={(e) => setManualForm({ ...manualForm, unit: e.target.value })}
+                        placeholder="e.g. 1 gal, 1 lb"
+                      />
+                    </div>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="manual-unit-input" className="text-xs font-bold text-slate-700">
-                    Unit
-                  </label>
-                  <Input
-                    id="manual-unit-input"
-                    type="text"
-                    value={manualForm.unit}
-                    onChange={(e) => setManualForm({ ...manualForm, unit: e.target.value })}
-                    placeholder="e.g. 1 gal, 1 lb"
-                  />
-                </div>
-              </div>
-
-              {/* Proof Photo Upload / Camera Capture */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                  <span>Proof Photo Evidence (Optional)</span>
-                  <span className="text-[11px] font-normal text-slate-500">Camera tag / receipt photo</span>
-                </label>
-
-                {proofPreview ? (
-                  <div className="relative p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={proofPreview}
-                      alt="Proof preview"
-                      className="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
+                  {/* Observational Notes */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="manual-notes-input" className="text-xs font-bold text-slate-700">
+                      Observational Notes
+                    </label>
+                    <textarea
+                      id="manual-notes-input"
+                      rows={2}
+                      value={manualForm.notes}
+                      onChange={(e) => setManualForm({ ...manualForm, notes: e.target.value })}
+                      placeholder="e.g. Clearance endcap shelf tag, promotional member discount"
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                     />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-slate-800 truncate">
-                        {proofFileName || 'Proof Image Attached'}
-                      </p>
-                      <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Evidence attached to submission
-                      </span>
-                    </div>
-                    <button
+                  </div>
+
+                  {/* Submit Actions Strip */}
+                  <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center gap-3">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="md"
+                      isLoading={isSubmittingManual}
+                      className="flex-1 w-full min-h-[44px]"
+                      leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                    >
+                      <span>Submit Price Observation (+15 Karma)</span>
+                      <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
+                        ⌘ Enter
+                      </kbd>
+                    </Button>
+                    <Button
                       type="button"
-                      onClick={() => {
-                        setProofPreview(null);
-                        setProofFileName('');
-                        setManualForm({ ...manualForm, proofUrl: '' });
-                      }}
-                      className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-colors touch-target min-h-[44px]"
+                      variant="outline"
+                      size="md"
+                      onClick={handleResetManualForm}
+                      className="w-full sm:w-auto min-h-[44px]"
+                      leftIcon={<RotateCcw className="w-4 h-4" />}
                     >
-                      Remove
-                    </button>
+                      Clear Form
+                    </Button>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <label
-                      htmlFor="manual-proof-file-input"
-                      className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]"
-                    >
-                      <UploadCloud className="w-4 h-4 text-indigo-600" />
-                      <span>Upload Photo File</span>
-                      <input
-                        id="manual-proof-file-input"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleProofFileSelect(file);
-                        }}
-                      />
-                    </label>
-
-                    <label
-                      htmlFor="manual-proof-camera-input"
-                      className="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 text-xs font-semibold text-slate-700 cursor-pointer transition-colors touch-target min-h-[44px]"
-                    >
-                      <Camera className="w-4 h-4 text-indigo-600" />
-                      <span>Snap Camera Photo</span>
-                      <input
-                        id="manual-proof-camera-input"
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleProofFileSelect(file);
-                        }}
-                      />
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="manual-notes-input" className="text-xs font-bold text-slate-700">
-                  Observational Notes
-                </label>
-                <textarea
-                  id="manual-notes-input"
-                  rows={2}
-                  value={manualForm.notes}
-                  onChange={(e) => setManualForm({ ...manualForm, notes: e.target.value })}
-                  placeholder="e.g. Clearance endcap shelf tag, promotional member discount"
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                />
-              </div>
-
-              <div className="pt-3 flex flex-col sm:flex-row items-center gap-3">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="md"
-                  isLoading={isSubmittingManual}
-                  className="flex-1 w-full min-h-[44px]"
-                  leftIcon={<CheckCircle2 className="w-4 h-4" />}
-                >
-                  <span>Submit Price Observation (+15 Karma)</span>
-                  <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
-                    ⌘ Enter
-                  </kbd>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="md"
-                  onClick={handleResetManualForm}
-                  className="w-full sm:w-auto min-h-[44px]"
-                  leftIcon={<RotateCcw className="w-4 h-4" />}
-                >
-                  Clear Form
-                </Button>
+                </div>
               </div>
             </form>
           </div>
@@ -1773,334 +1789,382 @@ export default function ContributePage() {
 
         {/* TAB 4: Web URL Metadata Importer */}
         <TabPanel value="web-url" className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-surface max-w-2xl mx-auto space-y-6">
-            <div className="space-y-1">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface space-y-6">
+            <div className="space-y-1 pb-4 border-b border-slate-100">
               <h3 className="text-lg font-bold text-slate-900">
                 Online Retailer Web Scraper & Importer
               </h3>
               <p className="text-xs text-slate-500">
-                Paste a direct product listing URL from supported retailers (Target, Walmart, Kroger, Amazon Fresh) to extract and index current pricing.
+                Paste a direct product listing URL from supported retailers (Target, Walmart, Kroger, Amazon Fresh, Whole Foods, Trader Joe&apos;s, Costco, Aldi) to extract and index current pricing.
               </p>
             </div>
 
-            {/* Quick Fill Test Retailer Links */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-indigo-600" />
-                Quick-test supported online retailers:
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {WEB_SAMPLE_URLS.map((sample) => (
-                  <button
-                    key={sample.id}
-                    type="button"
-                    aria-pressed={webUrl === sample.url}
-                    onClick={() => {
-                      setWebError(null);
-                      setWebUrl(sample.url);
-                      setWebParsedPreview(sample.preview);
-                      showToast({
-                        type: 'info',
-                        message: `Loaded ${sample.retailer} Listing`,
-                        description: sample.item,
-                      });
-                    }}
-                    className={cn(
-                      'p-2.5 rounded-xl border text-left transition-all touch-target min-h-[44px] flex items-center justify-between gap-2',
-                      webUrl === sample.url
-                        ? 'bg-indigo-50 border-indigo-300 text-indigo-900 font-bold ring-2 ring-indigo-500/20'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
-                    )}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column (5 cols): URL Input, Sample Presets, Scraper Guidelines */}
+              <div className="lg:col-span-5 space-y-5">
+                {/* Scraper Error Notice Banner */}
+                {webError && (
+                  <div
+                    role="alert"
+                    className="p-4 bg-rose-50 rounded-2xl border border-rose-200/90 flex items-start justify-between gap-3 text-xs text-rose-800 animate-in fade-in duration-150"
                   >
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 block">
-                        {sample.retailer}
-                      </span>
-                      <p className="text-xs font-medium truncate">{sample.item}</p>
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="font-bold text-rose-900">Scraper Notice</p>
+                        <p className="leading-relaxed">{webError}</p>
+                      </div>
                     </div>
-                    <ArrowRight
-                      className={cn(
-                        'w-3.5 h-3.5 shrink-0 transition-colors',
-                        webUrl === sample.url ? 'text-indigo-600' : 'text-slate-500'
-                      )}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Scraper Error Notice Banner */}
-            {webError && (
-              <div
-                role="alert"
-                className="p-4 bg-rose-50 rounded-2xl border border-rose-200/90 flex items-start justify-between gap-3 text-xs text-rose-800 animate-in fade-in duration-150"
-              >
-                <div className="flex items-start gap-2.5">
-                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="font-bold text-rose-900">Scraper Notice</p>
-                    <p className="leading-relaxed">{webError}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setWebError(null)}
-                  className="text-rose-500 hover:text-rose-800 transition-colors touch-target min-h-[44px] flex items-center justify-center shrink-0"
-                  aria-label="Dismiss scraper error"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-
-            <form
-              ref={webFormRef}
-              onSubmit={handleParseWebUrl}
-              aria-busy={isParsingWeb}
-              className="space-y-4"
-            >
-              <div className="space-y-1.5">
-                <label htmlFor="web-url-input" className="text-xs font-bold text-slate-700">
-                  Store Product URL
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1">
-                    <Input
-                      id="web-url-input"
-                      type="url"
-                      required
-                      value={webUrl}
-                      onChange={(e) => {
-                        setWebUrl(e.target.value);
-                        if (webError) setWebError(null);
-                      }}
-                      placeholder="https://www.target.com/p/..."
-                      leftIcon={<Globe className="w-4 h-4 text-slate-500" />}
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    isLoading={isParsingWeb}
-                    className="min-h-[44px] shrink-0"
-                  >
-                    <span>Fetch Listing</span>
-                    <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
-                      ⌘ Enter
-                    </kbd>
-                  </Button>
-                </div>
-              </div>
-            </form>
-
-            {/* Extracted Preview & Field Reconciliation */}
-            {webParsedPreview && (
-              <div
-                aria-live="polite"
-                className="p-5 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-4 animate-in fade-in duration-200"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Reconcile Scraped Listing
-                    </span>
-                    <Badge variant="verified" size="sm">
-                      {webParsedPreview.storeName}
-                    </Badge>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setWebParsedPreview(null)}
-                    className="text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors touch-target min-h-[44px] flex items-center gap-1"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                    <span>Discard</span>
-                  </button>
-                </div>
-
-                {/* Editable reconciliation fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                  <div className="space-y-1.5">
-                    <label htmlFor="web-target-product-select" className="text-xs font-bold text-slate-700">
-                      Target Catalog Product
-                    </label>
-                    <select
-                      id="web-target-product-select"
-                      value={webParsedPreview.productId || ''}
-                      onChange={(e) => {
-                        const newProdId = e.target.value;
-                        const prod = products.find((p) => p.id === newProdId);
-                        setWebParsedPreview((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                productId: newProdId,
-                                name: prod?.name || prev.name,
-                                brand: prod?.brand || prev.brand,
-                                category: prod?.category || prev.category,
-                                unit: prod?.unit || prev.unit,
-                              }
-                            : null
-                        );
-                      }}
-                      className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    <button
+                      type="button"
+                      onClick={() => setWebError(null)}
+                      className="text-rose-500 hover:text-rose-800 transition-colors touch-target min-h-[44px] flex items-center justify-center shrink-0"
+                      aria-label="Dismiss scraper error"
                     >
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} ({p.unit})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label htmlFor="web-target-store-select" className="text-xs font-bold text-slate-700">
-                      Retailer Store
-                    </label>
-                    <select
-                      id="web-target-store-select"
-                      value={webParsedPreview.storeId || 'store-target'}
-                      onChange={(e) => {
-                        const newStoreId = e.target.value;
-                        const store = stores.find((s) => s.id === newStoreId);
-                        setWebParsedPreview((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                storeId: newStoreId,
-                                storeName: store?.name || prev.storeName,
-                              }
-                            : null
-                        );
-                      }}
-                      className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                    >
-                      {stores.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name} ({s.type})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label htmlFor="web-price-input" className="text-xs font-bold text-slate-700">
-                      Scraped Online Price ($)
-                    </label>
-                    <Input
-                      id="web-price-input"
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      value={webParsedPreview.price}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        setWebParsedPreview((prev) => (prev ? { ...prev, price: val } : null));
-                      }}
-                      leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label htmlFor="web-unit-input" className="text-xs font-bold text-slate-700">
-                      Unit Quantity
-                    </label>
-                    <Input
-                      id="web-unit-input"
-                      type="text"
-                      value={webParsedPreview.unit}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setWebParsedPreview((prev) => (prev ? { ...prev, unit: val } : null));
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Market Benchmark Reference Card */}
-                {matchedWebProduct && (
-                  <div className="p-3.5 bg-white rounded-xl border border-slate-200/90 space-y-2.5">
-                    <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
-                      <span className="font-semibold text-slate-700">
-                        Catalog Benchmark: <span className="font-bold text-slate-900">{matchedWebProduct.name}</span>
-                      </span>
-                      <span className="text-slate-500 font-medium">
-                        Standard Unit: <span className="font-semibold text-slate-700">{matchedWebProduct.unit}</span>
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100 text-center">
-                      <div className="p-2 bg-slate-50 rounded-lg">
-                        <p className="text-[10px] uppercase font-semibold text-slate-500">Community Avg</p>
-                        <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
-                          {formatCurrency(matchedWebProduct.averagePrice)}
-                        </p>
-                      </div>
-                      <div className="p-2 bg-slate-50 rounded-lg">
-                        <p className="text-[10px] uppercase font-semibold text-slate-500">Market Range</p>
-                        <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
-                          {formatCurrency(matchedWebProduct.currentLowestPrice)} - {formatCurrency(matchedWebProduct.currentHighestPrice)}
-                        </p>
-                      </div>
-                      <div className="p-2 bg-slate-50 rounded-lg">
-                        <p className="text-[10px] uppercase font-semibold text-slate-500">Submissions</p>
-                        <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
-                          {matchedWebProduct.totalSubmissionsCount || 1} verified
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Pre-flight price alerts */}
-                    {webParsedPreview.price > 0 && webParsedPreview.price < matchedWebProduct.currentLowestPrice && (
-                      <div className="flex items-start gap-2 p-2 bg-emerald-50 border border-emerald-200/80 rounded-lg text-xs text-emerald-800">
-                        <TrendingDown className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold">Potential new low!</span> Lower than current catalog low of{' '}
-                          <span className="font-mono font-bold tabular-nums">{formatCurrency(matchedWebProduct.currentLowestPrice)}</span>.
-                        </div>
-                      </div>
-                    )}
-
-                    {webParsedPreview.price > 0 && webParsedPreview.price > matchedWebProduct.currentHighestPrice * 1.5 && (
-                      <div className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-200/80 rounded-lg text-xs text-amber-800">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold">Price notice:</span> Scraped price ({formatCurrency(webParsedPreview.price)}) is higher than historical range ({formatCurrency(matchedWebProduct.currentLowestPrice)} - {formatCurrency(matchedWebProduct.currentHighestPrice)}). Check for bundle or multi-pack pricing.
-                        </div>
-                      </div>
-                    )}
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
 
-                {/* Ingest Action Strip */}
-                <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="md"
-                    onClick={() => setWebParsedPreview(null)}
-                    className="min-h-[44px]"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    ref={ingestButtonRef}
-                    type="button"
-                    variant="primary"
-                    size="md"
-                    onClick={handleIngestWebParsed}
-                    leftIcon={<CheckCircle2 className="w-4 h-4" />}
-                    className="min-h-[44px]"
-                  >
-                    <span>Ingest into Index (+15 Karma)</span>
-                    <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
-                      ⌘ Enter
-                    </kbd>
-                  </Button>
+                {/* Scraper URL Input Form */}
+                <form
+                  ref={webFormRef}
+                  onSubmit={handleParseWebUrl}
+                  aria-busy={isParsingWeb}
+                  className="space-y-3"
+                >
+                  <div className="space-y-1.5">
+                    <label htmlFor="web-url-input" className="text-xs font-bold text-slate-700">
+                      Store Product URL
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="flex-1">
+                        <Input
+                          id="web-url-input"
+                          type="url"
+                          required
+                          value={webUrl}
+                          onChange={(e) => {
+                            setWebUrl(e.target.value);
+                            if (webError) setWebError(null);
+                          }}
+                          placeholder="https://www.target.com/p/..."
+                          leftIcon={<Globe className="w-4 h-4 text-slate-500" />}
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="md"
+                        isLoading={isParsingWeb}
+                        className="min-h-[44px] shrink-0"
+                      >
+                        <span>Fetch Listing</span>
+                        <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
+                          ⌘ Enter
+                        </kbd>
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+
+                {/* Quick Fill Test Retailer Links */}
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-indigo-600" />
+                    Quick-test supported online retailers:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {WEB_SAMPLE_URLS.map((sample) => (
+                      <button
+                        key={sample.id}
+                        type="button"
+                        aria-pressed={webUrl === sample.url}
+                        onClick={() => {
+                          setWebError(null);
+                          setWebUrl(sample.url);
+                          setWebParsedPreview(sample.preview);
+                          showToast({
+                            type: 'info',
+                            message: `Loaded ${sample.retailer} Listing`,
+                            description: sample.item,
+                          });
+                        }}
+                        className={cn(
+                          'p-2.5 rounded-xl border text-left transition-all touch-target min-h-[44px] flex items-center justify-between gap-2',
+                          webUrl === sample.url
+                            ? 'bg-indigo-50 border-indigo-300 text-indigo-900 font-bold ring-2 ring-indigo-500/20'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                        )}
+                      >
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 block">
+                            {sample.retailer}
+                          </span>
+                          <p className="text-xs font-medium truncate">{sample.item}</p>
+                        </div>
+                        <ArrowRight
+                          className={cn(
+                            'w-3.5 h-3.5 shrink-0 transition-colors',
+                            webUrl === sample.url ? 'text-indigo-600' : 'text-slate-500'
+                          )}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Scraper Coverage & Provenance Card */}
+                <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 space-y-2.5 text-xs text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-indigo-600 shrink-0" />
+                    <span className="font-bold text-slate-800">Scraper Coverage & Provenance</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    Automated extraction syncs online shelf prices directly into the public grocery ledger. Supported domains include Target, Walmart, Kroger, Amazon, Whole Foods, Trader Joe&apos;s, Costco, and Aldi.
+                  </p>
+                  <div className="pt-1 flex flex-wrap gap-1.5">
+                    {['target.com', 'walmart.com', 'kroger.com', 'amazon.com', 'wholefoods', 'traderjoes', 'costco.com', 'aldi.us'].map((d) => (
+                      <span key={d} className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-mono text-[10px] text-slate-700">
+                        {d}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            )}
+
+              {/* Right Column (7 cols): Reconcile Scraped Listing Form or Ready State */}
+              <div className="lg:col-span-7 space-y-5">
+                {webParsedPreview ? (
+                  <div
+                    aria-live="polite"
+                    className="p-5 sm:p-6 bg-slate-50/70 rounded-2xl border border-slate-200/90 space-y-4 animate-in fade-in duration-200"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                          Reconcile Scraped Listing
+                        </span>
+                        <Badge variant="verified" size="sm">
+                          {webParsedPreview.storeName}
+                        </Badge>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setWebParsedPreview(null)}
+                        className="text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors touch-target min-h-[44px] flex items-center gap-1"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Discard</span>
+                      </button>
+                    </div>
+
+                    {/* Editable reconciliation fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                      <div className="space-y-1.5">
+                        <label htmlFor="web-target-product-select" className="text-xs font-bold text-slate-700">
+                          Target Catalog Product
+                        </label>
+                        <select
+                          id="web-target-product-select"
+                          value={webParsedPreview.productId || ''}
+                          onChange={(e) => {
+                            const newProdId = e.target.value;
+                            const prod = products.find((p) => p.id === newProdId);
+                            setWebParsedPreview((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    productId: newProdId,
+                                    name: prod?.name || prev.name,
+                                    brand: prod?.brand || prev.brand,
+                                    category: prod?.category || prev.category,
+                                    unit: prod?.unit || prev.unit,
+                                  }
+                                : null
+                            );
+                          }}
+                          className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                        >
+                          {products.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({p.unit})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label htmlFor="web-target-store-select" className="text-xs font-bold text-slate-700">
+                          Retailer Store
+                        </label>
+                        <select
+                          id="web-target-store-select"
+                          value={webParsedPreview.storeId || 'store-target'}
+                          onChange={(e) => {
+                            const newStoreId = e.target.value;
+                            const store = stores.find((s) => s.id === newStoreId);
+                            setWebParsedPreview((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    storeId: newStoreId,
+                                    storeName: store?.name || prev.storeName,
+                                  }
+                                : null
+                            );
+                          }}
+                          className="w-full min-h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                        >
+                          {stores.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name} ({s.type})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label htmlFor="web-price-input" className="text-xs font-bold text-slate-700">
+                          Scraped Online Price ($)
+                        </label>
+                        <Input
+                          id="web-price-input"
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={webParsedPreview.price}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setWebParsedPreview((prev) => (prev ? { ...prev, price: val } : null));
+                          }}
+                          leftIcon={<span className="text-xs font-mono font-bold text-slate-500">$</span>}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label htmlFor="web-unit-input" className="text-xs font-bold text-slate-700">
+                          Unit Quantity
+                        </label>
+                        <Input
+                          id="web-unit-input"
+                          type="text"
+                          value={webParsedPreview.unit}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setWebParsedPreview((prev) => (prev ? { ...prev, unit: val } : null));
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Market Benchmark Reference Card */}
+                    {matchedWebProduct && (
+                      <div className="p-3.5 bg-white rounded-xl border border-slate-200/90 space-y-2.5">
+                        <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
+                          <span className="font-semibold text-slate-700">
+                            Catalog Benchmark: <span className="font-bold text-slate-900">{matchedWebProduct.name}</span>
+                          </span>
+                          <span className="text-slate-500 font-medium">
+                            Standard Unit: <span className="font-semibold text-slate-700">{matchedWebProduct.unit}</span>
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100 text-center">
+                          <div className="p-2 bg-slate-50 rounded-lg">
+                            <p className="text-[10px] uppercase font-semibold text-slate-500">Community Avg</p>
+                            <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
+                              {formatCurrency(matchedWebProduct.averagePrice)}
+                            </p>
+                          </div>
+                          <div className="p-2 bg-slate-50 rounded-lg">
+                            <p className="text-[10px] uppercase font-semibold text-slate-500">Market Range</p>
+                            <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
+                              {formatCurrency(matchedWebProduct.currentLowestPrice)} - {formatCurrency(matchedWebProduct.currentHighestPrice)}
+                            </p>
+                          </div>
+                          <div className="p-2 bg-slate-50 rounded-lg">
+                            <p className="text-[10px] uppercase font-semibold text-slate-500">Submissions</p>
+                            <p className="text-xs font-bold font-mono tabular-nums text-slate-900 mt-0.5">
+                              {matchedWebProduct.totalSubmissionsCount || 1} verified
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Pre-flight price alerts */}
+                        {webParsedPreview.price > 0 && webParsedPreview.price < matchedWebProduct.currentLowestPrice && (
+                          <div className="flex items-start gap-2 p-2 bg-emerald-50 border border-emerald-200/80 rounded-lg text-xs text-emerald-800">
+                            <TrendingDown className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="font-bold">Potential new low!</span> Lower than current catalog low of{' '}
+                              <span className="font-mono font-bold tabular-nums">{formatCurrency(matchedWebProduct.currentLowestPrice)}</span>.
+                            </div>
+                          </div>
+                        )}
+
+                        {webParsedPreview.price > 0 && webParsedPreview.price > matchedWebProduct.currentHighestPrice * 1.5 && (
+                          <div className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-200/80 rounded-lg text-xs text-amber-800">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="font-bold">Price notice:</span> Scraped price ({formatCurrency(webParsedPreview.price)}) is higher than historical range ({formatCurrency(matchedWebProduct.currentLowestPrice)} - {formatCurrency(matchedWebProduct.currentHighestPrice)}). Check for bundle or multi-pack pricing.
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Ingest Action Strip */}
+                    <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="md"
+                        onClick={() => setWebParsedPreview(null)}
+                        className="min-h-[44px]"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        ref={ingestButtonRef}
+                        type="button"
+                        variant="primary"
+                        size="md"
+                        onClick={handleIngestWebParsed}
+                        leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                        className="min-h-[44px]"
+                      >
+                        <span>Ingest into Index (+15 Karma)</span>
+                        <kbd className="hidden sm:inline-flex items-center ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-white/20 text-white border border-white/30">
+                          ⌘ Enter
+                        </kbd>
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-8 sm:p-12 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200 text-center flex flex-col items-center justify-center min-h-[380px] space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                      <Globe className="w-6 h-6" />
+                    </div>
+                    <div className="max-w-sm space-y-1">
+                      <h4 className="text-sm font-bold text-slate-900">
+                        Ready to Extract Web Listing
+                      </h4>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Enter a supported grocery retailer link on the left, or pick one of the quick-test presets. Extracted price and item details will appear here for reconciliation.
+                      </p>
+                    </div>
+                    <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-500 font-medium">
+                      <span className="inline-flex items-center gap-1">
+                        <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] font-bold text-slate-700">⌘ + Enter</kbd>
+                        <span>to fetch</span>
+                      </span>
+                      <span>•</span>
+                      <span>Earn +15 Karma per verified price</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </TabPanel>
       </Tabs>
