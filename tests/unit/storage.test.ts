@@ -6,6 +6,12 @@ import {
   saveCustomProduct,
   deleteProduct,
   getStoredStores,
+  saveStore,
+  saveStoredStores,
+  getStoredCategoryMetadata,
+  saveCategoryWeight,
+  saveCategoryWeights,
+  resetCategoryWeights,
   savePriceSubmission,
   getStoredWatchlist,
   toggleWatchlistProduct,
@@ -19,7 +25,7 @@ import {
   setStoredRole,
   resetStorageToDefaults,
 } from '../../src/lib/storage.ts';
-import type { Product } from '../../src/types/product.ts';
+import type { Product, Store } from '../../src/types/product.ts';
 
 // Mock browser localStorage and window in Node environment
 class MockLocalStorage {
@@ -129,6 +135,98 @@ describe('Unit Tests: storage.ts', () => {
       assert.ok(stores.some((s) => s.id === 'store-target'));
       assert.ok(stores.some((s) => s.id === 'store-walmart'));
       assert.ok(stores.some((s) => s.id === 'store-trader-joes'));
+    });
+
+    it('saves a new store and persists to storage', () => {
+      const newStore: Store = {
+        id: 'store-heb',
+        name: 'H-E-B Supermarket',
+        chain: 'H-E-B',
+        branchName: 'Austin South Congress',
+        type: 'physical',
+        city: 'Austin',
+        state: 'TX',
+        color: '#EE2724',
+      };
+
+      saveStore(newStore);
+      const stores = getStoredStores();
+      assert.strictEqual(stores.length, 8);
+      const saved = stores.find((s) => s.id === 'store-heb');
+      assert.ok(saved);
+      assert.strictEqual(saved?.name, 'H-E-B Supermarket');
+      assert.strictEqual(saved?.city, 'Austin');
+    });
+
+    it('updates an existing store in storage', () => {
+      const existing = getStoredStores().find((s) => s.id === 'store-target')!;
+      const updated: Store = {
+        ...existing,
+        name: 'Target Supercenter Updated',
+        color: '#CC0000',
+      };
+
+      saveStore(updated);
+      const stores = getStoredStores();
+      const saved = stores.find((s) => s.id === 'store-target');
+      assert.ok(saved);
+      assert.strictEqual(saved?.name, 'Target Supercenter Updated');
+      assert.strictEqual(saved?.color, '#CC0000');
+    });
+
+    it('persists all stores in bulk via saveStoredStores', () => {
+      const stores = getStoredStores();
+      const modified = stores.filter((s) => s.id !== 'store-walmart');
+      saveStoredStores(modified);
+
+      const refreshed = getStoredStores();
+      assert.strictEqual(refreshed.length, stores.length - 1);
+      assert.strictEqual(refreshed.some((s) => s.id === 'store-walmart'), false);
+    });
+  });
+
+  describe('Category Metadata & Basket Weights Storage', () => {
+    it('returns default category weights on initial call', () => {
+      const metadata = getStoredCategoryMetadata();
+      assert.ok(metadata.groceries);
+      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.35);
+      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.15);
+      assert.strictEqual(metadata.household.inflationBasketWeight, 0.15);
+    });
+
+    it('saves and overrides an individual category basket weight', () => {
+      saveCategoryWeight('groceries', 0.40);
+      const metadata = getStoredCategoryMetadata();
+      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.40);
+    });
+
+    it('saves a full mapping of normalized category weights', () => {
+      const customWeights = {
+        groceries: 0.30,
+        beverages: 0.20,
+        household: 0.15,
+        pharmacy: 0.15,
+        electronics: 0.10,
+        apparel: 0.05,
+        services: 0.05,
+      };
+
+      saveCategoryWeights(customWeights);
+      const metadata = getStoredCategoryMetadata();
+      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.30);
+      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.20);
+      assert.strictEqual(metadata.apparel.inflationBasketWeight, 0.05);
+
+      const sum = Object.values(metadata).reduce((acc, c) => acc + c.inflationBasketWeight, 0);
+      assert.strictEqual(Number(sum.toFixed(2)), 1.00);
+    });
+
+    it('resets category weights to seed defaults via resetCategoryWeights', () => {
+      saveCategoryWeight('groceries', 0.70);
+      assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.70);
+
+      resetCategoryWeights();
+      assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.35);
     });
   });
 

@@ -11,8 +11,10 @@ import type {
   ContributionKarma,
   ModerationItem,
   UserRole,
+  ProductCategory,
+  CategoryMetadata,
 } from '../types/index.ts';
-import { SEED_PRODUCTS, SEED_STORES } from './mock-data.ts';
+import { SEED_PRODUCTS, SEED_STORES, CATEGORY_METADATA } from './mock-data.ts';
 import { detectPriceOutlier } from './inflation.ts';
 
 const STORAGE_KEYS = {
@@ -22,6 +24,7 @@ const STORAGE_KEYS = {
   KARMA: 'openprice_karma_state',
   MODERATION: 'openprice_moderation_queue',
   ROLE: 'openprice_user_role',
+  CATEGORY_WEIGHTS: 'openprice_category_weights',
 } as const;
 
 const EVENT_NAME = 'openprice-storage-change';
@@ -159,6 +162,126 @@ export function getStoredStores(): Store[] {
   }
 
   return safeJsonParse<Store[]>(raw, SEED_STORES);
+}
+
+/**
+ * Saves a new store or updates an existing store in storage.
+ */
+export function saveStore(store: Store): Store {
+  if (!isBrowser()) return store;
+
+  const stores = getStoredStores();
+  const index = stores.findIndex((s) => s.id === store.id);
+
+  if (index >= 0) {
+    stores[index] = store;
+  } else {
+    stores.push(store);
+  }
+
+  localStorage.setItem(STORAGE_KEYS.STORES, JSON.stringify(stores));
+  notifyStorageChange();
+  return store;
+}
+
+/**
+ * Persists the entire stores array to storage.
+ */
+export function saveStoredStores(stores: Store[]): Store[] {
+  if (!isBrowser()) return stores;
+
+  localStorage.setItem(STORAGE_KEYS.STORES, JSON.stringify(stores));
+  notifyStorageChange();
+  return stores;
+}
+
+// ============================================================================
+// Category Metadata & Basket Weights Storage
+// ============================================================================
+
+/**
+ * Retrieves category metadata with persisted inflation basket weights applied.
+ */
+export function getStoredCategoryMetadata(): Record<ProductCategory, CategoryMetadata> {
+  if (!isBrowser()) return CATEGORY_METADATA;
+
+  const raw = localStorage.getItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
+  if (!raw) return CATEGORY_METADATA;
+
+  const overrides = safeJsonParse<Record<string, number>>(raw, {});
+  const result = { ...CATEGORY_METADATA };
+
+  for (const [key, weight] of Object.entries(overrides)) {
+    const cat = key as ProductCategory;
+    if (result[cat]) {
+      result[cat] = {
+        ...result[cat],
+        inflationBasketWeight: weight,
+      };
+      // Keep in-memory CATEGORY_METADATA synchronized
+      CATEGORY_METADATA[cat].inflationBasketWeight = weight;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Saves an inflation basket weight for a single category.
+ */
+export function saveCategoryWeight(categoryKey: ProductCategory, weight: number): void {
+  if (!isBrowser()) return;
+
+  const raw = localStorage.getItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
+  const weights = safeJsonParse<Record<string, number>>(raw, {});
+  weights[categoryKey] = weight;
+
+  localStorage.setItem(STORAGE_KEYS.CATEGORY_WEIGHTS, JSON.stringify(weights));
+  if (CATEGORY_METADATA[categoryKey]) {
+    CATEGORY_METADATA[categoryKey].inflationBasketWeight = weight;
+  }
+  notifyStorageChange();
+}
+
+/**
+ * Persists an entire mapping of category weights (e.g. after normalization).
+ */
+export function saveCategoryWeights(weights: Record<ProductCategory, number>): void {
+  if (!isBrowser()) return;
+
+  localStorage.setItem(STORAGE_KEYS.CATEGORY_WEIGHTS, JSON.stringify(weights));
+  for (const [key, weight] of Object.entries(weights)) {
+    const cat = key as ProductCategory;
+    if (CATEGORY_METADATA[cat]) {
+      CATEGORY_METADATA[cat].inflationBasketWeight = weight;
+    }
+  }
+  notifyStorageChange();
+}
+
+/**
+ * Resets category basket weights back to seed defaults.
+ */
+export function resetCategoryWeights(): void {
+  if (!isBrowser()) return;
+
+  localStorage.removeItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
+  // Restore initial weights from seed
+  const defaultWeights: Record<ProductCategory, number> = {
+    groceries: 0.35,
+    beverages: 0.15,
+    household: 0.15,
+    pharmacy: 0.10,
+    electronics: 0.10,
+    apparel: 0.10,
+    services: 0.05,
+  };
+  for (const [cat, weight] of Object.entries(defaultWeights)) {
+    if (CATEGORY_METADATA[cat as ProductCategory]) {
+      CATEGORY_METADATA[cat as ProductCategory].inflationBasketWeight = weight;
+    }
+  }
+  notifyStorageChange();
 }
 
 // ============================================================================
@@ -633,5 +756,7 @@ export function resetStorageToDefaults(): void {
   localStorage.setItem(STORAGE_KEYS.KARMA, JSON.stringify(DEFAULT_KARMA));
   localStorage.setItem(STORAGE_KEYS.MODERATION, JSON.stringify([]));
   localStorage.setItem(STORAGE_KEYS.ROLE, 'public');
+  localStorage.removeItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
+  resetCategoryWeights();
   notifyStorageChange();
 }
