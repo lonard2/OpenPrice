@@ -27,11 +27,12 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
-import type { ModerationItem } from '@/types';
+import type { ModerationItem, Product } from '@/types';
 
 export default function AdminModerationPage() {
   const { role, setRole } = useRoleView();
   const [queue, setQueue] = useState<ModerationItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   // Adjust Price Modal state
@@ -45,6 +46,7 @@ export default function AdminModerationPage() {
   useEffect(() => {
     const loadQueue = () => {
       setQueue(getModerationQueue());
+      setProducts(getStoredProducts());
     };
 
     loadQueue();
@@ -226,6 +228,12 @@ export default function AdminModerationPage() {
           <div className="space-y-4">
             {queue.map((item) => {
               const isVarianceOutlier = item.flagReason === 'outlier_variance';
+              const prod = item.product || products.find((p) => p.id === item.productId);
+              const baselinePrice = item.previousPrice ?? prod?.currentLowestPrice ?? prod?.averagePrice ?? 0;
+              const hasPriceSpike = baselinePrice > 0 && item.submittedPrice > baselinePrice;
+              const spikePct = hasPriceSpike
+                ? Math.round(((item.submittedPrice - baselinePrice) / baselinePrice) * 100)
+                : 0;
 
               return (
                 <div
@@ -234,21 +242,23 @@ export default function AdminModerationPage() {
                 >
                   {/* Top Bar: Flag Badge & Timestamp */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Badge
                         variant="outlier"
                         size="sm"
                         icon={<AlertTriangle className="w-3.5 h-3.5 text-rose-600" />}
                       >
-                        {isVarianceOutlier ? 'Statistical Outlier (>3σ)' : 'Low OCR Confidence (<80%)'}
+                        {isVarianceOutlier
+                          ? `Statistical Outlier (${item.pricePoint?.outlierZScore ? `Z: +${item.pricePoint.outlierZScore.toFixed(1)}σ` : '>3σ'})`
+                          : `Low OCR Confidence (${item.pricePoint?.confidenceScore ?? '<80'}%)`}
                       </Badge>
 
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-slate-600">
                         Product: <strong className="text-slate-900">{item.productName}</strong>
                       </span>
                     </div>
 
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-[11px] text-slate-500 font-mono tabular-nums">
                       Submitted {formatRelativeTime(item.submittedAt)}
                     </span>
                   </div>
@@ -304,9 +314,16 @@ export default function AdminModerationPage() {
                           <span className="text-[10px] font-bold uppercase text-slate-500">
                             Submitted Price
                           </span>
-                          <p className="text-lg font-extrabold font-mono text-rose-600 tabular-nums">
-                            {formatCurrency(item.submittedPrice)}
-                          </p>
+                          <div className="flex items-baseline gap-1.5 flex-wrap">
+                            <p className="text-lg font-extrabold font-mono text-rose-600 tabular-nums">
+                              {formatCurrency(item.submittedPrice)}
+                            </p>
+                            {hasPriceSpike && (
+                              <span className="text-[11px] font-mono font-bold text-rose-600 tabular-nums">
+                                (+{spikePct}%)
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[11px] text-slate-600">
                             Observed at {item.storeName}
                           </span>
@@ -314,13 +331,13 @@ export default function AdminModerationPage() {
 
                         <div>
                           <span className="text-[10px] font-bold uppercase text-slate-500">
-                            Historical Lowest
+                            Catalog Benchmark
                           </span>
                           <p className="text-lg font-extrabold font-mono text-slate-900 tabular-nums">
-                            {formatCurrency(item.previousPrice || 4.89)}
+                            {baselinePrice > 0 ? formatCurrency(baselinePrice) : 'Unbenchmarked'}
                           </p>
-                          <span className="text-[11px] text-emerald-600 font-semibold">
-                            Normal catalog range
+                          <span className="text-[11px] text-slate-600 font-medium">
+                            {item.previousPrice ? 'Recent observed lowest' : 'Catalog reference price'}
                           </span>
                         </div>
                       </div>
@@ -355,11 +372,14 @@ export default function AdminModerationPage() {
                         size="md"
                         onClick={() => {
                           setAdjustingItem(item);
-                          setAdjustedPriceInput(
-                            item.submittedPrice > 20
-                              ? (item.submittedPrice / 10).toFixed(2)
-                              : item.submittedPrice.toFixed(2)
-                          );
+                          let suggested = item.submittedPrice;
+                          if (baselinePrice > 0 && item.submittedPrice > baselinePrice * 3 && item.submittedPrice >= 10) {
+                            const dividedBy10 = item.submittedPrice / 10;
+                            if (Math.abs(dividedBy10 - baselinePrice) < baselinePrice) {
+                              suggested = dividedBy10;
+                            }
+                          }
+                          setAdjustedPriceInput(suggested.toFixed(2));
                         }}
                         leftIcon={<Edit2 className="w-4 h-4" />}
                         className="min-h-[44px]"
