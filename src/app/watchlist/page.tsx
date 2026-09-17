@@ -43,6 +43,9 @@ export default function WatchlistPage() {
   // Basket quantities state: Record<productId, quantity>
   const [basketQuantities, setBasketQuantities] = useState<Record<string, number>>({});
 
+  // Itinerary Routing Mode: 'smart' (max 2 stores with friction gate), 'all' (absolute lowest), 'single' (1-stop)
+  const [itineraryMode, setItineraryMode] = useState<'smart' | 'all' | 'single'>('smart');
+
   // Alert Edit Modal state
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
   const [newTargetPrice, setNewTargetPrice] = useState<number>(0);
@@ -204,7 +207,22 @@ export default function WatchlistPage() {
     singleStoreResults.sort((a, b) => a.totalCost - b.totalCost);
     const bestSingleStore = singleStoreResults[0];
 
-    // 2. Optimal Split-Trip Calculation: Pick cheapest store per item
+    // 2. Multi-Store Split-Trip Calculation
+    // Build lookup of price for each active product at each store
+    const itemStorePrice: Record<string, Record<string, { price: number; isListed: boolean }>> = {};
+    activeBasketItems.forEach((item) => {
+      const prod = item.product!;
+      itemStorePrice[prod.id] = {};
+      stores.forEach((store) => {
+        const hp = prod.historicalPrices?.find((p) => p.storeId === store.id);
+        if (hp) {
+          itemStorePrice[prod.id][store.id] = { price: hp.price, isListed: true };
+        } else {
+          itemStorePrice[prod.id][store.id] = { price: prod.currentLowestPrice * 1.15, isListed: false };
+        }
+      });
+    });
+
     let splitTripTotal = 0;
     const splitTripBreakdownByStore: Record<
       string,
@@ -215,60 +233,182 @@ export default function WatchlistPage() {
       }
     > = {};
 
-    activeBasketItems.forEach((item) => {
-      const prod = item.product!;
-      const qty = basketQuantities[item.productId] || 1;
+    if (itineraryMode === 'single') {
+      // 1-Stop Mode: 100% from best single store
+      splitTripTotal = bestSingleStore.totalCost;
+      activeBasketItems.forEach((item) => {
+        const prod = item.product!;
+        const qty = basketQuantities[item.productId] || 1;
+        const info = itemStorePrice[prod.id]?.[bestSingleStore.storeId];
+        const unitPrice = info?.price || prod.currentLowestPrice;
+        const subtotal = Number((unitPrice * qty).toFixed(2));
 
-      // Find cheapest price across all stores for this product
-      let lowestPrice = prod.currentLowestPrice;
-      let cheapestStoreName = 'Target';
+        if (!splitTripBreakdownByStore[bestSingleStore.storeName]) {
+          splitTripBreakdownByStore[bestSingleStore.storeName] = {
+            storeName: bestSingleStore.storeName,
+            items: [],
+            subtotal: 0,
+          };
+        }
+        splitTripBreakdownByStore[bestSingleStore.storeName].items.push({
+          productName: prod.name,
+          unitPrice,
+          qty,
+          subtotal,
+        });
+        splitTripBreakdownByStore[bestSingleStore.storeName].subtotal += subtotal;
+      });
+    } else if (itineraryMode === 'smart') {
+      // Smart Mode: Evaluate best 2-store combination vs best 1-store
+      let bestPairCost = Infinity;
+      let bestPair: [Store, Store] | null = null;
 
-      if (prod.historicalPrices && prod.historicalPrices.length > 0) {
-        prod.historicalPrices.forEach((hp) => {
-          if (hp.price <= lowestPrice) {
-            lowestPrice = hp.price;
-            cheapestStoreName = hp.storeName;
+      for (let i = 0; i < stores.length; i++) {
+        for (let j = i + 1; j < stores.length; j++) {
+          const storeA = stores[i];
+          const storeB = stores[j];
+          let pairCost = 0;
+
+          activeBasketItems.forEach((item) => {
+            const prod = item.product!;
+            const qty = basketQuantities[item.productId] || 1;
+            const priceA = itemStorePrice[prod.id]?.[storeA.id]?.price || prod.currentLowestPrice * 1.15;
+            const priceB = itemStorePrice[prod.id]?.[storeB.id]?.price || prod.currentLowestPrice * 1.15;
+            pairCost += Math.min(priceA, priceB) * qty;
+          });
+
+          if (pairCost < bestPairCost) {
+            bestPairCost = pairCost;
+            bestPair = [storeA, storeB];
           }
+        }
+      }
+
+      // Check if 2-store split beats 1-store by at least $2.50 (transit friction threshold)
+      const potentialSavings = bestSingleStore.totalCost - bestPairCost;
+      if (bestPair && potentialSavings >= 2.50) {
+        // Recommend 2-store split trip
+        const [storeA, storeB] = bestPair;
+        activeBasketItems.forEach((item) => {
+          const prod = item.product!;
+          const qty = basketQuantities[item.productId] || 1;
+          const priceA = itemStorePrice[prod.id]?.[storeA.id]?.price || prod.currentLowestPrice * 1.15;
+          const priceB = itemStorePrice[prod.id]?.[storeB.id]?.price || prod.currentLowestPrice * 1.15;
+
+          const chosenStore = priceA <= priceB ? storeA : storeB;
+          const unitPrice = Math.min(priceA, priceB);
+          const subtotal = Number((unitPrice * qty).toFixed(2));
+          splitTripTotal += subtotal;
+
+          if (!splitTripBreakdownByStore[chosenStore.name]) {
+            splitTripBreakdownByStore[chosenStore.name] = {
+              storeName: chosenStore.name,
+              items: [],
+              subtotal: 0,
+            };
+          }
+          splitTripBreakdownByStore[chosenStore.name].items.push({
+            productName: prod.name,
+            unitPrice,
+            qty,
+            subtotal,
+          });
+          splitTripBreakdownByStore[chosenStore.name].subtotal += subtotal;
+        });
+      } else {
+        // 1 store is recommended because savings does not clear driving friction
+        splitTripTotal = bestSingleStore.totalCost;
+        activeBasketItems.forEach((item) => {
+          const prod = item.product!;
+          const qty = basketQuantities[item.productId] || 1;
+          const info = itemStorePrice[prod.id]?.[bestSingleStore.storeId];
+          const unitPrice = info?.price || prod.currentLowestPrice;
+          const subtotal = Number((unitPrice * qty).toFixed(2));
+
+          if (!splitTripBreakdownByStore[bestSingleStore.storeName]) {
+            splitTripBreakdownByStore[bestSingleStore.storeName] = {
+              storeName: bestSingleStore.storeName,
+              items: [],
+              subtotal: 0,
+            };
+          }
+          splitTripBreakdownByStore[bestSingleStore.storeName].items.push({
+            productName: prod.name,
+            unitPrice,
+            qty,
+            subtotal,
+          });
+          splitTripBreakdownByStore[bestSingleStore.storeName].subtotal += subtotal;
         });
       }
+    } else {
+      // 'all': Absolute lowest price across all stores
+      activeBasketItems.forEach((item) => {
+        const prod = item.product!;
+        const qty = basketQuantities[item.productId] || 1;
 
-      const itemSubtotal = Number((lowestPrice * qty).toFixed(2));
-      splitTripTotal += itemSubtotal;
+        let lowestPrice = prod.currentLowestPrice;
+        let cheapestStoreName = item.cheapestStoreName || prod.historicalPrices?.[0]?.storeName || stores[0]?.name || 'Local Store';
 
-      if (!splitTripBreakdownByStore[cheapestStoreName]) {
-        splitTripBreakdownByStore[cheapestStoreName] = {
-          storeName: cheapestStoreName,
-          items: [],
-          subtotal: 0,
-        };
-      }
+        if (prod.historicalPrices && prod.historicalPrices.length > 0) {
+          prod.historicalPrices.forEach((hp) => {
+            if (hp.price <= lowestPrice) {
+              lowestPrice = hp.price;
+              cheapestStoreName = hp.storeName;
+            }
+          });
+        }
 
-      splitTripBreakdownByStore[cheapestStoreName].items.push({
-        productName: prod.name,
-        unitPrice: lowestPrice,
-        qty,
-        subtotal: itemSubtotal,
+        const itemSubtotal = Number((lowestPrice * qty).toFixed(2));
+        splitTripTotal += itemSubtotal;
+
+        if (!splitTripBreakdownByStore[cheapestStoreName]) {
+          splitTripBreakdownByStore[cheapestStoreName] = {
+            storeName: cheapestStoreName,
+            items: [],
+            subtotal: 0,
+          };
+        }
+
+        splitTripBreakdownByStore[cheapestStoreName].items.push({
+          productName: prod.name,
+          unitPrice: lowestPrice,
+          qty,
+          subtotal: itemSubtotal,
+        });
+        splitTripBreakdownByStore[cheapestStoreName].subtotal += itemSubtotal;
       });
-      splitTripBreakdownByStore[cheapestStoreName].subtotal += itemSubtotal;
-    });
+    }
 
     splitTripTotal = Number(splitTripTotal.toFixed(2));
-    const totalSavingsDollar = Number((bestSingleStore.totalCost - splitTripTotal).toFixed(2));
+    const totalSavingsDollar = Number(Math.max(0, bestSingleStore.totalCost - splitTripTotal).toFixed(2));
     const totalSavingsPercent =
       bestSingleStore.totalCost > 0
         ? Number(((totalSavingsDollar / bestSingleStore.totalCost) * 100).toFixed(1))
         : 0;
 
+    const breakdownList = Object.values(splitTripBreakdownByStore);
+    const storeCount = breakdownList.length;
+    const transitFrictionPerStop = 2.50; // $2.50 estimated fuel and time per extra store stop
+    const transitCost = storeCount > 1 ? Number(((storeCount - 1) * transitFrictionPerStop).toFixed(2)) : 0;
+    const netSavingsDollar = Number(Math.max(0, totalSavingsDollar - transitCost).toFixed(2));
+    const isSplitRecommended = storeCount > 1 && totalSavingsDollar >= 2.50;
+
     return {
       activeItemCount: activeBasketItems.length,
+      itineraryMode,
       singleStoreResults,
       bestSingleStore,
       splitTripTotal,
-      splitTripBreakdownByStore: Object.values(splitTripBreakdownByStore),
+      splitTripBreakdownByStore: breakdownList,
       totalSavingsDollar,
       totalSavingsPercent,
+      storeCount,
+      transitCost,
+      netSavingsDollar,
+      isSplitRecommended,
     };
-  }, [watchlistProducts, basketQuantities, stores]);
+  }, [watchlistProducts, basketQuantities, stores, itineraryMode]);
 
   return (
     <div className="space-y-6">
@@ -513,40 +653,117 @@ export default function WatchlistPage() {
             </div>
           ) : (
             <div className="space-y-4">
+              {/* Itinerary Routing Mode Selector */}
+              <div className="flex items-center justify-between p-1 bg-slate-100/90 rounded-2xl border border-slate-200/80 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setItineraryMode('smart')}
+                  className={cn(
+                    'flex-1 py-1.5 px-2 rounded-xl font-bold transition-all text-center min-h-[38px] touch-target',
+                    itineraryMode === 'smart'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  Smart 2-Stop
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setItineraryMode('all')}
+                  className={cn(
+                    'flex-1 py-1.5 px-2 rounded-xl font-bold transition-all text-center min-h-[38px] touch-target',
+                    itineraryMode === 'all'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  All Stores
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setItineraryMode('single')}
+                  className={cn(
+                    'flex-1 py-1.5 px-2 rounded-xl font-bold transition-all text-center min-h-[38px] touch-target',
+                    itineraryMode === 'single'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  1-Stop Only
+                </button>
+              </div>
+
               {/* Savings Highlight Hero Card */}
               <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-surface border border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1">
                     <TrendingDown className="w-3.5 h-3.5" />
-                    Split-Trip Savings
+                    {basketOptimization.isSplitRecommended
+                      ? `Split-Trip Savings (${basketOptimization.storeCount} Stores)`
+                      : 'Single-Store Trip Recommended'}
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-400 text-emerald-950 tabular-nums">
-                    Save {basketOptimization.totalSavingsPercent}%
+                    {basketOptimization.isSplitRecommended
+                      ? `Save ${basketOptimization.totalSavingsPercent}%`
+                      : 'Zero Driving Friction'}
                   </span>
                 </div>
 
                 <div className="flex items-baseline justify-between">
                   <div>
-                    <span className="text-xs text-slate-300">Optimal Split Trip Total:</span>
+                    <span className="text-xs text-slate-300">
+                      {basketOptimization.isSplitRecommended ? 'Optimal Split Trip Total:' : 'Recommended 1-Stop Total:'}
+                    </span>
                     <h3 className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-400 tabular-nums">
                       {formatCurrency(basketOptimization.splitTripTotal)}
                     </h3>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-xs text-slate-400">Total Savings:</span>
+                    <span className="text-xs text-slate-400">
+                      {basketOptimization.isSplitRecommended ? 'Gross Savings:' : 'Optimal Retailer:'}
+                    </span>
                     <p className="text-base font-extrabold font-mono text-white tabular-nums">
-                      +{formatCurrency(basketOptimization.totalSavingsDollar)}
+                      {basketOptimization.isSplitRecommended
+                        ? `+${formatCurrency(basketOptimization.totalSavingsDollar)}`
+                        : basketOptimization.bestSingleStore.storeName}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-white/10 text-[11px] text-slate-300 flex items-center justify-between">
-                  <span>Best Single Store ({basketOptimization.bestSingleStore.storeName}):</span>
-                  <strong className="font-mono text-white tabular-nums">
-                    {formatCurrency(basketOptimization.bestSingleStore.totalCost)}
-                  </strong>
-                </div>
+                {basketOptimization.isSplitRecommended ? (
+                  <div className="pt-3 border-t border-white/10 text-[11px] text-slate-300 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span>Estimated Transit Friction ({basketOptimization.storeCount - 1} extra stop):</span>
+                      <strong className="font-mono text-amber-300 tabular-nums">
+                        -{formatCurrency(basketOptimization.transitCost)}
+                      </strong>
+                    </div>
+                    <div className="flex items-center justify-between font-bold text-white pt-1 border-t border-white/5">
+                      <span>Net Estimated Benefit:</span>
+                      <span className="font-mono text-emerald-400 tabular-nums">
+                        +{formatCurrency(basketOptimization.netSavingsDollar)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-400 pt-1">
+                      <span>Best 1-Stop Alternative ({basketOptimization.bestSingleStore.storeName}):</span>
+                      <span className="font-mono text-slate-300 tabular-nums">
+                        {formatCurrency(basketOptimization.bestSingleStore.totalCost)}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="pt-3 border-t border-white/10 text-[11px] text-slate-300 flex items-center justify-between">
+                    <span>
+                      {itineraryMode === 'single'
+                        ? `Best 1-Stop (${basketOptimization.bestSingleStore.storeName}):`
+                        : `Split savings (<$2.50) is less than transit friction. 1-Stop at ${basketOptimization.bestSingleStore.storeName} is best:`}
+                    </span>
+                    <strong className="font-mono text-white tabular-nums">
+                      {formatCurrency(basketOptimization.bestSingleStore.totalCost)}
+                    </strong>
+                  </div>
+                )}
               </div>
 
               {/* Single-Store Ranking Table */}
@@ -627,8 +844,8 @@ export default function WatchlistPage() {
                     <Split className="w-3.5 h-3.5 text-indigo-600" />
                     Split-Trip Routing Breakdown
                   </h4>
-                  <span className="text-[11px] text-slate-400">
-                    {basketOptimization.splitTripBreakdownByStore.length} Stores
+                  <span className="text-[11px] text-slate-500 font-medium font-mono tabular-nums">
+                    {basketOptimization.splitTripBreakdownByStore.length} {basketOptimization.splitTripBreakdownByStore.length === 1 ? 'Store' : 'Stores'}
                   </span>
                 </div>
 
