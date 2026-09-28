@@ -154,7 +154,7 @@ export default function AdminModerationPage() {
   return (
     <div className="space-y-6">
       {/* Admin Header Banner */}
-      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface">
+      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface-premium">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-xl space-y-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -224,7 +224,7 @@ export default function AdminModerationPage() {
 
         {queue.length === 0 ? (
           /* Empty Queue State */
-          <div className="p-10 sm:p-14 text-center bg-white rounded-3xl border border-slate-200/90 shadow-surface space-y-4">
+          <div className="p-10 sm:p-14 text-center bg-white rounded-3xl border border-slate-200/90 shadow-surface-premium space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-7 h-7" />
             </div>
@@ -264,7 +264,7 @@ export default function AdminModerationPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface hover:shadow-ambient-lift transition-all space-y-5"
+                  className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface-premium hover:shadow-ambient-lift transition-all duration-200 ease-spring space-y-5"
                 >
                   {/* Top Bar: Flag Badge & Timestamp */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">

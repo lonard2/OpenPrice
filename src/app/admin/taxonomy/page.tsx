@@ -330,7 +330,7 @@ export default function AdminTaxonomyPage() {
       </div>
 
       {/* Main Header Banner */}
-      <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-surface">
+      <section className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-surface-premium">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
@@ -405,7 +405,7 @@ export default function AdminTaxonomyPage() {
             </Button>
           </div>
 
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-surface overflow-hidden">
+          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-surface-premium overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
@@ -490,7 +490,7 @@ export default function AdminTaxonomyPage() {
       {activeTab === 'categories' && (
         <section className="space-y-5">
           {/* Basket Calibration & Allocation Bar */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface space-y-4">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface-premium space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -614,7 +614,7 @@ export default function AdminTaxonomyPage() {
               return (
                 <div
                   key={catKey}
-                  className="bg-white rounded-3xl border border-slate-200/90 p-5 shadow-surface flex flex-col justify-between space-y-4"
+                  className="bg-white rounded-3xl border border-slate-200/90 p-5 shadow-surface-premium hover:shadow-ambient-lift transition-all duration-200 ease-spring flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">

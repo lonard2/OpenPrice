@@ -417,7 +417,7 @@ export default function WatchlistPage() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <section className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface">
+      <section className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface-premium">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -453,7 +453,7 @@ export default function WatchlistPage() {
 
           {watchlist.length === 0 ? (
             /* Empty State */
-            <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-slate-200/90 shadow-surface space-y-4">
+            <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-slate-200/90 shadow-surface-premium space-y-4">
               <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
                 <Bookmark className="w-7 h-7" />
               </div>
@@ -498,7 +498,7 @@ export default function WatchlistPage() {
                 return (
                   <div
                     key={item.productId}
-                    className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-surface hover:shadow-ambient-lift transition-all space-y-3"
+                    className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-surface-premium hover:shadow-ambient-lift transition-all duration-200 ease-spring space-y-3"
                   >
                     {/* Top Identity Cluster with Packaging Thumbnail */}
                     <div className="flex items-start gap-3.5">
@@ -642,7 +642,7 @@ export default function WatchlistPage() {
           </div>
 
           {!basketOptimization ? (
-            <div className="p-8 text-center bg-white rounded-3xl border border-slate-200/90 shadow-surface space-y-3">
+            <div className="p-8 text-center bg-white rounded-3xl border border-slate-200/90 shadow-surface-premium space-y-3">
               <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto" />
               <h4 className="text-sm font-bold text-slate-800">
                 No items in active basket
@@ -694,7 +694,7 @@ export default function WatchlistPage() {
               </div>
 
               {/* Savings Highlight Hero Card */}
-              <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-surface border border-slate-800 space-y-4">
+              <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-surface-premium border border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1">
                     <TrendingDown className="w-3.5 h-3.5" />
@@ -767,7 +767,7 @@ export default function WatchlistPage() {
               </div>
 
               {/* Single-Store Ranking Table */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface space-y-3">
+              <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface-premium space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                     Single-Store Checkout Ranking
@@ -838,7 +838,7 @@ export default function WatchlistPage() {
               </div>
 
               {/* Optimal Split-Trip Multi-Store Routing Breakdown */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface space-y-3">
+              <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface-premium space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                     <Split className="w-3.5 h-3.5 text-indigo-600" />

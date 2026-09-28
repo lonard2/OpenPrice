@@ -985,7 +985,7 @@ export default function ContributePage() {
   return (
     <div className="space-y-6">
       {/* Contributor Header Banner */}
-      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface">
+      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface-premium">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-xl space-y-2.5">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -1010,7 +1010,7 @@ export default function ContributePage() {
           </div>
 
           {/* Karma Points Dashboard Card */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 border border-slate-200/80 shadow-surface min-w-[280px] shrink-0 space-y-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 border border-slate-200/80 shadow-surface-premium min-w-[280px] shrink-0 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
@@ -1137,7 +1137,7 @@ export default function ContributePage() {
           />
 
           {/* Document Provenance & Retailer Attribution Header */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface-premium">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
@@ -1201,7 +1201,7 @@ export default function ContributePage() {
 
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
             {/* Interactive Image Preview with Bounding Box Overlay */}
-            <div className="xl:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-4 shadow-surface flex flex-col gap-3">
+            <div className="xl:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-4 shadow-surface-premium flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-800">
@@ -1347,7 +1347,7 @@ export default function ContributePage() {
         {/* TAB 2: Store Flyers & Weekly Circulars */}
         <TabPanel value="flyer-circular" className="space-y-6">
           {/* Circular Selector & Upload Bar */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface space-y-4">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface-premium space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900">
@@ -1389,7 +1389,7 @@ export default function ContributePage() {
                     'p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-start justify-between gap-2 touch-target min-h-[44px]',
                     flyerImageUrl === sample.imageUrl
                       ? 'bg-indigo-50/70 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
-                      : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80 shadow-surface'
+                      : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80 shadow-surface-premium'
                   )}
                 >
                   <div className="space-y-1">
@@ -1434,7 +1434,7 @@ export default function ContributePage() {
         {/* TAB 3: Direct Manual Observation */}
         <TabPanel value="manual-crud" className="space-y-6">
           {/* Header Card matching Tab 1 and Tab 2 */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface-premium">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
@@ -1484,7 +1484,7 @@ export default function ContributePage() {
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               {/* Left Column (5 cols): Product Selection, Market Benchmark, Proof Photo */}
-              <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface flex flex-col justify-between gap-5">
+              <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface-premium flex flex-col justify-between gap-5">
                 <div className="space-y-5">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-2">
@@ -1663,7 +1663,7 @@ export default function ContributePage() {
               </div>
 
               {/* Right Column (7 cols): Store, Category, Date, Price, Original Price, Unit, Notes, Submit */}
-              <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface flex flex-col justify-between gap-5">
+              <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface-premium flex flex-col justify-between gap-5">
                 <div className="space-y-5">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-2">
@@ -1828,7 +1828,7 @@ export default function ContributePage() {
         {/* TAB 4: Web URL Metadata Importer */}
         <TabPanel value="web-url" className="space-y-6">
           {/* Header Card matching Tab 1, 2, and 3 */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface">
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-surface-premium">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
@@ -1859,7 +1859,7 @@ export default function ContributePage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Left Column (5 cols): URL Input, Sample Presets, Scraper Guidelines */}
-            <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface flex flex-col justify-between gap-5">
+            <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface-premium flex flex-col justify-between gap-5">
               <div className="space-y-5">
                 {/* Scraper Error Notice Banner */}
                 {webError && (
@@ -1994,7 +1994,7 @@ export default function ContributePage() {
             </div>
 
             {/* Right Column (7 cols): Reconcile Scraped Listing Form or Ready State */}
-            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface flex flex-col justify-between gap-5">
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-surface-premium flex flex-col justify-between gap-5">
               {webParsedPreview ? (
                 <div
                   aria-live="polite"
@@ -2231,7 +2231,7 @@ export default function ContributePage() {
       </Tabs>
 
       {/* Karma Activity Feed */}
-      <section className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface space-y-4">
+      <section className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface-premium space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900">
