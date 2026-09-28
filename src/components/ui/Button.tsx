@@ -25,17 +25,17 @@ export interface ButtonProps
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-sm hover:shadow-indigo-500/20 active:scale-[0.98] border border-transparent',
+    'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-btn-primary hover:shadow-indigo-500/25 active:scale-[0.98] border border-transparent',
   secondary:
-    'bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-200/90 active:scale-[0.98]',
+    'bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-200/90 shadow-sm active:scale-[0.98]',
   outline:
     'bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-300 shadow-sm active:scale-[0.98]',
   ghost:
     'bg-transparent hover:bg-slate-100 active:bg-slate-200 text-slate-600 hover:text-slate-900 border border-transparent active:scale-[0.98]',
   danger:
-    'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-sm hover:shadow-rose-500/20 active:scale-[0.98] border border-transparent',
+    'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.22)] hover:shadow-rose-500/25 active:scale-[0.98] border border-transparent',
   success:
-    'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-sm hover:shadow-emerald-500/20 active:scale-[0.98] border border-transparent',
+    'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.22)] hover:shadow-emerald-500/25 active:scale-[0.98] border border-transparent',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -69,7 +69,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-busy={isLoading}
         className={cn(
-          'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150',
+          'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 ease-spring',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
           'disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed select-none',
           variantStyles[variant],

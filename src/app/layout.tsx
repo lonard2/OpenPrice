@@ -62,6 +62,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} ${jetbrainsMono.variable}`}>
       <body className="flex min-h-screen flex-col font-sans bg-slate-50 text-slate-900">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-50 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+          Skip to main content
+        </a>
         <RoleProvider>
           <ToastProvider>
             {/* Glassmorphic Sticky Header */}
@@ -77,7 +83,7 @@ export default function RootLayout({
               </aside>
 
               {/* Central Main Surface */}
-              <main className="flex-1 min-w-0">
+              <main id="main-content" className="flex-1 min-w-0">
                 {children}
               </main>
             </div>

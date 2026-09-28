@@ -18,6 +18,8 @@
     color: #0f172a;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     min-height: 100vh;
   }
 
@@ -37,13 +39,21 @@
 }
 
 @layer components {
-  /* Subtle Ambient Lift Utilities */
+  /* Subtle Ambient Lift Utilities & Premium Surfaces */
   .card-surface {
-    @apply bg-white border border-slate-200/90 rounded-2xl shadow-surface transition-all duration-200;
+    @apply bg-white border border-slate-200/90 rounded-2xl shadow-surface-premium transition-all duration-200;
   }
   
   .card-ambient-hover {
     @apply hover:border-indigo-200/80 hover:shadow-ambient-lift hover:-translate-y-0.5;
+  }
+
+  .surface-premium {
+    @apply bg-white border border-slate-200/90 rounded-2xl shadow-surface-premium transition-all duration-200 ease-spring;
+  }
+
+  .surface-premium-hover {
+    @apply hover:border-indigo-200/90 hover:shadow-ambient-lift hover:-translate-y-0.5 transition-all duration-200 ease-spring;
   }
 
   .glass-header {
@@ -51,7 +61,7 @@
   }
 
   .glass-card {
-    @apply bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl;
+    @apply bg-white/85 backdrop-blur-md border border-slate-200/80 rounded-2xl shadow-surface-premium;
   }
 
   /* Verified Ribbon Badge */

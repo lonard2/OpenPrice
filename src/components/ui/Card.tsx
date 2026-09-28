@@ -26,14 +26,14 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          'relative rounded-2xl transition-all duration-200 overflow-hidden text-left',
+          'relative rounded-2xl transition-all duration-200 ease-spring overflow-hidden text-left',
           variant === 'default' &&
-            'bg-white border border-slate-200/90 shadow-surface',
+            'bg-white border border-slate-200/90 shadow-surface-premium',
           variant === 'flat' && 'bg-slate-50 border border-slate-200/70',
           variant === 'glass' &&
-            'bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-surface',
+            'bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-surface-premium',
           isInteractive &&
-            'hover:border-indigo-200 hover:shadow-ambient-lift hover:-translate-y-0.5 cursor-pointer',
+            'hover:border-indigo-200/90 hover:shadow-ambient-lift hover:-translate-y-0.5 cursor-pointer',
           className
         )}
         {...props}
