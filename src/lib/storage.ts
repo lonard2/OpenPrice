@@ -352,18 +352,20 @@ export function resetCategoryWeights(): void {
   localStorage.removeItem(STORAGE_KEYS.CATEGORY_WEIGHTS);
   // Restore initial weights from seed
   const defaultWeights: Record<ProductCategory, number> = {
-    groceries: 0.20,
-    meat_seafood: 0.12,
-    bakery: 0.08,
-    beverages: 0.10,
-    household: 0.10,
-    personal_care: 0.08,
-    pharmacy: 0.08,
-    baby_care: 0.06,
-    pet_supplies: 0.06,
+    groceries: 0.17,
+    meat_seafood: 0.10,
+    bakery: 0.07,
+    beverages: 0.08,
+    household: 0.08,
+    personal_care: 0.06,
+    pharmacy: 0.06,
+    baby_care: 0.05,
+    pet_supplies: 0.05,
     electronics: 0.05,
     apparel: 0.04,
     services: 0.03,
+    subscriptions: 0.08,
+    vehicles_automotive: 0.08,
   };
   for (const [cat, weight] of Object.entries(defaultWeights)) {
     if (CATEGORY_METADATA[cat as ProductCategory]) {

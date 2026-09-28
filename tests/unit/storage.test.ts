@@ -131,12 +131,14 @@ describe('Unit Tests: storage.ts', () => {
   });
 
   describe('Stores Storage', () => {
-    it('returns all 7 seed stores', () => {
+    it('returns all seed stores', () => {
       const stores = getStoredStores();
-      assert.strictEqual(stores.length, 7);
+      assert.strictEqual(stores.length, 9);
       assert.ok(stores.some((s) => s.id === 'store-target'));
       assert.ok(stores.some((s) => s.id === 'store-walmart'));
       assert.ok(stores.some((s) => s.id === 'store-trader-joes'));
+      assert.ok(stores.some((s) => s.id === 'store-direct-sub'));
+      assert.ok(stores.some((s) => s.id === 'store-metro-motors'));
     });
 
     it('saves a new store and persists to storage', () => {
@@ -153,7 +155,7 @@ describe('Unit Tests: storage.ts', () => {
 
       saveStore(newStore);
       const stores = getStoredStores();
-      assert.strictEqual(stores.length, 8);
+      assert.strictEqual(stores.length, 10);
       const saved = stores.find((s) => s.id === 'store-heb');
       assert.ok(saved);
       assert.strictEqual(saved?.name, 'H-E-B Supermarket');
@@ -191,11 +193,13 @@ describe('Unit Tests: storage.ts', () => {
     it('returns default category weights on initial call', () => {
       const metadata = getStoredCategoryMetadata();
       assert.ok(metadata.groceries);
-      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.20);
-      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.10);
-      assert.strictEqual(metadata.household.inflationBasketWeight, 0.10);
-      assert.strictEqual(metadata.bakery.inflationBasketWeight, 0.08);
-      assert.strictEqual(metadata.meat_seafood.inflationBasketWeight, 0.12);
+      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.17);
+      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.08);
+      assert.strictEqual(metadata.household.inflationBasketWeight, 0.08);
+      assert.strictEqual(metadata.bakery.inflationBasketWeight, 0.07);
+      assert.strictEqual(metadata.meat_seafood.inflationBasketWeight, 0.10);
+      assert.strictEqual(metadata.subscriptions.inflationBasketWeight, 0.08);
+      assert.strictEqual(metadata.vehicles_automotive.inflationBasketWeight, 0.08);
     });
 
     it('saves and overrides an individual category basket weight', () => {
@@ -206,25 +210,27 @@ describe('Unit Tests: storage.ts', () => {
 
     it('saves a full mapping of normalized category weights', () => {
       const customWeights = {
-        groceries: 0.25,
-        meat_seafood: 0.15,
-        bakery: 0.10,
-        beverages: 0.10,
-        household: 0.10,
-        personal_care: 0.08,
-        pharmacy: 0.08,
+        groceries: 0.20,
+        meat_seafood: 0.12,
+        bakery: 0.08,
+        beverages: 0.08,
+        household: 0.08,
+        personal_care: 0.06,
+        pharmacy: 0.06,
         baby_care: 0.04,
         pet_supplies: 0.04,
-        electronics: 0.03,
-        apparel: 0.02,
-        services: 0.01,
+        electronics: 0.04,
+        apparel: 0.04,
+        services: 0.02,
+        subscriptions: 0.07,
+        vehicles_automotive: 0.07,
       };
 
       saveCategoryWeights(customWeights);
       const metadata = getStoredCategoryMetadata();
-      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.25);
-      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.10);
-      assert.strictEqual(metadata.apparel.inflationBasketWeight, 0.02);
+      assert.strictEqual(metadata.groceries.inflationBasketWeight, 0.20);
+      assert.strictEqual(metadata.beverages.inflationBasketWeight, 0.08);
+      assert.strictEqual(metadata.apparel.inflationBasketWeight, 0.04);
 
       const sum = Object.values(metadata).reduce((acc, c) => acc + c.inflationBasketWeight, 0);
       assert.strictEqual(Number(sum.toFixed(2)), 1.00);
@@ -235,7 +241,7 @@ describe('Unit Tests: storage.ts', () => {
       assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.70);
 
       resetCategoryWeights();
-      assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.20);
+      assert.strictEqual(getStoredCategoryMetadata().groceries.inflationBasketWeight, 0.17);
     });
 
     it('saves custom category and retrieves it in stored category metadata', () => {

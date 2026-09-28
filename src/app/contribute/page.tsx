@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   TrendingDown,
   Tag,
+  PlusCircle,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/ui/Tabs';
@@ -32,6 +33,7 @@ import { PhotoUploader } from '@/components/ocr/PhotoUploader';
 import { BoundingBoxOverlay } from '@/components/ocr/BoundingBoxOverlay';
 import { ExtractedFieldEditor } from '@/components/ocr/ExtractedFieldEditor';
 import { PamphletViewer } from '@/components/ocr/PamphletViewer';
+import { CreateProductModal } from '@/components/product/CreateProductModal';
 import { useToast } from '@/components/ui/Toast';
 import {
   getStoredKarma,
@@ -327,6 +329,7 @@ export default function ContributePage() {
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [proofFileName, setProofFileName] = useState<string>('');
   const [isSubmittingManual, setIsSubmittingManual] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const manualFormRef = useRef<HTMLFormElement>(null);
 
   // Tab 4 (Web URL) state
@@ -548,6 +551,21 @@ export default function ContributePage() {
       category: prod?.category || prev.category,
       unit: prod?.unit || prev.unit,
       brand: prod?.brand || prev.brand,
+    }));
+  };
+
+  // Handle newly created product from scratch
+  const handleCustomProductCreated = (newProduct: Product) => {
+    setProducts(getStoredProducts());
+    setManualForm((prev) => ({
+      ...prev,
+      productId: newProduct.id,
+      productName: newProduct.name,
+      category: newProduct.category,
+      unit: newProduct.unit,
+      brand: newProduct.brand,
+      price: newProduct.currentLowestPrice.toFixed(2),
+      originalPrice: newProduct.previousPrice ? newProduct.previousPrice.toFixed(2) : '',
     }));
   };
 
@@ -1502,9 +1520,19 @@ export default function ContributePage() {
 
                   {/* Product Select */}
                   <div className="space-y-1.5">
-                    <label htmlFor="manual-product-select" className="text-xs font-bold text-slate-700">
-                      Target Product Catalog Item
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="manual-product-select" className="text-xs font-bold text-slate-700">
+                        Target Product Catalog Item
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 touch-target min-h-[32px] px-2 py-0.5 rounded-lg hover:bg-indigo-50 transition-colors"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5" />
+                        <span>+ Add From Scratch</span>
+                      </button>
+                    </div>
                     <select
                       id="manual-product-select"
                       value={manualForm.productId}
@@ -2433,6 +2461,13 @@ export default function ContributePage() {
           </div>
         </div>
       )}
+
+      {/* From-Scratch Product Creation Modal */}
+      <CreateProductModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCustomProductCreated}
+      />
     </div>
   );
 }

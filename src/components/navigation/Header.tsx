@@ -15,12 +15,15 @@ import {
   Check,
 } from 'lucide-react';
 import { useRoleView } from '@/components/providers/RoleContext';
+import { useTranslation } from '@/components/providers/LocaleContext';
+import { LanguageSwitcher } from '@/components/navigation/LanguageSwitcher';
 import { UserRole } from '@/types/user';
 import { cn } from '@/lib/utils';
 import { getStoredWatchlist, subscribeToStorageChanges } from '@/lib/storage';
 
 export function Header() {
   const { role, setRole } = useRoleView();
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,9 +113,9 @@ export function Header() {
   };
 
   const roleOptions: { id: UserRole; label: string; description: string; icon: React.ReactNode }[] = [
-    { id: 'public', label: 'Public View', description: 'Consumer search & price comparisons', icon: <Users className="w-4 h-4 text-slate-500" /> },
-    { id: 'contributor', label: 'Contributor', description: 'OCR ingestion studio & receipt logging', icon: <UploadCloud className="w-4 h-4 text-indigo-600" /> },
-    { id: 'admin', label: 'Admin Studio', description: 'Audit moderation & taxonomy manager', icon: <Shield className="w-4 h-4 text-amber-600" /> },
+    { id: 'public', label: t('publicView'), description: t('publicDesc'), icon: <Users className="w-4 h-4 text-slate-500" /> },
+    { id: 'contributor', label: t('contributorView'), description: t('contributorDesc'), icon: <UploadCloud className="w-4 h-4 text-indigo-600" /> },
+    { id: 'admin', label: t('adminView'), description: t('adminDesc'), icon: <Shield className="w-4 h-4 text-amber-600" /> },
   ];
 
   const currentRoleConfig = roleOptions.find((r) => r.id === role) || roleOptions[0];
@@ -132,11 +135,11 @@ export function Header() {
                   Open<span className="text-indigo-600">Price</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> {t('liveIndicator')}
                 </span>
               </div>
               <span className="text-[11px] font-medium text-slate-500 -mt-1 hidden sm:inline">
-                Crowdsourced Price Index
+                {t('appSubtitle')}
               </span>
             </div>
           </Link>
@@ -158,15 +161,15 @@ export function Header() {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="Search groceries, electronics, stores... (/)"
-                aria-label="Search OpenPrice catalog"
+                placeholder={t('searchPlaceholder')}
+                aria-label={t('searchPlaceholder')}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50/90 py-2 pl-10 pr-9 text-sm text-slate-900 placeholder-slate-400 hover:border-indigo-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               />
               {searchQuery ? (
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  aria-label="Clear search input"
+                  aria-label={t('clearSearch')}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 touch-target"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -178,21 +181,21 @@ export function Header() {
           <div className="flex-1" />
         )}
 
-        {/* Consumer Actions & Relocated Perspective Popover */}
-        <div className="flex items-center gap-2.5">
+        {/* Consumer Actions, Language Switcher & Perspective Popover */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Primary Action: Log Price / Contribute */}
           <Link
             href="/contribute"
             className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs touch-target min-h-[44px] active:scale-[0.98]"
           >
             <UploadCloud className="w-4 h-4" />
-            <span>Log Price</span>
+            <span>{t('logPrice')}</span>
           </Link>
 
           {/* Quick Watchlist Action with Ambient Count Badge */}
           <Link
             href="/watchlist"
-            aria-label={watchlistCount > 0 ? `View Watchlist (${watchlistCount} items)` : 'View Watchlist'}
+            aria-label={watchlistCount > 0 ? `${t('viewWatchlist')} (${watchlistCount})` : t('viewWatchlist')}
             className="relative flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 transition-colors shrink-0 touch-target min-h-[44px] min-w-[44px] shadow-2xs active:scale-[0.98]"
           >
             <Bookmark className="w-4 h-4" />
@@ -202,6 +205,9 @@ export function Header() {
               </span>
             )}
           </Link>
+
+          {/* Accessible Multi-Language Switcher */}
+          <LanguageSwitcher />
 
           {/* Compact Role / Perspective Dropdown */}
           <div className="relative" ref={roleMenuRef}>

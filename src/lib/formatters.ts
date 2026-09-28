@@ -9,7 +9,8 @@
 export function formatCurrency(
   amount: number,
   currency: string = 'USD',
-  showSign: boolean = false
+  showSign: boolean = false,
+  locale: string = 'en-US'
 ): string {
   if (isNaN(amount) || !isFinite(amount)) {
     return '$0.00';
@@ -31,9 +32,9 @@ export function formatCurrency(
 
   let formattedNum: string;
   if (isJpy) {
-    formattedNum = Math.round(absAmount).toLocaleString('en-US');
+    formattedNum = Math.round(absAmount).toLocaleString(locale);
   } else {
-    formattedNum = absAmount.toLocaleString('en-US', {
+    formattedNum = absAmount.toLocaleString(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });

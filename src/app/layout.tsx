@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { RoleProvider } from '@/components/providers/RoleContext';
+import { LocaleProvider } from '@/components/providers/LocaleContext';
 import { ToastProvider } from '@/components/ui/Toast';
 import { Header } from '@/components/navigation/Header';
 import { DesktopSidebar } from '@/components/navigation/DesktopSidebar';
@@ -68,34 +69,36 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <RoleProvider>
-          <ToastProvider>
-            {/* Glassmorphic Sticky Header */}
-            <Header />
+        <LocaleProvider>
+          <RoleProvider>
+            <ToastProvider>
+              {/* Glassmorphic Sticky Header */}
+              <Header />
 
-            {/* Core Responsive Viewport Container */}
-            <div className="mx-auto flex w-full max-w-7xl 2xl:max-w-[1440px] flex-1 px-4 sm:px-6 lg:px-8 pb-20 lg:pb-8 pt-4 sm:pt-6 gap-6">
-              {/* Desktop Persistent Navigation Sidebar */}
-              <aside className="hidden lg:block w-64 shrink-0">
-                <div className="sticky top-20">
-                  <DesktopSidebar />
-                </div>
-              </aside>
+              {/* Core Responsive Viewport Container */}
+              <div className="mx-auto flex w-full max-w-7xl 2xl:max-w-[1440px] flex-1 px-4 sm:px-6 lg:px-8 pb-20 lg:pb-8 pt-4 sm:pt-6 gap-6">
+                {/* Desktop Persistent Navigation Sidebar */}
+                <aside className="hidden lg:block w-64 shrink-0">
+                  <div className="sticky top-20">
+                    <DesktopSidebar />
+                  </div>
+                </aside>
 
-              {/* Central Main Surface */}
-              <main id="main-content" className="flex-1 min-w-0">
-                {children}
-              </main>
-            </div>
+                {/* Central Main Surface */}
+                <main id="main-content" className="flex-1 min-w-0">
+                  {children}
+                </main>
+              </div>
 
-            {/* Civic Methodology & Transparency Footer */}
-            <Footer />
+              {/* Civic Methodology & Transparency Footer */}
+              <Footer />
 
-            {/* Mobile Bottom Navigation & Quick-Scan Floating Action */}
-            <MobileBottomBar />
-            <QuickScanFAB />
-          </ToastProvider>
-        </RoleProvider>
+              {/* Mobile Bottom Navigation & Quick-Scan Floating Action */}
+              <MobileBottomBar />
+              <QuickScanFAB />
+            </ToastProvider>
+          </RoleProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

@@ -14,7 +14,9 @@ export type CanonicalProductCategory =
   | 'meat_seafood'
   | 'personal_care'
   | 'pet_supplies'
-  | 'baby_care';
+  | 'baby_care'
+  | 'subscriptions'
+  | 'vehicles_automotive';
 
 export type ProductCategory = CanonicalProductCategory | (string & {});
 

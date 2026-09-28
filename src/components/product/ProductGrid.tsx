@@ -1,17 +1,18 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
 import {
   Search,
   SlidersHorizontal,
   ShoppingBag,
-  Camera,
+  PlusCircle,
 } from 'lucide-react';
 import { ProductCard } from '@/components/product/ProductCard';
+import { CreateProductModal } from '@/components/product/CreateProductModal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from '@/components/providers/LocaleContext';
 import type { Product, ProductCategory, CategoryMetadata } from '@/types';
 import { getStoredCategoryMetadata, subscribeToStorageChanges } from '@/lib/storage';
 import { cn } from '@/lib/utils';
@@ -48,9 +49,11 @@ export function ProductGrid({
   categoryMetadata: propCategoryMetadata,
   className,
 }: ProductGridProps) {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [internalCategory, setInternalCategory] = useState<ProductCategory | 'all'>('all');
   const [sortOption, setSortOption] = useState<ProductSortOption>('lowest_price');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [storedCategoryMetadata, setStoredCategoryMetadata] = useState<Record<ProductCategory, CategoryMetadata>>(() =>
     propCategoryMetadata || getStoredCategoryMetadata()
   );
@@ -260,21 +263,32 @@ export function ProductGrid({
         </div>
       )}
 
-      {/* Results Header Count */}
+      {/* Results Header Count & Quick Add Action */}
       <div className="flex items-center justify-between px-1 text-xs text-slate-500">
         <span>
-          Showing <strong className="text-slate-800 font-mono tabular-nums">{filteredProducts.length}</strong>{' '}
-          {filteredProducts.length === 1 ? 'item' : 'items'}
+          {filteredProducts.length === 1
+            ? t('showingItem')
+            : t('showingItems', { count: filteredProducts.length })}
         </span>
-        {searchQuery && (
+        <div className="flex items-center gap-2">
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold px-2 py-1 min-h-[44px] touch-target"
+            >
+              {t('clearSearch')}
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => setSearchQuery('')}
-            className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold px-2 py-1 min-h-[44px] touch-target"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-indigo-600 text-xs font-semibold shadow-2xs transition-colors touch-target min-h-[38px]"
           >
-            Clear search
+            <PlusCircle className="w-3.5 h-3.5 text-indigo-600" />
+            <span>{t('addProductShort')}</span>
           </button>
-        )}
+        </div>
       </div>
 
       {/* Loading Skeletons */}
@@ -319,10 +333,10 @@ export function ProductGrid({
             <ShoppingBag className="w-7 h-7" />
           </div>
           <h4 className="text-lg font-bold text-slate-900 mb-1">
-            No matching products found
+            {t('noResultsTitle')}
           </h4>
           <p className="text-xs sm:text-sm text-slate-500 max-w-sm mb-6">
-            We couldn&apos;t find anything matching &quot;{searchQuery || activeCategory}&quot;. Try adjusting your search query or category filter.
+            {t('noResultsDesc')}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button
@@ -334,18 +348,28 @@ export function ProductGrid({
                 handleCategorySelect('all');
               }}
             >
-              Reset Filters
+              {t('resetFilters')}
             </Button>
-            <Link
-              href={searchQuery.trim() ? `/contribute?name=${encodeURIComponent(searchQuery.trim())}` : '/contribute'}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-ambient-lift transition-all touch-target"
+            <Button
+              variant="primary"
+              size="md"
+              className="min-h-[44px] touch-target font-bold"
+              leftIcon={<PlusCircle className="w-4 h-4" />}
+              onClick={() => setIsCreateModalOpen(true)}
             >
-              <Camera className="w-3.5 h-3.5" />
-              <span>Log price for {searchQuery.trim() ? `"${searchQuery.trim()}"` : 'a new item'}</span>
-            </Link>
+              {t('addProductFromScratch')}
+            </Button>
           </div>
         </div>
       )}
+
+      {/* From-Scratch Creation Modal */}
+      <CreateProductModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        initialName={searchQuery}
+        initialCategory={activeCategory !== 'all' ? activeCategory : undefined}
+      />
     </div>
   );
 }
