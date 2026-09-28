@@ -133,7 +133,7 @@ export function StoreComparisonChart({
   return (
     <div
       className={cn(
-        'w-full bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-6 shadow-surface flex flex-col space-y-4',
+        'w-full bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-6 shadow-surface-premium flex flex-col space-y-4',
         className
       )}
     >

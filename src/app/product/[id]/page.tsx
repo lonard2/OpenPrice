@@ -235,7 +235,7 @@ export default function ProductDetailPage() {
           type="button"
           onClick={handleBack}
           aria-label="Go back to previous page"
-          className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/80 transition-all shadow-2xs touch-target"
+          className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/80 transition-all duration-150 ease-spring shadow-2xs active:scale-[0.98] touch-target"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -255,7 +255,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Main Product Header Card */}
-      <section className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface">
+      <section className="relative overflow-hidden bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-surface-premium">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           {/* Left: Product Info */}
           <div className="space-y-2">
@@ -292,7 +292,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Right: Pricing Highlights & Watchlist Action */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/80 shrink-0">
+          <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 shadow-2xs shrink-0">
             <div className="flex flex-col items-start sm:items-end">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Lowest Observed Price
@@ -328,10 +328,10 @@ export default function ProductDetailPage() {
                 onClick={handleToggleWatchlist}
                 aria-pressed={isWatchlisted}
                 className={cn(
-                  'min-h-[44px] px-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all select-none',
+                  'min-h-[44px] px-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all duration-150 ease-spring select-none active:scale-[0.98]',
                   isWatchlisted
-                    ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
-                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                    ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100 shadow-2xs'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs'
                 )}
               >
                 <Bookmark className={cn('w-4 h-4', isWatchlisted && 'fill-amber-500 text-amber-600')} />
@@ -343,7 +343,7 @@ export default function ProductDetailPage() {
                 onClick={() => setIsAlertModalOpen(true)}
                 aria-haspopup="dialog"
                 aria-expanded={isAlertModalOpen}
-                className="min-h-[44px] px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 text-xs font-bold shadow-ambient-lift transition-all"
+                className="min-h-[44px] px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 text-xs font-bold shadow-btn-primary hover:shadow-indigo-500/25 transition-all duration-150 ease-spring active:scale-[0.98]"
               >
                 <Bell className="w-4 h-4" />
                 <span>Set Alert</span>

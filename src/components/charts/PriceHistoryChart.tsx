@@ -277,7 +277,7 @@ export function PriceHistoryChart({
   return (
     <div
       className={cn(
-        'w-full bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-6 shadow-surface flex flex-col space-y-4',
+        'w-full bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-6 shadow-surface-premium flex flex-col space-y-4',
         className
       )}
     >
@@ -293,7 +293,7 @@ export function PriceHistoryChart({
         </div>
 
         {/* Timeframe Buttons */}
-        <div className="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 self-start sm:self-auto">
           {TIMEFRAMES.map((tf) => (
             <button
               key={tf.id}
@@ -301,10 +301,10 @@ export function PriceHistoryChart({
               onClick={() => setTimeframe(tf.id)}
               aria-pressed={timeframe === tf.id}
               className={cn(
-                'px-3 py-1.5 min-h-[36px] sm:min-h-[32px] inline-flex items-center justify-center text-xs font-bold rounded-lg transition-all select-none touch-target',
+                'px-3 py-1.5 min-h-[36px] sm:min-h-[32px] inline-flex items-center justify-center text-xs font-bold rounded-lg transition-all duration-150 ease-spring select-none active:scale-[0.98] touch-target',
                 timeframe === tf.id
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-white text-indigo-600 shadow-2xs font-extrabold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
               )}
             >
               {tf.label}

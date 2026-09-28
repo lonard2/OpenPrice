@@ -40,7 +40,7 @@ export function StoreComparisonTable({
   return (
     <div
       className={cn(
-        'w-full bg-white rounded-2xl border border-slate-200/90 shadow-surface overflow-hidden',
+        'w-full bg-white rounded-2xl border border-slate-200/90 shadow-surface-premium overflow-hidden',
         className
       )}
     >

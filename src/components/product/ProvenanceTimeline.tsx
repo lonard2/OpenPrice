@@ -82,7 +82,7 @@ export function ProvenanceTimeline({
               </div>
 
               {/* Feed Card */}
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-surface hover:shadow-ambient-lift hover:border-slate-300 transition-all">
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-surface-premium hover:shadow-ambient-lift hover:border-indigo-200/80 transition-all duration-200 ease-spring">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge
