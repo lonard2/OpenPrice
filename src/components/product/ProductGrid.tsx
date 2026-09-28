@@ -185,7 +185,7 @@ export function ProductGrid({
     <div className={cn('w-full flex flex-col space-y-6', className)}>
       {/* Search, Filter & Sort Controls */}
       {showFilters && (
-        <div className="flex flex-col gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-surface">
+        <div className="flex flex-col gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-surface-premium">
           {/* Top Bar: Search Input & Sort Selector */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="flex-1">
@@ -209,7 +209,7 @@ export function ProductGrid({
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value as ProductSortOption)}
                   aria-label="Sort products"
-                  className="w-full sm:w-auto min-h-[44px] pl-9 pr-8 py-2 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer appearance-none"
+                  className="w-full sm:w-auto min-h-[44px] pl-9 pr-8 py-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer appearance-none transition-colors"
                 >
                   <option value="lowest_price">Lowest Price First</option>
                   <option value="biggest_drop">Biggest Price Drops</option>
@@ -233,10 +233,10 @@ export function ProductGrid({
                     onClick={() => handleCategorySelect(cat.id)}
                     aria-pressed={isSelected}
                     className={cn(
-                      'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none min-h-[44px] touch-target active:scale-[0.98]',
+                      'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none min-h-[44px] touch-target active:scale-[0.98] ease-spring',
                       isSelected
-                        ? 'bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-600/20'
-                        : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
+                        ? 'bg-indigo-600 text-white shadow-btn-primary ring-2 ring-indigo-600/20'
+                        : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200/60'
                     )}
                   >
                     <span>{cat.label}</span>
@@ -283,7 +283,7 @@ export function ProductGrid({
           {Array.from({ length: 6 }).map((_, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-2xl border border-slate-200/80 p-6 space-y-4 shadow-surface"
+              className="bg-white rounded-2xl border border-slate-200/80 p-6 space-y-4 shadow-surface-premium"
             >
               <div className="flex justify-between">
                 <Skeleton width={80} height={20} className="rounded-full" />
@@ -314,7 +314,7 @@ export function ProductGrid({
         </div>
       ) : (
         /* Empty State */
-        <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200/90 shadow-surface text-center">
+        <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200/90 shadow-surface-premium text-center">
           <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 mb-4">
             <ShoppingBag className="w-7 h-7" />
           </div>

@@ -168,13 +168,19 @@ export default function HomePage() {
   return (
     <div className="space-y-6">
       {/* Editorial Civic Hero Section */}
-      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface space-y-5">
-        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+      <section className="relative overflow-hidden bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-surface-premium space-y-5">
+        {/* Soft atmospheric ambient glow */}
+        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-80 h-80 bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
           <span>Community Price Index • Multi-Store Telemetry</span>
         </div>
 
-        <div className="space-y-2 max-w-3xl">
+        <div className="relative space-y-2 max-w-3xl">
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
             Open, crowdsourced retail price intelligence.
           </h1>
@@ -184,11 +190,11 @@ export default function HomePage() {
         </div>
 
         {/* Quick Action Navigation Bar */}
-        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
+        <div className="relative pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href="/contribute"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all touch-target active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-btn-primary hover:shadow-indigo-500/20 transition-all touch-target active:scale-[0.98]"
             >
               <Camera className="w-4 h-4" />
               <span>Log Shelf Tag or Receipt</span>
@@ -196,7 +202,7 @@ export default function HomePage() {
 
             <Link
               href="/watchlist"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/90 transition-all touch-target active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/90 shadow-2xs hover:border-slate-300 transition-all touch-target active:scale-[0.98]"
             >
               <BarChart3 className="w-4 h-4 text-slate-600" />
               <span>Watchlist & Alerts</span>
@@ -205,7 +211,7 @@ export default function HomePage() {
             {role === 'admin' && (
               <Link
                 href="/admin/moderation"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200 text-xs font-bold transition-all touch-target"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200 text-xs font-bold transition-all touch-target active:scale-[0.98]"
               >
                 <ShieldCheck className="w-4 h-4 text-amber-600" />
                 <span>Moderation Queue</span>
@@ -230,13 +236,16 @@ export default function HomePage() {
       {/* Standalone Inflation & Community Telemetry Strip */}
       <section
         aria-label="Market Telemetry Barometer"
-        className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-surface grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80"
+        className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-surface-premium grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80"
       >
         {/* 30D Inflation Rate */}
         <div className="px-4 py-3 sm:py-1 first:pl-2 flex items-center justify-between sm:block">
           <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
             <span>30-Day Inflation</span>
-            <Tooltip content="Calculated by tracking price changes across a standard basket of everyday groceries relative to 30 days ago.">
+            <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[9px] font-mono font-bold tracking-tight">
+              Laspeyres
+            </span>
+            <Tooltip content="Calculated by tracking price changes across a standard basket of everyday groceries relative to 30 days ago, weighted by Laspeyres economic methodology.">
               <button
                 type="button"
                 aria-label="30-day inflation calculation methodology"
@@ -248,7 +257,7 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-2 mt-1">
             <TrendingUp className="w-5 h-5 text-rose-500 shrink-0" />
-            <span className="text-xl font-mono font-extrabold text-slate-900 tabular-nums">
+            <span className="text-xl font-mono font-extrabold text-slate-900 tabular-nums tracking-tight">
               {inflationReport ? formatDeltaPercent(inflationReport.compositeInflationRate ?? inflationReport.inflationRatePercent) : '+3.9%'}
             </span>
             <span className="text-xs text-slate-500 hidden xl:inline">Rolling Basket</span>
@@ -257,12 +266,15 @@ export default function HomePage() {
 
         {/* Tracked Catalog Items */}
         <div className="px-4 py-3 sm:py-1 flex items-center justify-between sm:block">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-            Tracked Essentials
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <span>Tracked Essentials</span>
+            <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[9px] font-mono font-bold tracking-tight">
+              Live
+            </span>
           </div>
           <div className="flex items-center gap-2 mt-1">
             <Layers className="w-5 h-5 text-indigo-600 shrink-0" />
-            <span className="text-xl font-mono font-extrabold text-slate-900 tabular-nums">
+            <span className="text-xl font-mono font-extrabold text-slate-900 tabular-nums tracking-tight">
               {products.length} Items
             </span>
             <span className="text-xs text-slate-500 hidden xl:inline">7 Retailer Chains</span>
@@ -271,12 +283,15 @@ export default function HomePage() {
 
         {/* Active Price Drops */}
         <div className="px-4 py-3 sm:py-1 last:pr-2 flex items-center justify-between sm:block">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-            Active Price Drops
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <span>Active Price Drops</span>
+            <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[9px] font-mono font-bold tracking-tight">
+              Savings
+            </span>
           </div>
           <div className="flex items-center gap-2 mt-1">
             <TrendingDown className="w-5 h-5 text-emerald-600 shrink-0" />
-            <span className="text-xl font-mono font-extrabold text-emerald-600 tabular-nums">
+            <span className="text-xl font-mono font-extrabold text-emerald-600 tabular-nums tracking-tight">
               {products.filter((p) => p.priceDeltaPercent < -0.01).length} Deals
             </span>
             <span className="text-xs text-slate-500 hidden xl:inline">Below 30D Average</span>

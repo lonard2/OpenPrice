@@ -64,7 +64,7 @@ export function ProductCard({
       onClick={handleCardClick}
       verifiedRibbon={product.isVerified ? 'Verified' : false}
       className={cn(
-        'group flex flex-col justify-between h-full border border-slate-200/90 hover:border-indigo-300 transition-all duration-200 cursor-pointer shadow-surface hover:shadow-ambient-lift rounded-2xl',
+        'group flex flex-col justify-between h-full border border-slate-200/90 hover:border-indigo-300/90 transition-all duration-200 ease-spring cursor-pointer shadow-surface-premium hover:shadow-ambient-lift rounded-2xl',
         className
       )}
     >
@@ -187,10 +187,10 @@ export function ProductCard({
               isWatchlisted ? `Remove ${product.name} from watchlist` : `Add ${product.name} to watchlist`
             }
             className={cn(
-              'w-11 h-11 shrink-0 inline-flex items-center justify-center rounded-xl border transition-all text-xs font-medium touch-target shadow-2xs',
+              'w-11 h-11 shrink-0 inline-flex items-center justify-center rounded-xl border transition-all duration-150 ease-spring text-xs font-medium touch-target shadow-2xs active:scale-[0.98]',
               isWatchlisted
                 ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
-                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900'
             )}
           >
             <Bookmark
@@ -208,7 +208,7 @@ export function ProductCard({
                 onCompare(product);
               }}
               aria-label={`Compare prices for ${product.name}`}
-              className="flex-1 h-11 px-3.5 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold leading-none text-slate-700 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors whitespace-nowrap touch-target shadow-2xs"
+              className="flex-1 h-11 px-3.5 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold leading-none text-slate-700 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all duration-150 ease-spring whitespace-nowrap touch-target shadow-2xs active:scale-[0.98]"
             >
               <Scale className="w-3.5 h-3.5 shrink-0 text-slate-500" />
               <span>Compare</span>
@@ -219,7 +219,7 @@ export function ProductCard({
           <Link
             href={`/product/${product.id}`}
             aria-label={`View details for ${product.name}`}
-            className="flex-1 h-11 px-3.5 inline-flex items-center justify-center gap-1.5 text-xs font-bold leading-none text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap touch-target"
+            className="flex-1 h-11 px-3.5 inline-flex items-center justify-center gap-1.5 text-xs font-bold leading-none text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100/70 rounded-xl transition-all duration-150 ease-spring whitespace-nowrap touch-target active:scale-[0.98]"
           >
             <span>Details</span>
             <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
